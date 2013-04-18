@@ -1,8 +1,5 @@
 package state;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -11,22 +8,22 @@ import org.newdawn.slick.Image;
 public class Star
 {
 	// Core star internals
+	private int index_;
 	private String name_;
 	private float x_;
 	private float y_;
 	private float size_;
 	private float conditions_;
 	private float resources_;
-	private List<Star> connected_;
 	
 	// Drawing internals
 	public static Image img;
 
-	Star(float x, float y)
+	Star(int index, float x, float y)
 	{
+		index_ = index;
 		x_ = x;
 		y_ = y;
-		connected_ = new ArrayList<Star>();
 	}
 	
 	public float x()
@@ -39,7 +36,7 @@ public class Star
 		return y_;
 	}
 	
-	public String getName()
+	public String name()
 	{
 		return name_;
 	}
@@ -49,22 +46,17 @@ public class Star
 		this.name_ = name;
 	}
 	
-	public float getSize()
+	public float size()
 	{
 		return size_;
 	}
-	public float getConditions()
+	public float conditions()
 	{
 		return conditions_;
 	}
-	public float getResources()
+	public float resources()
 	{
 		return resources_;
-	}
-	
-	public void addLane(Star other)
-	{
-		connected_.add(other);
 	}
 	
 	public void setParameters(float size, float conditions, float resources)
@@ -76,13 +68,6 @@ public class Star
 	
 	public void render(GameContainer gc, Graphics g)
 	{
-		// draw lane
-		for(Star s : connected_)
-		{
-			g.setColor(Color.cyan);
-			g.drawLine(x_, y_, s.x_, s.y_);
-		}
-		
 		// Make it so drawing stars is always done in local coordinates.
 		g.pushTransform();
 		g.translate(x_, y_);
@@ -93,4 +78,11 @@ public class Star
 		g.popTransform();
 	}
 
+	/**
+	 * @return the index
+	 */
+	public int index()
+	{
+		return index_;
+	}
 }

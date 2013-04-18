@@ -43,15 +43,14 @@ public class Universe
 		
 		for(int i=0; i<x.length; i++)
 		{
-			Star s = new Star(x[i], y[i]);
+			Star s = new Star(i, x[i], y[i]);
 			s.setName("Star " + i);
 			stars.add(s);
 		}
 
 		for(int i=0; i<from.length; i++)
 		{
-			stars.get(from[i]).addLane(stars.get(to[i]));
-			stars.get(to[i]).addLane(stars.get(from[i]));
+			Lane.addLane(stars.get(from[i]), stars.get(to[i]));
 		}
 		
 		System.out.println("" + stars.size() + " stars created.");

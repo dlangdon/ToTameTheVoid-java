@@ -7,6 +7,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import state.Lane;
 import state.Star;
 import state.Universe;
 
@@ -37,6 +38,8 @@ public class Game extends BasicGameState
 		// Draw Stars
 		g.pushTransform();
 		g.translate(-viewX, -viewY);
+		
+		Lane.renderAll(gc, g);	// Lanes.
 		
 		// TODO This is weird...
 		for(Star s : Universe.instance().getStars())
