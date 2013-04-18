@@ -37,7 +37,7 @@ public class Game extends BasicGameState
 		// TODO This is weird...
 		for(Star s : Universe.instance().getStars())
 		{
-			
+			s.render(gc, g);
 		}
 	}
 

@@ -1,5 +1,0 @@
-repo: 13772410ce31392c21416d1c140a4eee7c80e622
-node: 96a4b840204c65241d5bf81afbb4eead5f25c57f
-branch: development
-latesttag: null
-latesttagdistance: 109

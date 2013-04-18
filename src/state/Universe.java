@@ -42,7 +42,9 @@ public class Universe
 		
 		for(int i=0; i<x.length; i++)
 		{
-			stars.add(new Star(x[i], y[i]));
+			Star s = new Star(x[i], y[i]);
+			s.setName("Star " + i);
+			stars.add(s);
 		}
 
 		for(int i=0; i<from.length; i++)
