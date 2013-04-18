@@ -20,7 +20,7 @@ public class Star
 	private List<Star> connected_;
 	
 	// Drawing internals
-	static Image img;
+	public static Image img;
 
 	Star(float x, float y)
 	{
@@ -79,17 +79,18 @@ public class Star
 		// draw lane
 		for(Star s : connected_)
 		{
+			g.setColor(Color.cyan);
 			g.drawLine(x_, y_, s.x_, s.y_);
 		}
 		
 		// Make it so drawing stars is always done in local coordinates.
 		g.pushTransform();
 		g.translate(x_, y_);
-		
 
 		// draw star icon
 		img.draw(-16, -16, Color.red);
 		
+		g.popTransform();
 	}
 
 }

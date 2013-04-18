@@ -21,7 +21,11 @@ public class Game extends BasicGameState
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		new Universe();
+
+		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
+		Star.img = new Image("resources/star.png");
+		
 		gc.setTargetFrameRate(120);
 	}
 
@@ -30,8 +34,8 @@ public class Game extends BasicGameState
 		// Draw backgrounds
 		background.draw(-viewX, -viewY);
 		
-		
 		// Draw Stars
+		g.pushTransform();
 		g.translate(-viewX, -viewY);
 		
 		// TODO This is weird...
@@ -39,6 +43,8 @@ public class Game extends BasicGameState
 		{
 			s.render(gc, g);
 		}
+		
+		g.popTransform();
 	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException

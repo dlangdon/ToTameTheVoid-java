@@ -21,6 +21,7 @@ public class Universe
 	
 	public Universe()
 	{
+		instance_ = this;
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		
@@ -52,6 +53,8 @@ public class Universe
 			stars.get(from[i]).addLane(stars.get(to[i]));
 			stars.get(to[i]).addLane(stars.get(from[i]));
 		}
+		
+		System.out.println("" + stars.size() + " stars created.");
 	}
 
 	/**
