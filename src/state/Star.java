@@ -69,13 +69,11 @@ public class Star
 	public void render(GameContainer gc, Graphics g)
 	{
 		// Make it so drawing stars is always done in local coordinates.
-		g.pushTransform();
-		g.translate(x_, y_);
 
 		// draw star icon
 		img.draw(-16, -16, Color.red);
 		
-		g.popTransform();
+//		g.popTransform();
 	}
 
 	/**

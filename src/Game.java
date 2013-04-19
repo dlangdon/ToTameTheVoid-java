@@ -4,6 +4,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -15,12 +16,11 @@ public class Game extends BasicGameState
 {
 	private Image background;
 	private Image starfield;
-
-	private int viewX;
-	private int viewY;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
+		// TODO figure out unverse sizes, 500x500 for now.
+		new Camera(new Vector2f(gc.getScreenWidth(), gc.getScreenHeight()), new Vector2f(500, 500));
 		new Universe();
 
 		// TODO load resources in a more intelligent way...
@@ -32,21 +32,20 @@ public class Game extends BasicGameState
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
 	{
+		g.setAntiAlias(true);
+		Camera.instance().pushWorldTransformation(g);
+		
 		// Draw backgrounds
-		background.draw(-viewX, -viewY);
-		
+		background.draw(0, 0);
+
 		// Draw Stars
-		g.pushTransform();
-		g.translate(-viewX, -viewY);
-		
 		Lane.renderAll(gc, g);	// Lanes.
 		
-		// TODO This is weird...
 		for(Star s : Universe.instance().getStars())
 		{
 			s.render(gc, g);
 		}
-		
+
 		g.popTransform();
 	}
 
@@ -54,31 +53,39 @@ public class Game extends BasicGameState
 	{
 		// Check for input
 		Input input = gc.getInput();
-		System.out.println("\nUpdate: " + delta + "ms.");
 		  
       // Window displacement
-		int displacementX = 0;
-		int displacementY = 0;
+		Vector2f displacement = new Vector2f(0.0f, 0.0f);
 		if(input.isKeyDown(Input.KEY_RIGHT))
       {
-      	displacementX = 1;
+      	displacement.x = 1;
       }
 		if(input.isKeyDown(Input.KEY_LEFT))
       {
-      	displacementX = -1;
+      	displacement.x = -1;
       }
 		if(input.isKeyDown(Input.KEY_UP))
       {
-      	displacementY = -1;
+      	displacement.y = -1;
       }
 		if(input.isKeyDown(Input.KEY_DOWN))
       {
-      	displacementY = 1;
+      	displacement.y = 1;
       }
 		
 		// Update x and y positions.
-		viewX += (int) displacementX * delta;
-		viewY += (int) displacementY * delta;
+		Camera.instance().move(displacement.scale(delta));
+	}
+	
+	/**
+	 * Used for single clicks.
+	 */
+	public void keyPressed(int key, char c)
+	{
+		if(key == Input.KEY_PRIOR)
+			Camera.instance().zoom(true);
+		if(key == Input.KEY_NEXT)
+			Camera.instance().zoom(false);
 	}
 
 	@Override
