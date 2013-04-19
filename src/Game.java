@@ -20,7 +20,7 @@ public class Game extends BasicGameState
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// TODO figure out unverse sizes, 500x500 for now.
-		new Camera(new Vector2f(gc.getScreenWidth(), gc.getScreenHeight()), new Vector2f(500, 500));
+		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500));
 		new Universe();
 
 		// TODO load resources in a more intelligent way...
@@ -45,6 +45,8 @@ public class Game extends BasicGameState
 		{
 			s.render(gc, g);
 		}
+		
+		g.drawImage(Star.img, 400, 300);
 
 		g.popTransform();
 	}

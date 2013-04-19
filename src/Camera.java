@@ -63,7 +63,7 @@ public class Camera
 			if(scale >= 2)
 				scale /= 2;
 		}
-		System.out.println("new zoom: " + scale);
+		System.out.println("new zoom: " + scale + ", view at: " + view + ", resolution: " + resolution);
 	}
 	
 	Vector2f worldToScreen(Vector2f world)
@@ -83,18 +83,13 @@ public class Camera
 	void pushWorldTransformation(Graphics g)
 	{
 		g.pushTransform();
+		
+		// Always zoom in the center of the screen.
+		g.translate(resolution.getX(), resolution.getY());
 		g.scale(scale, scale);
+		g.translate(-resolution.getX(), -resolution.getY());
+
+		// Move the view
 		g.translate(-view.getX(), -view.getY());
 	}
-	
-	/**
-	 * Zooms in or out centered on a screen coordinate, saving the world coordinate as the new center.
-	 * @param zoom
-	 */
-	void zoomOn(int zoom, Vector2f screen)
-	{
-		
-	}
-
-	
 }
