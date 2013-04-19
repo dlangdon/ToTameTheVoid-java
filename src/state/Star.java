@@ -1,17 +1,19 @@
 package state;
 
+import main.Camera;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Vector2f;
 
 public class Star
 {
 	// Core star internals
 	private int index_;
 	private String name_;
-	private float x_;
-	private float y_;
+	Vector2f pos;
 	private float size_;
 	private float conditions_;
 	private float resources_;
@@ -22,18 +24,17 @@ public class Star
 	Star(int index, float x, float y)
 	{
 		index_ = index;
-		x_ = x;
-		y_ = y;
+		pos = new Vector2f(x, y);
 	}
 	
 	public float x()
 	{
-		return x_;
+		return pos.x;
 	}
 	
 	public float y()
 	{
-		return y_;
+		return pos.y;
 	}
 	
 	public String name()
@@ -69,11 +70,12 @@ public class Star
 	public void render(GameContainer gc, Graphics g)
 	{
 		// Make it so drawing stars is always done in local coordinates.
+		Camera.instance().pushLocalTransformation(g, pos);
 
 		// draw star icon
 		img.draw(-16, -16, Color.red);
 		
-//		g.popTransform();
+		g.popTransform();
 	}
 
 	/**

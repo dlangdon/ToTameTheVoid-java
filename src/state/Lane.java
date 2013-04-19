@@ -48,6 +48,7 @@ public class Lane
 	
 	public static void renderAll(GameContainer gc, Graphics g)
 	{
+		//g.setLineWidth(1);
 		g.setColor(Color.cyan);
 		for (Lane l : all.values())
 		{

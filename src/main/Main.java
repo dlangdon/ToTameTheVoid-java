@@ -1,3 +1,4 @@
+package main;
 import java.util.List;
 
 import org.newdawn.slick.AppGameContainer;

@@ -1,3 +1,4 @@
+package main;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -78,7 +79,7 @@ public class Camera
 
 	/**
 	 * Pushes a new transformation matrix in terms of the world's coordinates.
-	 * @param g
+	 * @param g The graphic context.
 	 */
 	void pushWorldTransformation(Graphics g)
 	{
@@ -91,5 +92,20 @@ public class Camera
 
 		// Move the view
 		g.translate(-view.getX(), -view.getY());
+	}
+	
+	/**
+	 * Allows objects to draw on local screen coordinates, ignoring size.
+	 */
+	public void pushLocalTransformation(Graphics g, Vector2f pos)
+	{
+		g.pushTransform();
+		
+		// Center on the current object.
+		g.translate(pos.x, pos.y);
+		
+		// Undo scaling of graphics!
+		g.scale(1.0f/scale, 1.0f/scale);
+		
 	}
 }
