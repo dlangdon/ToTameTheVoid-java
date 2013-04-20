@@ -34,8 +34,7 @@ public class Camera
 		instance_ = this;
 		this.resolution = new Vector2f(screen).scale(0.5f);
 		this.world = new Vector2f(world);
-		this.view = new Vector2f(0.0f, 0.0f);
-//		this.view = new Vector2f(-world.x/2, -world.y/2);
+		this.view = new Vector2f(-world.x/2, -world.y/2);
 		this.scale = 1;
 		
 		move(new Vector2f(0.0f, 0.0f));
@@ -69,12 +68,10 @@ public class Camera
 		else if(bottomRightDif.y < 0.0)
 			view.y += bottomRightDif.y;
 		
-		System.out.println("Boundary differences: (" 
-													+ topLeftDif.x + ", " + topLeftDif.y + ") --> (" 
-													+ bottomRightDif.x + ", " + bottomRightDif.y + "), view = ("
-													+ view.x + ", " + view.y + ")");
-		
-		
+//		System.out.println("Boundary differences: (" 
+//													+ topLeftDif.x + ", " + topLeftDif.y + ") --> (" 
+//													+ bottomRightDif.x + ", " + bottomRightDif.y + "), view = ("
+//													+ view.x + ", " + view.y + ")");
 	}
 	
 	/**
@@ -101,6 +98,8 @@ public class Camera
 		// After zooming, move the view so that the point gets to the center.
 		view = centerOnWorld.sub(new Vector2f(resolution).scale(1.0f/scale));
 		
+		// Do a null move, so that borders are checked.
+		move(new Vector2f(0.0f, 0.0f));
 		System.out.println("new zoom: " + scale + ", view at: " + view + ", resolution: " + resolution);
 	}
 	

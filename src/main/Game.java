@@ -1,5 +1,8 @@
 package main;
 
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -35,6 +38,11 @@ public class Game extends BasicGameState
 	{
 		// Draw backgrounds
 		background.draw(0, 0);
+		
+		// FIXME Only a test to check coordinate direction, although it looks kind of cool...
+		g.setColor(Color.white);
+		g.drawLine(5, 5, 5, 10);
+		g.drawLine(5, 5, 10, 5);
 
 		g.setAntiAlias(true);
 		Camera.instance().pushWorldTransformation(g);
@@ -84,6 +92,7 @@ public class Game extends BasicGameState
 	/**
 	 * Used for single clicks.
 	 */
+	@Override
 	public void keyPressed(int key, char c)
 	{
 		if(key == Input.KEY_PRIOR)
@@ -92,6 +101,17 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 	}
 
+	@Override
+	public void mousePressed(int button, int x, int y)
+	{
+	}
+	
+	@Override
+	public void mouseWheelMoved(int change)
+	{
+		Camera.instance().zoom(change >= 0, new Vector2f(Mouse.getX(), Display.getHeight() - Mouse.getY()));
+	}
+	
 	@Override
 	public int getID()
 	{
