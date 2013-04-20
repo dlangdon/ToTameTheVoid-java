@@ -68,25 +68,25 @@ public class Game extends BasicGameState
 		  
       // Window displacement
 		Vector2f displacement = new Vector2f(0.0f, 0.0f);
-		if(input.isKeyDown(Input.KEY_RIGHT))
+		if(input.isKeyDown(Input.KEY_RIGHT) || Mouse.getX() > Display.getWidth() - 5)
       {
       	displacement.x = 1;
       }
-		if(input.isKeyDown(Input.KEY_LEFT))
+		if(input.isKeyDown(Input.KEY_LEFT) || Mouse.getX() < 5)
       {
       	displacement.x = -1;
       }
-		if(input.isKeyDown(Input.KEY_UP))
+		if(input.isKeyDown(Input.KEY_UP) || Mouse.getY() > Display.getHeight() - 5)
       {
       	displacement.y = -1;
       }
-		if(input.isKeyDown(Input.KEY_DOWN))
+		if(input.isKeyDown(Input.KEY_DOWN) || Mouse.getY() < 5)
       {
       	displacement.y = 1;
       }
 		
 		// Update x and y positions.
-		Camera.instance().move(displacement.scale(delta));
+		Camera.instance().move(displacement.scale(delta/10.0f));
 	}
 	
 	/**
