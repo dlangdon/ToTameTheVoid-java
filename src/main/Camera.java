@@ -81,8 +81,12 @@ public class Camera
 	 * Modifies the current zoom. 
 	 * @param in True if the interface should zoom in, false if it should zoom out.
 	 */
-	public void zoom(boolean in)
+	public void zoom(boolean in, Vector2f centerOnScreen)
 	{
+		// Detect the world coordinate of the screen point.
+		Vector2f centerOnWorld = new Vector2f(centerOnScreen).scale(1.0f/scale).add(view);
+
+		// Modify the zoom.
 		if(in)
 		{
 			if(scale <= 2)
@@ -93,6 +97,10 @@ public class Camera
 			if(scale >= 2)
 				scale /= 2;
 		}
+		
+		// After zooming, move the view so that the point gets to the center.
+		view = centerOnWorld.sub(new Vector2f(resolution).scale(1.0f/scale));
+		
 		System.out.println("new zoom: " + scale + ", view at: " + view + ", resolution: " + resolution);
 	}
 	
@@ -100,6 +108,12 @@ public class Camera
 	{
 		return new Vector2f(world).sub(view).scale(scale);
 	}
+
+	Vector2f screenToWorld(Vector2f screen)
+	{
+		return new Vector2f(screen).scale(1.0f/scale).add(view);
+	}
+
 	
 	void centerOnWorld(Vector2f world)
 	{
@@ -141,5 +155,13 @@ public class Camera
 	{
 		g.setColor(Color.white);
 		g.drawRect(0, 0, world.x, world.y);
+	}
+
+	/**
+	 * @return The screen coordinates of the center of the screen. This object should not be modified.
+	 */
+	public Vector2f getScreenCenter()
+	{
+		return resolution;
 	}
 }

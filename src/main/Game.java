@@ -20,7 +20,7 @@ public class Game extends BasicGameState
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
-		// TODO figure out unverse sizes, 500x500 for now.
+		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500));
 		new Universe();
 
@@ -28,7 +28,7 @@ public class Game extends BasicGameState
 		background = new Image("resources/bck2.jpg");
 		Star.img = new Image("resources/star.png");
 		
-		gc.setTargetFrameRate(10);
+		gc.setTargetFrameRate(120);
 	}
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
@@ -87,9 +87,9 @@ public class Game extends BasicGameState
 	public void keyPressed(int key, char c)
 	{
 		if(key == Input.KEY_PRIOR)
-			Camera.instance().zoom(true);
+			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
 		if(key == Input.KEY_NEXT)
-			Camera.instance().zoom(false);
+			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 	}
 
 	@Override
