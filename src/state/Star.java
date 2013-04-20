@@ -25,7 +25,7 @@ public class Star
 
 // Public Methods =====================================================================================================
 	
-	Star(int index, float x, float y)
+	public Star(int index, float x, float y)
 	{
 		index_ = index;
 		pos = new Vector2f(x, y);
@@ -40,7 +40,12 @@ public class Star
 	{
 		return pos.y;
 	}
-	
+
+	public Vector2f getPos()
+	{
+		return pos;
+	}
+
 	public String name()
 	{
 		return name_;
@@ -89,7 +94,6 @@ public class Star
 	{
 		return index_;
 	}
-	
 
 	public void setColony(Colony colony)
 	{

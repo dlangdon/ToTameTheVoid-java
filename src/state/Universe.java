@@ -3,6 +3,8 @@ package state;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.newdawn.slick.Color;
+
 /**
  * Class that represents all the objects in the universe: stars, empires, etc.
  * In particular, it should include all stats required to save/load/serialize the game state.
@@ -26,6 +28,26 @@ public class Universe
 		this.stars = new ArrayList<Star>();
 		
 		createStars();
+		
+		/// @todo Remove test empires and organize elsewere.
+		empires.add(new Empire("Blaps", new Color(180,0,0)));
+		empires.add(new Empire("Bleps", new Color(0,180,0)));
+		empires.add(new Empire("Blips", new Color(0,0,180)));
+		empires.add(new Empire("Blops", new Color(180,180,0)));
+		empires.add(new Empire("Blups", new Color(0,180,180)));
+
+		// Initialize game objects.
+		int turn = 0;
+		
+		// Create a bunch of colonies for the empires, just for fun.
+		Empire[] empireList = new Empire[empires.size()];
+		empires.toArray(empireList);
+		for(Star star: stars)
+		{
+			if(turn < 5)
+				new Colony(star, empireList[turn]);
+			turn = (turn+1)%7;
+		}
 	}
 	
 	/**

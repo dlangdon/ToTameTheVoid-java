@@ -20,12 +20,17 @@ public class Game extends BasicGameState
 {
 	private Image background;
 	private Image starfield;
+	private StarWidget starWidget;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
+		starWidget = new StarWidget();
+		
+		// FIXME just a test star at a known location.
+		starWidget.showStar(Universe.instance().getStars().get(0));
 
 		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
@@ -54,6 +59,8 @@ public class Game extends BasicGameState
 		{
 			s.render(gc, g);
 		}
+		
+		starWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
