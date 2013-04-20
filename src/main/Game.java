@@ -28,16 +28,16 @@ public class Game extends BasicGameState
 		background = new Image("resources/bck2.jpg");
 		Star.img = new Image("resources/star.png");
 		
-		gc.setTargetFrameRate(120);
+		gc.setTargetFrameRate(10);
 	}
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
 	{
-		g.setAntiAlias(true);
-		Camera.instance().pushWorldTransformation(g);
-		
 		// Draw backgrounds
 		background.draw(0, 0);
+
+		g.setAntiAlias(true);
+		Camera.instance().pushWorldTransformation(g);
 
 		// Draw Stars
 		Lane.renderAll(gc, g);	// Lanes.
@@ -47,7 +47,8 @@ public class Game extends BasicGameState
 			s.render(gc, g);
 		}
 		
-		g.drawImage(Star.img, 400, 300);
+		// FIXME Temporary drawing world boundaries.
+		Camera.instance().drawWorldLimits(g);
 
 		g.popTransform();
 	}

@@ -1,4 +1,5 @@
 package main;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -34,7 +35,10 @@ public class Camera
 		this.resolution = new Vector2f(screen).scale(0.5f);
 		this.world = new Vector2f(world);
 		this.view = new Vector2f(0.0f, 0.0f);
+//		this.view = new Vector2f(-world.x/2, -world.y/2);
 		this.scale = 1;
+		
+		move(new Vector2f(0.0f, 0.0f));
 	}
 	
 	/**
@@ -46,6 +50,31 @@ public class Camera
 	public void move(Vector2f delta)
 	{
 		view.add(delta);
+		
+		// Check boundaries in world coordinates.
+		Vector2f topLeftDif = new Vector2f(0.0f, 0.0f).scale(1.0f/scale).add(view);
+		Vector2f bottomRightDif = new Vector2f(resolution).scale(2.0f/scale).add(view).sub(world).negate();
+
+		if(topLeftDif.x <= 0.0 && bottomRightDif.x <= 0.0)
+			view.x = (topLeftDif.x + bottomRightDif.x)/2;
+		else if(topLeftDif.x < 0.0)
+			view.x -= topLeftDif.x;
+		else if(bottomRightDif.x < 0.0)
+			view.x += bottomRightDif.x;
+		
+		if(topLeftDif.y <= 0.0 && bottomRightDif.y <= 0.0)
+			view.y = (topLeftDif.y + bottomRightDif.y)/2;
+		else if(topLeftDif.y < 0.0)
+			view.y -= topLeftDif.y;
+		else if(bottomRightDif.y < 0.0)
+			view.y += bottomRightDif.y;
+		
+		System.out.println("Boundary differences: (" 
+													+ topLeftDif.x + ", " + topLeftDif.y + ") --> (" 
+													+ bottomRightDif.x + ", " + bottomRightDif.y + "), view = ("
+													+ view.x + ", " + view.y + ")");
+		
+		
 	}
 	
 	/**
@@ -86,9 +115,9 @@ public class Camera
 		g.pushTransform();
 		
 		// Always zoom in the center of the screen.
-		g.translate(resolution.getX(), resolution.getY());
+//		g.translate(resolution.getX(), resolution.getY());
 		g.scale(scale, scale);
-		g.translate(-resolution.getX(), -resolution.getY());
+//		g.translate(-resolution.getX(), -resolution.getY());
 
 		// Move the view
 		g.translate(-view.getX(), -view.getY());
@@ -106,6 +135,11 @@ public class Camera
 		
 		// Undo scaling of graphics!
 		g.scale(1.0f/scale, 1.0f/scale);
-		
+	}
+	
+	public void drawWorldLimits(Graphics g)
+	{
+		g.setColor(Color.white);
+		g.drawRect(0, 0, world.x, world.y);
 	}
 }
