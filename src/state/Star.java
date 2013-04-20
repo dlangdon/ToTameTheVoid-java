@@ -10,6 +10,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 public class Star
 {
+// Internals ==========================================================================================================
 	// Core star internals
 	private int index_;
 	private String name_;
@@ -17,10 +18,13 @@ public class Star
 	private float size_;
 	private float conditions_;
 	private float resources_;
+	private Colony colony;
 	
 	// Drawing internals
 	public static Image img;
 
+// Public Methods =====================================================================================================
+	
 	Star(int index, float x, float y)
 	{
 		index_ = index;
@@ -84,5 +88,16 @@ public class Star
 	public int index()
 	{
 		return index_;
+	}
+	
+
+	public void setColony(Colony colony)
+	{
+		this.colony = colony;
+	}
+	
+	public Colony getColony()
+	{
+		return colony;
 	}
 }

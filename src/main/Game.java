@@ -24,7 +24,7 @@ public class Game extends BasicGameState
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// TODO figure out universe sizes, 500x500 for now.
-		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500));
+		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
 
 		// TODO load resources in a more intelligent way...
