@@ -52,7 +52,6 @@ public class Empire
 
 		// Grow colonies and recalculate production.
 //		_economyPolicy.applyGrowth(colonies);
-
 	}
 
 }
