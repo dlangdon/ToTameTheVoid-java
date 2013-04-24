@@ -1,4 +1,4 @@
-package main;
+package graphic;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -111,6 +111,16 @@ public class Game extends BasicGameState
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
+		// Check which objects may have received the click signal.
+		
+		// Stars
+		for(Star s : Universe.instance().getStars())
+		{
+			if(s.screenCLick((float)x, (float)y, button))
+			{
+				starWidget.showStar(s);
+			}
+		}
 	}
 	
 	@Override

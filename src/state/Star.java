@@ -1,6 +1,7 @@
 package state;
 
-import main.Camera;
+import graphic.Camera;
+import graphic.UIListener;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -8,7 +9,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
-public class Star
+public class Star implements UIListener
 {
 // Internals ==========================================================================================================
 	// Core star internals
@@ -103,5 +104,20 @@ public class Star
 	public Colony getColony()
 	{
 		return colony;
+	}
+
+	@Override
+	public boolean screenCLick(float x, float y, int button)
+	{
+		// Get a pixel distance centered on this star.
+		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(pos));
+		
+		if(local.x * local.x <= 256 && local.y * local.y <= 256)
+		{
+			// I'm in the scar icon (32x32)
+			return true;
+		}
+		
+		return false;
 	}
 }

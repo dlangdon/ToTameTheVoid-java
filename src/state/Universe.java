@@ -67,6 +67,7 @@ public class Universe
 		{
 			Star s = new Star(i, x[i], y[i]);
 			s.setName("Star " + i);
+			s.setParameters((float)Math.random(), (float)Math.random(), (float)Math.random());
 			stars.add(s);
 		}
 

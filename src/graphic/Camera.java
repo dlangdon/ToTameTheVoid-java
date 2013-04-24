@@ -1,4 +1,4 @@
-package main;
+package graphic;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
@@ -103,18 +103,17 @@ public class Camera
 		System.out.println("new zoom: " + scale + ", view at: " + view + ", resolution: " + resolution);
 	}
 	
-	Vector2f worldToScreen(Vector2f world)
+	public Vector2f worldToScreen(Vector2f world)
 	{
 		return new Vector2f(world).sub(view).scale(scale);
 	}
 
-	Vector2f screenToWorld(Vector2f screen)
+	public Vector2f screenToWorld(Vector2f screen)
 	{
 		return new Vector2f(screen).scale(1.0f/scale).add(view);
 	}
-
 	
-	void centerOnWorld(Vector2f world)
+	public void centerOnWorld(Vector2f world)
 	{
 		view = world;
 	}
