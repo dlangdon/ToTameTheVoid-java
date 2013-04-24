@@ -15,43 +15,10 @@ public class Colony
 	private Star location_;
 	private Empire owner_;
 
-	float infrastructure()
-	{
-		return infrastructure_;
-	}
 
-	float maxInfrastructure()
-	{
-		return maxInfrastructure_;
-	}
-
-	float production()
-	{
-		return production_;
-	}
-
-	float maintenance()
-	{
-		return maintenance_;
-	}
-
-	float conditions()
-	{
-		return conditions_;
-	}
-
-	float returnOfInvestment()
-	{
-		return roi_;
-	}
-
-	Empire owner()
-	{
-		return owner_;
-	}
 
 // Public Methods =====================================================================================================
-	Colony(Star location, Empire empire)
+	public Colony(Star location, Empire empire)
 	{
 		location_ = location;
 		owner_ = empire;
@@ -69,12 +36,12 @@ public class Colony
 	}
 
 	// / @todo Agregar desición de que hacer con la producción, por ahora solo crecer.
-	void turn()
+	public void turn()
 	{
 		lastTurnProduction_ = production_;
 	}
 
-	void updateTech()
+	public void updateTech()
 	{
 		maxInfrastructure_ = (float) ((0.75f + location_.size()) * ((conditions_ + 0.75f) - Math.sqrt((conditions_ + 0.75f) / (location_.resources() + 0.75f))));
 		if (maxInfrastructure_ <= 0)
@@ -97,7 +64,7 @@ public class Colony
 	 *           True if the colony should use imported resources, which cost twice as much per unit of infrastructure.
 	 * @return Total cost of infrastructure actually built, after applying all spending restrictions.
 	 */
-	float spend(float percentage, float maximum, int ROILimit, boolean nonLocal)
+	public float spend(float percentage, float maximum, int ROILimit, boolean nonLocal)
 	{
 		// Avoid infrastructure that is too costly.
 		if (roi_ >= ROILimit || lastTurnProduction_ <= 0)
@@ -138,7 +105,7 @@ public class Colony
 	 *           Amount of infrastructure to destroy. Excedents are ignored.
 	 * @return True if the infrastructure went down to 0 (and the colony should be deleted).
 	 */
-	boolean killInfrastructure(float amount)
+	public boolean killInfrastructure(float amount)
 	{
 		if (amount > infrastructure_)
 		{
@@ -147,5 +114,40 @@ public class Colony
 		}
 		infrastructure_ -= amount;
 		return false;
+	}
+	
+	public float infrastructure()
+	{
+		return infrastructure_;
+	}
+
+	public float maxInfrastructure()
+	{
+		return maxInfrastructure_;
+	}
+
+	public float production()
+	{
+		return production_;
+	}
+
+	public float maintenance()
+	{
+		return maintenance_;
+	}
+
+	public float conditions()
+	{
+		return conditions_;
+	}
+
+	public float returnOfInvestment()
+	{
+		return roi_;
+	}
+
+	public Empire owner()
+	{
+		return owner_;
 	}
 }
