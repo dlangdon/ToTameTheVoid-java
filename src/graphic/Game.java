@@ -23,12 +23,15 @@ public class Game extends BasicGameState
 	private Image starfield;
 	private StarWidget starWidget;
 	
+	private TaskForce selectedForce;
+	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
 		starWidget = new StarWidget();
+		selectedForce = null;
 		
 		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
@@ -62,7 +65,7 @@ public class Game extends BasicGameState
 		// Draw fleets
 		for(TaskForce tf : Universe.instance().getForces())
 		{
-			tf.render(gc, g);
+			tf.render(gc, g, (tf == selectedForce) ? Render.SELECTED : 0);
 		}
 		
 		// Draw widgets
@@ -118,16 +121,39 @@ public class Game extends BasicGameState
 	public void mousePressed(int button, int x, int y)
 	{
 		// Check which objects may have received the click signal.
+		TaskForce newForceSelected = null;
+		for(TaskForce tf : Universe.instance().getForces())
+		{
+			if(tf.screenCLick((float)x, (float)y, button))
+			{
+				newForceSelected = tf;
+				break;
+			}
+		}
 		
 		// Stars
-		Star selected = null;
+		Star selectedStar = null;
 		for(Star s : Universe.instance().getStars())
 		{
 			if(s.screenCLick((float)x, (float)y, button))
-				selected = s; 
+			{
+				selectedStar = s;
+				break;
+			}
 		}
-		starWidget.showStar(selected);
-
+		
+		// Handle special selected cases. 
+		if(selectedForce != null && selectedStar != null)
+		{
+			// If a fleet was selected and a star was clicked, we might be adding a route point.
+			selectedForce.addToRoute(selectedStar);
+		}
+		else
+		{
+			// Prioritize force selection to star selection, in case regions overlap.
+			selectedForce = newForceSelected;
+			starWidget.showStar(newForceSelected == null ? selectedStar : null);
+		}
 	}
 	
 	@Override

@@ -1,12 +1,15 @@
 package state;
 
 import graphic.Camera;
+import graphic.Render;
 import graphic.UIListener;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
@@ -17,12 +20,11 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	
 // Internals ==========================================================================================================
 	private String name;
-	private Star orbit;								///< Last visited star (or in orbit).
-	private LinkedList<Star> to;             ///< Route of stars to follow.
-	private int turnsTotal;						///< Number of turns that it takes to move to the next destination.
-	private int turnsTraveled;               ///< Number of turns that have been moved towards that destination already.
-	private float speed;                     ///< Minimun common speed for the stacks.
-	private Empire owner;                    ///< Empire that owns this TaskForce.
+	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
+	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
+	private int turnsTraveled;               	///< Number of turns that have been moved towards that destination already.
+	private float speed;								///< Minimun common speed for the stacks.
+	private Empire owner;							///< Empire that owns this TaskForce.
 	private Type type;
 
 	Map<Design, Integer> stacks;									///< Stacks composing this TaskForce (individual ships and types).
@@ -32,52 +34,41 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	{
 		// Base values
 		this.speed = 5;
-		this.orbit = orbiting;
 		this.owner = empire;
 		this.type = type;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
 		this.name = name;
 		this.stacks = new HashMap<Design, Integer>();
-		this.to = new LinkedList<Star>();
-		
-		orbit.arrive(this);
+
+		this.destinations = new LinkedList<Star>();
+		this.destinations.add(orbiting);
+		orbiting.arrive(this);
 	}
 
-	/// @return True if the route changed.
-	boolean removeFromRoute(Star destination)
+	/**
+	 * Truncates the taskforce route up to a specific star.
+	 * @param destination Point at which the route is truncated. If the star was not part of the route, nothing happens.
+	 * @return True if the route changed.
+	 */
+	public boolean removeFromRoute(Star destination)
 	{
 		// Find if destination is already included.
-		int index;
-		if(destination == orbit)
-			index = -1;
-		else
-		{
-			index = to.indexOf(destination);
-			if(index < 0)
-				return false;
-		}
-
-		// Remove all the route from this destination onwards.
-		for(int i=to.size()-1; i>index; i--)
-			to.remove(i);
+		int index = destinations.indexOf(destination);
+		if(index <= 0)
+			return false;
+		while(destinations.size() >= index)
+			destinations.removeLast();
 		return true;
 	}
 
 	/// @return True if the route changed.
-	boolean addToRoute(Star destination)
+	public boolean addToRoute(Star destination)
 	{
-		// Find last departing point
-		Star last = orbit;
-		if(!to.isEmpty())
-			last = to.get(to.size()-1);
-
 		// Check if destination is reachable
-		if(Lane.getDistance(last, destination) <= 0)
+		if(Lane.getDistance(destinations.getLast(), destination) <= 0)
 			return false;
-
-		// Modify the route.
-		to.add(destination);
+		destinations.add(destination);
 		return true;
 	}
 
@@ -92,15 +83,12 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	void turn()
 	{
 		// If no destinations, do nothing.
-		if(to.isEmpty())
+		if(destinations.isEmpty())
 			return;
 
-		// Check if TaskForce is in orbit. In this case, detach from the orbiting star.
-		if(orbit != null)
-		{
-			orbit.leave(this);
-			orbit = null;
-		}
+		// Check if we need to leave the current star.
+		if(destinations.size() > 1 && turnsTraveled == 0)
+			destinations.getFirst().leave(this);
 
 		// Move the task force one turn forward.
 		turnsTraveled++;
@@ -109,49 +97,91 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		if(turnsTraveled == turnsTotal)
 		{
 			turnsTraveled = 0;
-			orbit = to.removeFirst();
-			orbit.arrive(this);
+			destinations.removeFirst();
+			destinations.getFirst().arrive(this);
 			
-			if(!to.isEmpty())
-				turnsTotal = (int) Math.ceil(Lane.getDistance(orbit, to.getFirst()) / speed); 
+			if(destinations.size() > 1)
+				turnsTotal = (int) Math.ceil(Lane.getDistance(destinations.getFirst(), destinations.get(1)) / speed); 
 		}
 	}	
 	
-	public void render(GameContainer gc, Graphics g)
+	public void render(GameContainer gc, Graphics g, int flags)
 	{
-		// Make it so drawing stars is always done in local coordinates.
-		float scale = Camera.instance().scale(); 
-		g.pushTransform();
-//		g.scale(1.0f/scale, 1.0f/scale);
 		g.setColor(owner.color());
-
-		Vector2f pos = new Vector2f(20.0f, 0.0f);
+		
+		if((flags & Render.SELECTED) != 0)
+		{
+			g.setColor(Color.white);
+			
+			// Paint small dots for all our route, but only if the fleet is selected.
+			Iterator<Star> i = destinations.descendingIterator();
+			Star to = i.next();
+			Vector2f dir = new Vector2f();
+			Vector2f zero = new Vector2f();
+			
+			while(i.hasNext())
+			{
+				Star from = i.next();
+				dir.set(to.getPos());
+				dir.sub(from.getPos());
+				
+				int segments = (int) Math.ceil(Lane.getDistance(from, to) / speed);
+				for(int s=1; s<segments; s++)
+				{
+					drawRoutePoint(dir.copy().scale(1.0f * s / segments).add(from.getPos()), g, zero);
+				}
+			}
+		}
 		
 		// Paint the fleet icon.
 		if(turnsTraveled == 0)
 		{
 			// Paint orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
-			pos.setTheta(-30 * orbit.getDock(this) - 30);
-			pos.add(orbit.getPos());
-
-//			g.translate(x, y)
-			g.fillRect(pos.x-5, pos.y-5, 10, 10);
+			Vector2f pos = new Vector2f(20.0f, 0.0f);
+			pos.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
+			drawIcon(destinations.getFirst().getPos(), g, pos);
 		}
 		else
 		{
 			// Paint on route.
-			Vector2f dir = new Vector2f(to.getFirst().getPos()).sub(orbit.getPos()).normalise().scale(1.0f * turnsTraveled/turnsTotal);
-			g.fillRect(dir.x-5, dir.y-5, 10, 10);
+//			drawIcon(dir, g, new Vector2f());
 		}
-		
+	}
+	
+	private void drawIcon(Vector2f world, Graphics g, Vector2f screenDisp)
+	{
+		Camera.instance().pushLocalTransformation(g, world);
+		g.fillRect(screenDisp.x-4, screenDisp.y-4, 9, 9);
 		g.popTransform();
 	}
 
+	private void drawRoutePoint(Vector2f world, Graphics g, Vector2f screenDisp)
+	{
+		Camera.instance().pushLocalTransformation(g, world);
+		g.fillRect(screenDisp.x-2, screenDisp.y-2, 5, 5);
+		g.popTransform();
+	}
+
+	
 	@Override
 	public boolean screenCLick(float x, float y, int button)
 	{
-		// TODO
-		return false;
+		Vector2f screen = new Vector2f(20.0f, 0.0f);
+		if(turnsTraveled == 0)
+		{
+			// Paint orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
+			screen.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
+			screen.add(Camera.instance().worldToScreen(destinations.getFirst().getPos()));
+		}
+		else
+		{
+			// TODO Click of a force in orbit. 
+			return false;
+		}
+
+		// Compare against mouse screen position.
+		Vector2f local = new Vector2f(x, y).sub(screen);
+		return (local.x * local.x <= 25 && local.y * local.y <= 25);
 	}
 
 	/**
@@ -167,11 +197,12 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	{
 		// Check if one or other is owner of the star.
 		int aux = 0;
-		if(orbit.getColony() != null)
+		Colony col = destinations.getFirst().getColony(); 
+		if(col != null)
 		{
-			if(orbit.getColony().owner() == owner)
+			if(col.owner() == owner)
 				aux += 1;
-			if(orbit.getColony().owner() == o.owner)
+			if(col.owner() == o.owner)
 				aux -= 1;
 			
 			if(aux != 0)
