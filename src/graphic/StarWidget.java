@@ -38,6 +38,10 @@ public class StarWidget
 
 	public void render(GameContainer gc, Graphics g)
 	{
+		// If no star is being displayed, do nothing.
+		if(star == null)
+			return;
+		
 		// Make it so drawing stars is always done in local coordinates.
 		Camera.instance().pushLocalTransformation(g, star.getPos());
 

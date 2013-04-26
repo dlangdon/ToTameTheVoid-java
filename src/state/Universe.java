@@ -33,7 +33,7 @@ public class Universe
 		
 		createStars();
 		
-		/// @todo Remove test empires and organize elsewere.
+		/// @todo Remove test empires and organize elsewhere.
 		empires.add(new Empire("Blaps", new Color(180,0,0)));
 		empires.add(new Empire("Bleps", new Color(0,180,0)));
 		empires.add(new Empire("Blips", new Color(0,0,180)));
@@ -55,7 +55,7 @@ public class Universe
 		
 		// Create a bunch of fleets.
 		Random r = new Random();
-		for(int i=0; i<10; i++)
+		for(int i=0; i<100; i++)
 		{
 			int empire = r.nextInt(empires.size());
 			int star = r.nextInt(stars.size());

@@ -122,7 +122,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		// Make it so drawing stars is always done in local coordinates.
 		float scale = Camera.instance().scale(); 
 		g.pushTransform();
-		g.scale(1.0f/scale, 1.0f/scale);
+//		g.scale(1.0f/scale, 1.0f/scale);
 		g.setColor(owner.color());
 
 		Vector2f pos = new Vector2f(20.0f, 0.0f);
@@ -133,6 +133,8 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 			// Paint orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
 			pos.setTheta(-30 * orbit.getDock(this) - 30);
 			pos.add(orbit.getPos());
+
+//			g.translate(x, y)
 			g.fillRect(pos.x-5, pos.y-5, 10, 10);
 		}
 		else

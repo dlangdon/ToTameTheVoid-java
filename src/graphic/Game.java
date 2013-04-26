@@ -30,9 +30,6 @@ public class Game extends BasicGameState
 		new Universe();
 		starWidget = new StarWidget();
 		
-		// FIXME just a test star at a known location.
-		starWidget.showStar(Universe.instance().getStars().get(0));
-
 		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
 		Star.img = new Image("resources/star.png");
@@ -123,13 +120,14 @@ public class Game extends BasicGameState
 		// Check which objects may have received the click signal.
 		
 		// Stars
+		Star selected = null;
 		for(Star s : Universe.instance().getStars())
 		{
 			if(s.screenCLick((float)x, (float)y, button))
-			{
-				starWidget.showStar(s);
-			}
+				selected = s; 
 		}
+		starWidget.showStar(selected);
+
 	}
 	
 	@Override
