@@ -1,7 +1,9 @@
 package state;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import org.newdawn.slick.Color;
 
@@ -20,12 +22,14 @@ public class Universe
 	
 	private List<Star> stars;
 	private List<Empire> empires;
+	private HashSet<TaskForce> forces;
 	
 	public Universe()
 	{
 		instance_ = this;
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
+		this.forces = new HashSet<TaskForce>();
 		
 		createStars();
 		
@@ -48,8 +52,20 @@ public class Universe
 				new Colony(star, empireList[turn]);
 			turn = (turn+1)%7;
 		}
+		
+		// Create a bunch of fleets.
+		Random r = new Random();
+		for(int i=0; i<10; i++)
+		{
+			int empire = r.nextInt(empires.size());
+			int star = r.nextInt(stars.size());
+			
+			forces.add(new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS));
+		}
+		
 	}
 	
+
 	/**
 	 * Temporary, only in order to create a static galaxy.
 	 */
@@ -94,5 +110,14 @@ public class Universe
 	{
 		return empires;
 	}
+
+	/**
+	 * @return A set of all task forces in the galaxy.
+	 */
+	public HashSet<TaskForce> getForces()
+	{
+		return forces;
+	}
+
 
 }

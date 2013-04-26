@@ -14,6 +14,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import state.Lane;
 import state.Star;
+import state.TaskForce;
 import state.Universe;
 
 public class Game extends BasicGameState
@@ -52,14 +53,22 @@ public class Game extends BasicGameState
 		g.setAntiAlias(true);
 		Camera.instance().pushWorldTransformation(g);
 
+		// Draw Lanes
+		Lane.renderAll(gc, g);
+
 		// Draw Stars
-		Lane.renderAll(gc, g);	// Lanes.
-		
 		for(Star s : Universe.instance().getStars())
 		{
 			s.render(gc, g);
 		}
+
+		// Draw fleets
+		for(TaskForce tf : Universe.instance().getForces())
+		{
+			tf.render(gc, g);
+		}
 		
+		// Draw widgets
 		starWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.

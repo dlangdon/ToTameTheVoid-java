@@ -10,6 +10,8 @@ import org.newdawn.slick.geom.Vector2f;
  * Hud and other objects can be rendered normally, since they don't depend on the world at all.
  * Pixel resolution is assumed.
  * @author Daniel Langdon
+ * 
+ * TODO Expand the camera a fixed number of pixels to each side of the world, to be able to draw widgets outside.
  */
 public class Camera
 {
@@ -22,7 +24,7 @@ public class Camera
 	Vector2f world;			// World size
 	Vector2f resolution;		// Half the Screen size
 	Vector2f view;				// World coordinate of the screen origin.
-	int scale;					// Multiplier for scale: 1, 2 or 4
+	float scale_;					// Multiplier for scale: 1, 2 or 4
 	
 	/**
 	 * Creates a new camera.
@@ -35,7 +37,7 @@ public class Camera
 		this.resolution = new Vector2f(screen).scale(0.5f);
 		this.world = new Vector2f(world);
 		this.view = new Vector2f(-world.x/2, -world.y/2);
-		this.scale = 1;
+		this.scale_ = 1;
 		
 		move(new Vector2f(0.0f, 0.0f));
 	}
@@ -51,8 +53,8 @@ public class Camera
 		view.add(delta);
 		
 		// Check boundaries in world coordinates.
-		Vector2f topLeftDif = new Vector2f(0.0f, 0.0f).scale(1.0f/scale).add(view);
-		Vector2f bottomRightDif = new Vector2f(resolution).scale(2.0f/scale).add(view).sub(world).negate();
+		Vector2f topLeftDif = new Vector2f(0.0f, 0.0f).scale(1.0f/scale_).add(view);
+		Vector2f bottomRightDif = new Vector2f(resolution).scale(2.0f/scale_).add(view).sub(world).negate();
 
 		if(topLeftDif.x <= 0.0 && bottomRightDif.x <= 0.0)
 			view.x = (topLeftDif.x + bottomRightDif.x)/2;
@@ -81,36 +83,36 @@ public class Camera
 	public void zoom(boolean in, Vector2f centerOnScreen)
 	{
 		// Detect the world coordinate of the screen point.
-		Vector2f centerOnWorld = new Vector2f(centerOnScreen).scale(1.0f/scale).add(view);
+		Vector2f centerOnWorld = new Vector2f(centerOnScreen).scale(1.0f/scale_).add(view);
 
 		// Modify the zoom.
 		if(in)
 		{
-			if(scale <= 2)
-				scale *= 2;
+			if(scale_ <= 2)
+				scale_ *= 2;
 		}
 		else
 		{
-			if(scale >= 2)
-				scale /= 2;
+			if(scale_ >= 2)
+				scale_ /= 2;
 		}
 		
 		// After zooming, move the view so that the point gets to the center.
-		view = centerOnWorld.sub(new Vector2f(resolution).scale(1.0f/scale));
+		view = centerOnWorld.sub(new Vector2f(resolution).scale(1.0f/scale_));
 		
 		// Do a null move, so that borders are checked.
 		move(new Vector2f(0.0f, 0.0f));
-		System.out.println("new zoom: " + scale + ", view at: " + view + ", resolution: " + resolution);
+		System.out.println("new zoom: " + scale_ + ", view at: " + view + ", resolution: " + resolution);
 	}
 	
 	public Vector2f worldToScreen(Vector2f world)
 	{
-		return new Vector2f(world).sub(view).scale(scale);
+		return new Vector2f(world).sub(view).scale(scale_);
 	}
 
 	public Vector2f screenToWorld(Vector2f screen)
 	{
-		return new Vector2f(screen).scale(1.0f/scale).add(view);
+		return new Vector2f(screen).scale(1.0f/scale_).add(view);
 	}
 	
 	public void centerOnWorld(Vector2f world)
@@ -128,7 +130,7 @@ public class Camera
 		
 		// Always zoom in the center of the screen.
 //		g.translate(resolution.getX(), resolution.getY());
-		g.scale(scale, scale);
+		g.scale(scale_, scale_);
 //		g.translate(-resolution.getX(), -resolution.getY());
 
 		// Move the view
@@ -146,7 +148,7 @@ public class Camera
 		g.translate(pos.x, pos.y);
 		
 		// Undo scaling of graphics!
-		g.scale(1.0f/scale, 1.0f/scale);
+		g.scale(1.0f/scale_, 1.0f/scale_);
 	}
 	
 	public void drawWorldLimits(Graphics g)
@@ -161,5 +163,10 @@ public class Camera
 	public Vector2f getScreenCenter()
 	{
 		return resolution;
+	}
+
+	public float scale()
+	{
+		return scale_;
 	}
 }

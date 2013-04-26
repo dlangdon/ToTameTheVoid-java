@@ -7,11 +7,11 @@ import org.newdawn.slick.Color;
 public class Empire
 {
 // Internals ==========================================================================================================
-	String name_;
-	Color color_;
+	private String name_;
+	private Color color_;
 	// Economy _economyPolicy;
 	// QSet<Fleet*> fleets;
-	HashSet<Colony> colonies;
+	private HashSet<Colony> colonies;
 
 // Public Methods =====================================================================================================
 

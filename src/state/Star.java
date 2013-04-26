@@ -3,6 +3,10 @@ package state;
 import graphic.Camera;
 import graphic.UIListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -15,14 +19,16 @@ public class Star implements UIListener
 	// Core star internals
 	private int index_;
 	private String name_;
-	Vector2f pos;
+	private Vector2f pos;
 	private float size_;
 	private float conditions_;
 	private float resources_;
 	private Colony colony;
+	private List<TaskForce> inOrbit;
 	
 	// Drawing internals
 	public static Image img;
+	
 
 // Public Methods =====================================================================================================
 	
@@ -30,6 +36,7 @@ public class Star implements UIListener
 	{
 		index_ = index;
 		pos = new Vector2f(x, y);
+		inOrbit = new ArrayList<TaskForce>();
 	}
 	
 	public float x()
@@ -119,5 +126,29 @@ public class Star implements UIListener
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Receives a signal when a task force arrives on the system.
+	 * @param taskForce The task force that arrived.
+	 */
+	public void arrive(TaskForce taskForce)
+	{
+		inOrbit.add(taskForce);
+		Collections.sort(inOrbit);
+	}
+
+	/**
+	 * Receives a signal when a task force leaves the system.
+	 * @param taskForce The task force that departed.
+	 */
+	public void leave(TaskForce taskForce)
+	{
+		inOrbit.remove(taskForce);
+	}
+	
+	public int getDock(TaskForce tf)
+	{
+		return inOrbit.indexOf(tf);
 	}
 }
