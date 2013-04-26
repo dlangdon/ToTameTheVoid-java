@@ -57,7 +57,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		int index = destinations.indexOf(destination);
 		if(index <= 0)
 			return false;
-		while(destinations.size() >= index)
+		while(destinations.size() > index)
 			destinations.removeLast();
 		return true;
 	}
@@ -68,7 +68,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		// Check if destination is reachable
 		if(Lane.getDistance(destinations.getLast(), destination) <= 0)
 			return false;
-		destinations.add(destination);
+		destinations.addLast(destination);
 		return true;
 	}
 
