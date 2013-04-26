@@ -51,25 +51,25 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	 * @param destination Point at which the route is truncated. If the star was not part of the route, nothing happens.
 	 * @return True if the route changed.
 	 */
-	public boolean removeFromRoute(Star destination)
+	public void removeFromRoute(Star destination)
 	{
 		// Find if destination is already included.
 		int index = destinations.indexOf(destination);
-		if(index <= 0)
-			return false;
-		while(destinations.size() > index)
+
+		// Do not allow to remove edge while traveling it.
+		if(index < 0 || index == 0 && turnsTraveled > 0)
+			return;
+
+		while(destinations.size() > index+1)
 			destinations.removeLast();
-		return true;
 	}
 
 	/// @return True if the route changed.
-	public boolean addToRoute(Star destination)
+	public void addToRoute(Star destination)
 	{
 		// Check if destination is reachable
-		if(Lane.getDistance(destinations.getLast(), destination) <= 0)
-			return false;
-		destinations.addLast(destination);
-		return true;
+		if(Lane.getDistance(destinations.getLast(), destination) > 0)
+			destinations.addLast(destination);
 	}
 
 	void addShips(Design kind, int number)
