@@ -114,14 +114,15 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 			g.setColor(Color.white);
 			
 			// Paint small dots for all our route, but only if the fleet is selected.
-			Iterator<Star> i = destinations.descendingIterator();
+			Iterator<Star> i = destinations.iterator();
 			Star to = i.next();
 			Vector2f dir = new Vector2f();
 			Vector2f zero = new Vector2f();
 			
 			while(i.hasNext())
 			{
-				Star from = i.next();
+				Star from = to;
+				to = i.next();
 				dir.set(to.getPos());
 				dir.sub(from.getPos());
 				
