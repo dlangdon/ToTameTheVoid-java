@@ -119,7 +119,7 @@ public class Star implements UIListener
 		// Get a pixel distance centered on this star.
 		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(pos));
 		
-		if(local.x * local.x <= 256 && local.y * local.y <= 256)
+		if(local.x * local.x <= 144 && local.y * local.y <= 144)
 		{
 			// I'm in the scar icon (32x32)
 			return true;
