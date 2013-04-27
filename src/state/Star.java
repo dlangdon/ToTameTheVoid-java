@@ -90,7 +90,7 @@ public class Star implements UIListener
 		Camera.instance().pushLocalTransformation(g, pos);
 
 		// draw star icon
-		img.draw(-16, -16, Color.red);
+		img.draw(-16, -16, colony != null ? colony.owner().color() : Color.white);
 		
 		g.popTransform();
 	}
