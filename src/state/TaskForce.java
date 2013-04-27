@@ -23,11 +23,10 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
 	private int turnsTraveled;               	///< Number of turns that have been moved towards that destination already.
-	private float speed;								///< Minimun common speed for the stacks.
+	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner;							///< Empire that owns this TaskForce.
-	private Type type;
-
-	Map<Design, Integer> stacks;									///< Stacks composing this TaskForce (individual ships and types).
+	private Type type;								///< Type of task force, to separate fleets from agents, etc.
+	private Map<Design, Integer> stacks;		///< Stacks composing this TaskForce (individual ships and types).
 
 // Public Methods =====================================================================================================
 	TaskForce( String name, Star orbiting, Empire empire, Type type )
@@ -132,7 +131,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 				dir.sub(from.getPos());
 				
 				int segments = (int) Math.ceil(Lane.getDistance(from, to) / speed);
-				for(int s=1; s<segments; s++)
+				for(int s= (from == destinations.getFirst()) ? turnsTraveled : 1; s<segments; s++)
 				{
 					drawRoutePoint(dir.copy().scale(1.0f * s / segments).add(from.getPos()), g, zero);
 				}
@@ -178,14 +177,16 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		Vector2f screen = new Vector2f(20.0f, 0.0f);
 		if(turnsTraveled == 0)
 		{
-			// Paint orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
+			// Force orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
 			screen.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
 			screen.add(Camera.instance().worldToScreen(destinations.getFirst().getPos()));
 		}
 		else
 		{
-			// TODO Click of a force in orbit. 
-			return false;
+			// Click of a force in orbit. 
+			screen = Camera.instance().worldToScreen(destinations.getFirst().getPos()); 
+			Vector2f dir = Camera.instance().worldToScreen(destinations.get(1).getPos()).sub(screen);
+			screen = dir.scale(1.0f * turnsTraveled / turnsTotal).add(screen); 
 		}
 
 		// Compare against mouse screen position.
