@@ -23,6 +23,7 @@ public class Universe
 	private List<Star> stars;
 	private List<Empire> empires;
 	private HashSet<TaskForce> forces;
+	private int turn;
 	
 	public Universe()
 	{
@@ -30,6 +31,7 @@ public class Universe
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		this.forces = new HashSet<TaskForce>();
+		this.turn = 0;
 		
 		createStars();
 		
@@ -64,7 +66,6 @@ public class Universe
 		}
 		
 	}
-	
 
 	/**
 	 * Temporary, only in order to create a static galaxy.
@@ -117,6 +118,22 @@ public class Universe
 	public HashSet<TaskForce> getForces()
 	{
 		return forces;
+	}
+	
+	/**
+	 * Advances the turn for all elements in the universe.
+	 */
+	public void nextTurn()
+	{
+		turn++;
+		
+		System.out.println("New turn: " + turn);
+		
+		for(Empire e: empires)
+			e.turn();
+		
+		for(TaskForce tf: forces)
+			tf.turn();
 	}
 
 

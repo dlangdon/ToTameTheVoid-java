@@ -33,7 +33,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	TaskForce( String name, Star orbiting, Empire empire, Type type )
 	{
 		// Base values
-		this.speed = 5;
+		this.speed = 10;
 		this.owner = empire;
 		this.type = type;
 		this.turnsTraveled = 0;
@@ -70,6 +70,11 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		// Check if destination is reachable
 		if(Lane.getDistance(destinations.getLast(), destination) > 0)
 			destinations.addLast(destination);
+		
+		// Calculate route if this is the first destination.
+		if(destinations.size() == 2)
+			turnsTotal = (int) Math.ceil(Lane.getDistance(destinations.getFirst(), destinations.get(1)) / speed); 
+
 	}
 
 	void addShips(Design kind, int number)
@@ -83,7 +88,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	void turn()
 	{
 		// If no destinations, do nothing.
-		if(destinations.isEmpty())
+		if(destinations.size() < 2)
 			return;
 
 		// Check if we need to leave the current star.
@@ -107,6 +112,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	
 	public void render(GameContainer gc, Graphics g, int flags)
 	{
+		Vector2f zero = new Vector2f();
 		g.setColor(owner.color());
 		
 		if((flags & Render.SELECTED) != 0)
@@ -117,7 +123,6 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 			Iterator<Star> i = destinations.iterator();
 			Star to = i.next();
 			Vector2f dir = new Vector2f();
-			Vector2f zero = new Vector2f();
 			
 			while(i.hasNext())
 			{
@@ -145,7 +150,10 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		else
 		{
 			// Paint on route.
-//			drawIcon(dir, g, new Vector2f());
+			Vector2f dir = new Vector2f();
+			dir.set(destinations.get(1).getPos());
+			dir.sub(destinations.getFirst().getPos());
+			drawIcon(dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos()), g, zero);
 		}
 	}
 	
@@ -202,9 +210,9 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		if(col != null)
 		{
 			if(col.owner() == owner)
-				aux += 1;
-			if(col.owner() == o.owner)
 				aux -= 1;
+			if(col.owner() == o.owner)
+				aux += 1;
 			
 			if(aux != 0)
 				return aux;

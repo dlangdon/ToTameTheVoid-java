@@ -113,8 +113,10 @@ public class Game extends BasicGameState
 	{
 		if(key == Input.KEY_PRIOR)
 			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
-		if(key == Input.KEY_NEXT)
+		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
+		else if(key == Input.KEY_T)
+			Universe.instance().nextTurn();
 	}
 
 	@Override
