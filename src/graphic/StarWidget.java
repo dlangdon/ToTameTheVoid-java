@@ -68,7 +68,7 @@ public class StarWidget
 
 			normal.drawString(110, 36, "Production");
 			normal.drawString(110, 50, "Inv. return");
-			normal.drawString(210, 36, String.format("%2.2f", colony.production()));
+			normal.drawString(210, 36, String.format("%2.2f", colony.production()*100.0));
 			normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
 		}
 		else

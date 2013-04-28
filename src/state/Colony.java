@@ -15,8 +15,6 @@ public class Colony
 	private Star location_;
 	private Empire owner_;
 
-
-
 // Public Methods =====================================================================================================
 	public Colony(Star location, Empire empire)
 	{

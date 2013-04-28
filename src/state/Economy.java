@@ -1,5 +1,6 @@
 package state;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -19,31 +20,38 @@ public class Economy
 		{
 			cause = description;
 		}
+		
+		public String toString()
+		{
+			return cause + ", " + amount + ", " + rejections;
+			
+		}
 	};	
 	
 // Internals ==========================================================================================================	
-	float totalInfrastructure_;
-	float totalProduction_;
-	float totalGrowth_;
-	float totalMaintenance_;
-	float bestROI_;
-	float reserve_;
-	float growthPolicy_;
-	int returnOfInvestmentLimit_;
-	boolean onlyLocal_;
-	List<Movement> movements_;
+	private float totalInfrastructure_;
+	private float totalProduction_;
+	private float totalGrowth_;
+	private float totalMaintenance_;
+	private float bestROI_;
+	private float reserve_;
+	private float growthPolicy_;
+	private int returnOfInvestmentLimit_;
+	private boolean onlyLocal_;
+	private List<Movement> movements_;
 	
 // Public Methods =====================================================================================================
 	public Economy()
 	{
-		reserve_ = 0;
 		totalInfrastructure_ = 0;
 		totalGrowth_ = 0;
-		totalProduction_ = 0.01f;	// Initial production for turn 1
+		totalProduction_ = 0.01f;						// Initial production for turn 1
+		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
 		growthPolicy_ = 0.5f;
 		returnOfInvestmentLimit_ = 100;
 		onlyLocal_ = true;
+		movements_ = new ArrayList<Movement>();
 
 		registerCause("Colony Maintenance");
 		registerCause("Colony Growth");
@@ -115,7 +123,7 @@ public class Economy
 	 * @param description The description to which all movements will be added.
 	 * @return A new identifier for the registered cause.
 	 */
-	int registerCause(String description)
+	public int registerCause(String description)
 	{
 		movements_.add(new Movement(description));
 		return movements_.size()-1;
@@ -128,7 +136,7 @@ public class Economy
 	 * @param cause Pre-registered bin to which add the movement.
 	 * @return True if the reserve could process the movement, else 0.
 	 */
-	boolean addMovement(float amount, int cause)
+	public boolean addMovement(float amount, int cause)
 	{
 		if(amount + reserve_ < 0)
 		{
@@ -158,7 +166,7 @@ public class Economy
 	 * Finally, the turn is advanced and new values for all economic variables calculated.
 	 * Note that all sources of income or expenses that depend on these values should be called before this method is invoked. In general is a good policy to leave colony growth for last.
 	 */
-	void applyGrowth(Set<Colony> colonies)
+	public void applyGrowth(Set<Colony> colonies)
 	{
 		// Before anything can be done, pay for maintenance for the current level of infrastructure.
 		if(!addMovement(-totalMaintenance_, 0))
@@ -241,7 +249,7 @@ public class Economy
 	/**
 	 * Advances the state of the economy to the next turn.
 	 */
-	void prepareTurn()
+	public void prepareTurn()
 	{
 		// Reset turn counters and get ready to accept expenses.
 		for(int i=0; i<movements_.size(); i++)

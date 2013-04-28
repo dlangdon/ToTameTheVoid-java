@@ -9,7 +9,7 @@ public class Empire
 // Internals ==========================================================================================================
 	private String name_;
 	private Color color_;
-	// Economy _economyPolicy;
+	Economy economy_;
 	// QSet<Fleet*> fleets;
 	private HashSet<Colony> colonies;
 
@@ -21,6 +21,7 @@ public class Empire
 		this.name_ = name_;
 		this.color_ = color_;
 		colonies = new HashSet<Colony>();
+		economy_ = new Economy();
 	}
 
 	public void addColony(Colony colony)
@@ -41,7 +42,7 @@ public class Empire
 	void turn()
 	{
 		// Reset last's turn expenses.
-//		_economyPolicy.prepareTurn();
+		economy_.prepareTurn();
 
 		// Produce new expenses from all related modules.
 		// Move all fleets.
@@ -51,7 +52,7 @@ public class Empire
 //		}
 
 		// Grow colonies and recalculate production.
-//		_economyPolicy.applyGrowth(colonies);
+		economy_.applyGrowth(colonies);
 	}
 
 }
