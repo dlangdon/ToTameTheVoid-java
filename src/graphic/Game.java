@@ -22,16 +22,19 @@ public class Game extends BasicGameState
 	private Image background;
 	private Image starfield;
 	private StarWidget starWidget;
-	
+	private EconomyDialog econDialog;
 	private TaskForce selectedForce;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
+		Render.initialize();
+		
 		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
 		starWidget = new StarWidget();
 		selectedForce = null;
+		econDialog = new EconomyDialog();
 		
 		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
@@ -68,13 +71,15 @@ public class Game extends BasicGameState
 			tf.render(gc, g, (tf == selectedForce) ? Render.SELECTED : 0);
 		}
 		
-		// Draw widgets
+		// Draw in world widgets
 		starWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
 
+		// Draw HUD widgets
 		g.popTransform();
+		econDialog.render(gc, g);
 	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException
@@ -117,6 +122,8 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_T)
 			Universe.instance().nextTurn();
+		else if(key == Input.KEY_E)
+			econDialog.setVisible(!econDialog.isVisible());
 	}
 
 	@Override

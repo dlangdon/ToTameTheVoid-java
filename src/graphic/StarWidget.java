@@ -15,11 +15,9 @@ import state.Star;
 public class StarWidget
 {
 // Internals ==========================================================================================================	
-	Star star;
-	Image background;
-	Image meter;
-	TrueTypeFont titles;
-	TrueTypeFont normal;
+	private Star star;
+	private Image background;
+	private Image meter;
 
 // Public Methods =====================================================================================================
 	StarWidget() throws SlickException
@@ -27,8 +25,6 @@ public class StarWidget
 		background = new Image("resources/starWidgetBck.png");
 		meter = new Image("resources/meter.png");
 		star = null;
-		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
-		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);
 	}
 
 	void showStar(Star star)
@@ -51,11 +47,11 @@ public class StarWidget
 		g.setColor(Color.white);
 		background.draw(-84, -119);
 		
-		titles.drawString(100, -78, star.name());
+		Render.titles.drawString(100, -78, star.name());
 
-		normal.drawString(110, -58, "Resources");
-		normal.drawString(110, -44, "Conditions");
-		normal.drawString(110, -30, "Size");
+		Render.normal.drawString(110, -58, "Resources");
+		Render.normal.drawString(110, -44, "Conditions");
+		Render.normal.drawString(110, -30, "Size");
 		
 		g.setColor(colony == null ? Color.white : colony.owner().color());
 		drawMeter(g, 210, -58, star.resources());
@@ -64,16 +60,16 @@ public class StarWidget
 
 		if(colony != null)
 		{
-			titles.drawString(100, 2, colony.owner().name() + " outpost.");
+			Render.titles.drawString(100, 2, colony.owner().name() + " outpost.");
 
-			normal.drawString(110, 36, "Production");
-			normal.drawString(110, 50, "Inv. return");
-			normal.drawString(210, 36, String.format("%2.2f", colony.production()*100.0));
-			normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
+			Render.normal.drawString(110, 36, "Production");
+			Render.normal.drawString(110, 50, "Inv. return");
+			Render.normal.drawString(210, 36, String.format("%2.2f", colony.production()*100.0));
+			Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
 		}
 		else
 		{
-			titles.drawString(100, 2, "No outpost");
+			Render.titles.drawString(100, 2, "No outpost");
 		}
 		
 		g.popTransform();

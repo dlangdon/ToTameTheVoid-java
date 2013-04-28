@@ -19,12 +19,15 @@ public class Universe
 	{
 		return instance_;
 	}
-	
+
+// Internals ==========================================================================================================	
 	private List<Star> stars;
 	private List<Empire> empires;
 	private HashSet<TaskForce> forces;
 	private int turn;
-	
+	private Empire playerEmpire;
+
+// Public Methods =====================================================================================================
 	public Universe()
 	{
 		instance_ = this;
@@ -41,6 +44,7 @@ public class Universe
 		empires.add(new Empire("Blips", new Color(0,0,180)));
 		empires.add(new Empire("Blops", new Color(180,180,0)));
 		empires.add(new Empire("Blups", new Color(0,180,180)));
+		playerEmpire = empires.get(0);
 
 		// Initialize game objects.
 		int turn = 0;
@@ -64,7 +68,6 @@ public class Universe
 			
 			forces.add(new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS));
 		}
-		
 	}
 
 	/**
@@ -97,6 +100,22 @@ public class Universe
 	}
 
 	/**
+	 * Advances the turn for all elements in the universe.
+	 */
+	public void nextTurn()
+	{
+		turn++;
+		
+		System.out.println("New turn: " + turn);
+		
+		for(Empire e: empires)
+			e.turn();
+		
+		for(TaskForce tf: forces)
+			tf.turn();
+	}
+	
+	/**
 	 * @return A list of all stars.
 	 */
 	public List<Star> getStars()
@@ -119,22 +138,12 @@ public class Universe
 	{
 		return forces;
 	}
-	
+
 	/**
-	 * Advances the turn for all elements in the universe.
+	 * @return the empire corresponding to the local player
 	 */
-	public void nextTurn()
+	public Empire getPlayerEmpire()
 	{
-		turn++;
-		
-		System.out.println("New turn: " + turn);
-		
-		for(Empire e: empires)
-			e.turn();
-		
-		for(TaskForce tf: forces)
-			tf.turn();
+		return playerEmpire;
 	}
-
-
 }

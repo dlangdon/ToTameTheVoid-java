@@ -10,11 +10,11 @@ public class Economy
 	/**
 	 * @brief The Movement struct Small structure to store a particular movement to the reserve.
 	 */
-	class Movement
+	public class Movement
 	{
-		String cause;
-		float amount;
-		boolean rejections;
+		public String cause;
+		public float amount;
+		public boolean rejections;
 
 		Movement(String description)
 		{
@@ -39,8 +39,8 @@ public class Economy
 	private int returnOfInvestmentLimit_;
 	private boolean onlyLocal_;
 	private List<Movement> movements_;
-	
-// Public Methods =====================================================================================================
+
+	// Public Methods =====================================================================================================
 	public Economy()
 	{
 		totalInfrastructure_ = 0;
@@ -243,7 +243,7 @@ public class Economy
 		totalProduction_ = prodCount;
 
 		addMovement(reminder, 1);
-		addMovement(totalProduction_, 2);
+		addMovement(totalProduction_ + totalMaintenance_, 2);
 	}
 
 	/**
@@ -257,6 +257,14 @@ public class Economy
 			movements_.get(i).amount = 0.0f;
 			movements_.get(i).rejections = false;
 		}
-	}	
+	}
+	
+	/**
+	 * @return A list with all the movements done during the turn. It should not be modified externally.
+	 */
+	public List<Movement> movements()
+	{
+		return movements_;
+	}
 
 }

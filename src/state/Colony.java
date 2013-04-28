@@ -124,6 +124,9 @@ public class Colony
 		return maxInfrastructure_;
 	}
 
+	/**
+	 * @return The last calculated total production of this colony. This value is already discounted for maintenance costs.
+	 */
 	public float production()
 	{
 		return production_;

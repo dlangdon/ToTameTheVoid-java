@@ -9,7 +9,7 @@ public class Empire
 // Internals ==========================================================================================================
 	private String name_;
 	private Color color_;
-	Economy economy_;
+	private Economy economy_;
 	// QSet<Fleet*> fleets;
 	private HashSet<Colony> colonies;
 
@@ -54,5 +54,15 @@ public class Empire
 		// Grow colonies and recalculate production.
 		economy_.applyGrowth(colonies);
 	}
+	
+	/**
+	 * @return The current economy state for this empire.
+	 */
+	public Economy getEconomy_()
+	{
+		return economy_;
+	}
+
+
 
 }
