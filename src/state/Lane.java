@@ -49,7 +49,7 @@ public class Lane
 	public static void renderAll(GameContainer gc, Graphics g)
 	{
 		//g.setLineWidth(1);
-		g.setColor(Color.cyan);
+		g.setColor(new Color(1,1,1,0.8f));
 		for (Lane l : all.values())
 		{
 			g.drawLine(l.from.x(), l.from.y(), l.to.x(), l.to.y());
