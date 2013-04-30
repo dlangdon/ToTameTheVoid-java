@@ -41,6 +41,10 @@ public class Game extends BasicGameState
 		Star.img = new Image("resources/star.png");
 		
 		gc.setTargetFrameRate(120);
+		
+		// Pass two turns to reach a valid starting point (where last turn expenses are based on existing colonies).
+		Universe.instance().nextTurn();
+		Universe.instance().nextTurn();
 	}
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException

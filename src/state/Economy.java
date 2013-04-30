@@ -49,7 +49,7 @@ public class Economy
 		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
 		growthPolicy_ = 0.5f;
-		returnOfInvestmentLimit_ = 100;
+		returnOfInvestmentLimit_ = 9999;
 		onlyLocal_ = true;
 		movements_ = new ArrayList<Movement>();
 
@@ -145,6 +145,7 @@ public class Economy
 		}
 
 		movements_.get(cause).amount += amount;
+		reserve_ += amount;
 		return true;
 	}
 
@@ -181,48 +182,53 @@ public class Economy
 				colony.killInfrastructure(colony.infrastructure() * percentage);
 			}
 		}
-
-		// Initialize the credit pool to spend based on the policy and how much money we actually have.
-		float reminder = totalProduction_ * growthPolicy_;
-		if(!addMovement(-reminder, 1))
+		else
 		{
-			reminder = reserve_;
-			addMovement(-reminder, 1);
-		}
-
-		// First pass: let every system apply the policy locally.
-		TreeMap<Float, Colony> firstBets = new TreeMap<Float, Colony>();
-		for(Colony colony : colonies)
-		{
-			if(reminder < 1e-6)
-				break;
-
-			reminder -= colony.spend(growthPolicy_, reminder, returnOfInvestmentLimit_, false);
-			firstBets.put(colony.returnOfInvestment(), colony);
-		}
-
-		// Second pass: take the remainder and apply it, cheapest colonies first, till the money runs out.
-		TreeMap<Float, Colony> secondBets = new TreeMap<Float, Colony>();
-		for(Colony colony : firstBets.values())
-		{
-			if(reminder < 1e-6)
-				break;
-
-			reminder -= colony.spend(1.0f - growthPolicy_, reminder, returnOfInvestmentLimit_, false);
-			secondBets.put(colony.returnOfInvestment(), colony);
-		}
-
-		// Third pass: if non-local growth is allowed, repeat the second step
-		if(onlyLocal_)
-			for(Colony colony : secondBets.values())
+			// Initialize the credit pool to spend based on the policy and how much money we actually have.
+			float reminder = totalProduction_ * growthPolicy_;
+			if(!addMovement(-reminder, 1))
+			{
+				reminder = reserve_;
+				addMovement(-reminder, 1);
+			}
+	
+			// First pass: let every system apply the policy locally.
+			TreeMap<Float, Colony> firstBets = new TreeMap<Float, Colony>();
+			for(Colony colony : colonies)
 			{
 				if(reminder < 1e-6)
 					break;
-
-				reminder -= colony.spend( 1.0f, reminder, returnOfInvestmentLimit_, true);
+	
+				reminder -= colony.spend(growthPolicy_, reminder, returnOfInvestmentLimit_, false);
+				firstBets.put(colony.returnOfInvestment(), colony);
 			}
+	
+			// Second pass: take the remainder and apply it, cheapest colonies first, till the money runs out.
+			TreeMap<Float, Colony> secondBets = new TreeMap<Float, Colony>();
+			for(Colony colony : firstBets.values())
+			{
+				if(reminder < 1e-6)
+					break;
+	
+				reminder -= colony.spend(1.0f - growthPolicy_, reminder, returnOfInvestmentLimit_, false);
+				secondBets.put(colony.returnOfInvestment(), colony);
+			}
+	
+			// Third pass: if non-local growth is allowed, repeat the second step
+			if(!onlyLocal_)
+				for(Colony colony : secondBets.values())
+				{
+					if(reminder < 1e-6)
+						break;
+	
+					reminder -= colony.spend( 1.0f, reminder, returnOfInvestmentLimit_, true);
+				}
 
-		// Fourth pass. Pass the turn for each colony and update totals.
+			// Adjust the expense if we have money left. Should mainly happen when ROI is very restricted or most colonies are at full infrastructure.
+			addMovement(reminder, 1);
+		}
+		
+		// Pass the turn for each colony and update totals.
 		float prodCount = 0.0f;
 		totalMaintenance_ = 0.0f;
 		bestROI_ = 9999;
@@ -241,15 +247,12 @@ public class Economy
 
 		totalGrowth_ = prodCount - totalProduction_;
 		totalProduction_ = prodCount;
-
-		addMovement(reminder, 1);
-		addMovement(totalProduction_ + totalMaintenance_, 2);
 	}
 
 	/**
 	 * Advances the state of the economy to the next turn.
 	 */
-	public void prepareTurn()
+	public void resetTurn()
 	{
 		// Reset turn counters and get ready to accept expenses.
 		for(int i=0; i<movements_.size(); i++)
@@ -257,6 +260,9 @@ public class Economy
 			movements_.get(i).amount = 0.0f;
 			movements_.get(i).rejections = false;
 		}
+		
+		// Raise production to the reserve.
+		addMovement(totalProduction_, 2);
 	}
 	
 	/**

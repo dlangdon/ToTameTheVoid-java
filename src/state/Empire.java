@@ -42,7 +42,7 @@ public class Empire
 	void turn()
 	{
 		// Reset last's turn expenses.
-		economy_.prepareTurn();
+		economy_.resetTurn();
 
 		// Produce new expenses from all related modules.
 		// Move all fleets.

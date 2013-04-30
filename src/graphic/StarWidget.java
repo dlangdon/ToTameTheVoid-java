@@ -1,13 +1,10 @@
 package graphic;
 
-import java.awt.Font;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
 
 import state.Colony;
 import state.Star;
@@ -62,10 +59,14 @@ public class StarWidget
 		{
 			Render.titles.drawString(100, 2, colony.owner().name() + " outpost.");
 
-			Render.normal.drawString(110, 36, "Production");
+			Render.normal.drawString(110, 36, "Total Output");
 			Render.normal.drawString(110, 50, "Inv. return");
-			Render.normal.drawString(210, 36, String.format("%2.2f", colony.production()*100.0));
-			Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
+			Render.normal.drawString(210, 36, String.format("%2.2f", (colony.production()-colony.maintenance())*10000.0));
+			
+			if(Math.abs(colony.infrastructure() - colony.maxInfrastructure()) > 1E-6)
+				Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
+			else
+				Render.normal.drawString(210, 50, "Maximum Reached");
 		}
 		else
 		{

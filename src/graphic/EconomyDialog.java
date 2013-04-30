@@ -34,7 +34,7 @@ public class EconomyDialog
 		// Policy
 		int y = 50;
 		Render.titles.drawString(100, (y+=20), "Policy:");
-		Render.normal.drawString(120, (y+=20), String.format("Limit growth to %d of production.", (int)(ec.growthPolicy()*100)));
+		Render.normal.drawString(120, (y+=20), String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)));
 		Render.normal.drawString(120, (y+=15), String.format("Only spend on infrastructure if costs are recovered before %d turns.", (ec.returnOfInvestmentLimit())));
 		Render.normal.drawString(120, (y+=15), (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
 
@@ -48,7 +48,7 @@ public class EconomyDialog
 			if(mov.amount > 0)
 			{
 				Render.normal.drawString(120, y, mov.cause);
-				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(mov.amount*100), mov.rejections ? "!" : ""));
+				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(mov.amount*10000.0f), mov.rejections ? "!" : ""));
 				y += 15;
 				totalIncome += mov.amount;
 			}
@@ -61,23 +61,25 @@ public class EconomyDialog
 		float totalExpenses = 0.0f;
 		for(Economy.Movement mov : ec.movements())
 		{
-			if(mov.amount < 0)
+			if(mov.amount <= 0)
 			{
 				Render.normal.drawString(120, y, mov.cause);
-				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(-mov.amount*100), mov.rejections ? "!" : ""));
+				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(-mov.amount*10000.0f), mov.rejections ? "!" : ""));
 				y += 15;
 				totalExpenses += mov.amount;
 			}
 		}
 		
 		// Totals
-		Render.titles.drawString(100, (y+=20), "Last turn expenses:");
-		Render.normal.drawString(120, (y+=20), "Total Income");
-		Render.normal.drawString(320, y, String.format("$ %10d", (int)(totalIncome) ));
-		Render.normal.drawString(120, (y+=15), "Total Expenses");
-		Render.normal.drawString(320, y, String.format("$ %10d", (int)(totalExpenses)));
+		Render.titles.drawString(100, (y+=20), "Totals:");
+		Render.normal.drawString(120, (y+=20), "Income");
+		Render.normal.drawString(320, y, String.format("$ %10d", (int)(totalIncome*10000.0f) ));
+		Render.normal.drawString(120, (y+=15), "Expenses");
+		Render.normal.drawString(320, y, String.format("$ %10d", (int)(totalExpenses*10000.0f)));
 		Render.normal.drawString(120, (y+=15), "To Imperial Reserve");
-		Render.normal.drawString(320, y, String.format("$ %10d", (int)(totalIncome - totalExpenses)));
+		Render.normal.drawString(320, y, String.format("$ %10d", (int)((totalIncome + totalExpenses)*10000.0f)));
+		Render.normal.drawString(120, (y+=15), "Current Reserve");
+		Render.normal.drawString(320, y, String.format("$ %10d", (int)(ec.reserve()*10000.0f)));
 	}
 
 	/**

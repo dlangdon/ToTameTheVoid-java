@@ -88,11 +88,12 @@ public class Colony
 
 		// Recalculate economy due to last turn spending.
 		conditions_ = location_.conditions() - infrastructure_ / (location_.size() + 0.75f);
-		maintenance_ = infrastructure_ / (conditions_ + 0.75f);
-		float auxProduction = infrastructure_ * (location_.resources() + 0.75f) - maintenance_;
+		float auxMaintenance = infrastructure_ / (conditions_ + 0.75f);
+		float auxProduction = infrastructure_ * (location_.resources() + 0.75f);
 		if (cost > 0)
-			roi_ = cost / (auxProduction - production_);
+			roi_ = cost / (auxProduction - auxMaintenance - production_ + maintenance_);
 		production_ = auxProduction;
+		maintenance_ = auxMaintenance;
 
 		return cost;
 	}
@@ -125,7 +126,7 @@ public class Colony
 	}
 
 	/**
-	 * @return The last calculated total production of this colony. This value is already discounted for maintenance costs.
+	 * @return The last calculated total production of this colony. This value does not discount maintenance.
 	 */
 	public float production()
 	{
