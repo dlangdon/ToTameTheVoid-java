@@ -169,7 +169,6 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		g.fillRect(screenDisp.x-2, screenDisp.y-2, 5, 5);
 		g.popTransform();
 	}
-
 	
 	@Override
 	public boolean screenCLick(float x, float y, int button)
@@ -226,5 +225,19 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		
 		// Check their types.
 		return type.ordinal() - o.type.ordinal();
+	}
+
+	/**
+	 * @return The position were this force is located. If in orbit, this corresponds to the star's position, else, its coordinates in free space.
+	 */
+	public Vector2f position()
+	{
+		if(turnsTraveled == 0)
+			return destinations.getFirst().getPos();
+		
+		Vector2f dir = new Vector2f();
+		dir.set(destinations.get(1).getPos());
+		dir.sub(destinations.getFirst().getPos());
+		return dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos());
 	}
 }

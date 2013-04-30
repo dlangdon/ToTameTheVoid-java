@@ -22,6 +22,7 @@ public class Game extends BasicGameState
 	private Image background;
 	private Image starfield;
 	private StarWidget starWidget;
+	private TaskForceWidget taskForceWidget;
 	private EconomyDialog econDialog;
 	private TaskForce selectedForce;
 	
@@ -33,6 +34,7 @@ public class Game extends BasicGameState
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
 		starWidget = new StarWidget();
+		taskForceWidget = new TaskForceWidget();
 		selectedForce = null;
 		econDialog = new EconomyDialog();
 		
@@ -77,6 +79,7 @@ public class Game extends BasicGameState
 		
 		// Draw in world widgets
 		starWidget.render(gc, g);
+		taskForceWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -168,6 +171,7 @@ public class Game extends BasicGameState
 		{
 			// Prioritize force selection to star selection, in case regions overlap.
 			selectedForce = newForceSelected;
+			taskForceWidget.showForce(selectedForce);
 			starWidget.showStar(newForceSelected == null ? selectedStar : null);
 		}
 	}
