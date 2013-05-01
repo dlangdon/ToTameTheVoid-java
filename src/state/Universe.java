@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 /**
  * Class that represents all the objects in the universe: stars, empires, etc.
@@ -28,7 +30,7 @@ public class Universe
 	private Empire playerEmpire;
 
 // Public Methods =====================================================================================================
-	public Universe()
+	public Universe() throws SlickException
 	{
 		instance_ = this;
 		this.empires = new ArrayList<Empire>();
@@ -59,6 +61,12 @@ public class Universe
 			turn = (turn+1)%7;
 		}
 		
+		// Create a few designs, just for kicks
+		Design[] figthers = new Design[23];
+		for(int i=0; i<23; i++)
+			figthers[i] = new Design("Figther " + i, new Image("resources/ship2.png")); 
+		Design colony = new Design("Colony Ship", new Image("resources/ship1.png"));
+		
 		// Create a bunch of fleets.
 		Random r = new Random();
 		for(int i=0; i<100; i++)
@@ -66,8 +74,16 @@ public class Universe
 			int empire = r.nextInt(empires.size());
 			int star = r.nextInt(stars.size());
 			
-			forces.add(new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS));
+			TaskForce force = new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS); 
+			forces.add(force);
+
+//			int numFighters = new Random().nextInt(23);
+			int numFighters = 22;
+			for(int j=0; j<numFighters; j++)
+				force.addShips(figthers[j], j*10);
+			force.addShips(colony, 5);
 		}
+		
 	}
 
 	/**

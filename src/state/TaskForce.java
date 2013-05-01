@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -26,7 +27,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner;							///< Empire that owns this TaskForce.
 	private Type type;								///< Type of task force, to separate fleets from agents, etc.
-	private Map<Design, Integer> stacks;		///< Stacks composing this TaskForce (individual ships and types).
+	private TreeMap<Design, Integer> stacks;	///< Stacks composing this TaskForce (individual ships and types).
 
 // Public Methods =====================================================================================================
 	TaskForce( String name, Star orbiting, Empire empire, Type type )
@@ -38,7 +39,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
 		this.name = name;
-		this.stacks = new HashMap<Design, Integer>();
+		this.stacks = new TreeMap<Design, Integer>();
 
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
@@ -79,7 +80,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	void addShips(Design kind, int number)
 	{
 		Integer current = stacks.get(kind);
-		if(current != null)
+		if(current == null)
 			current = 0;
 		stacks.put(kind, current + number);
 	}
@@ -239,5 +240,10 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		dir.set(destinations.get(1).getPos());
 		dir.sub(destinations.getFirst().getPos());
 		return dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos());
+	}
+	
+	public TreeMap<Design, Integer> stacks()
+	{
+		return stacks;
 	}
 }
