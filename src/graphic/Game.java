@@ -136,6 +136,10 @@ public class Game extends BasicGameState
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
+		// Check if any of the interfaces consumes this click.
+		if(taskForceWidget.screenCLick(x, y, button))
+			return;
+		
 		// Check which objects may have received the click signal.
 		TaskForce newForceSelected = null;
 		for(TaskForce tf : Universe.instance().getForces())

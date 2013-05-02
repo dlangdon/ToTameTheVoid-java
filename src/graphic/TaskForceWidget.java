@@ -1,17 +1,14 @@
 package graphic;
 
-import java.util.Map.Entry;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-import state.Design;
 import state.TaskForce;
 
-public class TaskForceWidget
+public class TaskForceWidget implements UIListener
 {
 // Internals ==========================================================================================================	
 	private TaskForce force;
@@ -96,7 +93,7 @@ public class TaskForceWidget
 		}
 		else
 		{
-			float angle = -(index-12)*10.0f - 180.0f; 
+			float angle = -(index-12)*10.0f - 180.0f;
 			if(index%2 == 1)
 				angle = -angle + 10.0f;
 
@@ -104,8 +101,77 @@ public class TaskForceWidget
 		}
 	}
 	
+	/**
+	 * Finds the potential element in the UI that corresponds to a particular coordinate.
+	 * This method does not consider what parts of the widget are current being displayed or their content, just placejolder locations.
+	 * @param vector A 2-dimensional vector of screen coordinates centered on the current position.
+	 * @return An index between 0 and 22 that corresponds to the slot in the widget that matches that point. OR a code between -1 to -5 to indicate one of the available buttons (top to bottom) OR -10 if there is no match whatsoever.
+	 */
 	private int coordToIndex(Vector2f vector)
 	{
-		return -1;
+		double angle = vector.getTheta();
+		double radius = vector.length();
+		
+		if(54 < radius && radius < 74 )
+		{
+			// Buttons
+			if(angle >= 310)
+				return -1 - (int)((angle - 310.0) / 20.0);
+			
+			if(angle <= 50)
+				return -1 - (int)((angle + 50) / 20.0);
+		}
+		if(76 < radius && radius < 121 )
+		{
+			// First circle, all of it works
+			int aux = (int)(360 - angle) / 30;
+			if(aux < 6)
+				return aux*2;
+			else
+				return 23 - aux*2; 
+		}
+		else if(123 < radius && radius < 168 )
+		{
+			// Second circle
+			int aux = (int)(angle - 10) / 20;
+			if(aux > 2)
+			{
+				if(aux < 9)
+					return 28 - aux*2;
+				else if(aux < 14)
+					return aux*2 - 5;
+			}
+		}
+
+		return -10;
+	}
+
+	@Override
+	public boolean screenCLick(float x, float y, int button)
+	{
+		// Check if visible.
+		if(force == null)
+			return false;
+		
+		// Get the index.
+		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(force.position()));
+		int index = coordToIndex(local);
+		System.out.println("Click! index=" + index);
+		if(index == -10)
+			return false;
+		
+		// Process if it's a button.
+		if(index < 0)
+		{
+			
+		}
+		
+		// Process if its a stack.
+		else
+		{
+			
+		}
+		
+		return true;
 	}
 }
