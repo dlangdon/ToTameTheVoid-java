@@ -64,7 +64,7 @@ public class Universe
 		// Create a few designs, just for kicks
 		Design[] figthers = new Design[23];
 		for(int i=0; i<23; i++)
-			figthers[i] = new Design("Figther " + i, new Image("resources/ship2.png")); 
+			figthers[i] = new Design(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
 		Design colony = new Design("Colony Ship", new Image("resources/ship1.png"));
 		
 		// Create a bunch of fleets.
@@ -77,8 +77,7 @@ public class Universe
 			TaskForce force = new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS); 
 			forces.add(force);
 
-//			int numFighters = new Random().nextInt(23);
-			int numFighters = 22;
+			int numFighters = new Random().nextInt(23);
 			for(int j=0; j<numFighters; j++)
 				force.addShips(figthers[j], j*10);
 			force.addShips(colony, 5);

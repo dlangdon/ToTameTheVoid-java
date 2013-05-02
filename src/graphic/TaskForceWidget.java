@@ -86,7 +86,7 @@ public class TaskForceWidget implements UIListener
 
 		// Decide how many segments to show.
 		int numStacks = force.stacks().size();
-		for(int i=0; i<=numStacks/4 && i<5; i++)
+		for(int i=0; i<=(numStacks-1)/4 && i<5; i++)
 			backgrounds[i].draw(bckDeltas[0][i], bckDeltas[1][i]);
 
 		// Paint the icons and numbers.
@@ -203,7 +203,7 @@ public class TaskForceWidget implements UIListener
 		// Get the index.
 		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(force.position()));
 		int index = coordToIndex(local);
-		if(index == -10)
+		if(index == -10 || index >= cache.length)
 			return false;
 		
 		// Process if it's a button.
