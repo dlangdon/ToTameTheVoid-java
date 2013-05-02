@@ -1,11 +1,15 @@
 package graphic;
 
+import java.util.Map.Entry;
+
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
+import state.Design;
 import state.TaskForce;
 
 public class TaskForceWidget implements UIListener
@@ -14,11 +18,13 @@ public class TaskForceWidget implements UIListener
 	private TaskForce force;
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
+	int hoverIndex;
 
 // Public Methods =====================================================================================================
 	TaskForceWidget() throws SlickException
 	{
 		this.force = null;
+		this.hoverIndex = -1;
 		backgrounds = new Image[] 
 			{
 				new Image("resources/fleetBase.png"),
@@ -56,22 +62,34 @@ public class TaskForceWidget implements UIListener
 			backgrounds[i].draw(bckDeltas[0][i], bckDeltas[1][i]);
 
 		// Paint the icons and numbers.
-		// FIXME for now just paint the locations, ignore actual stacks.
-//		for(Entry<Design, Integer> entry : force.stacks().entrySet())
-//		{
-//			
-//		}
-		
-		for(int i=0; i<numStacks; i++)
+		int i=0;
+		for(Entry<Design, Integer> entry : force.stacks().entrySet())
 		{
-			Vector2f pos = indexToCenterCoord(i);
-			Render.normal.drawString(pos.x, pos.y, "" + i);
-			g.fillOval(pos.x-1, pos.y-1, 3, 3);
+			// Draw the icon.
+			Vector2f pos = indexToCenterCoord(i++);
+			entry.getKey().image().draw(pos.x-15, pos.y-15);
+			
+			// Calculate location and draw the count for the stack.
+			g.setColor(Color.orange);
+			float length = pos.length();
+			String number = entry.getValue().toString();
+			pos.normalise().scale(length + 10.0f);
+			g.fillRect(
+						pos.x - Render.normal.getWidth(number)/2,
+						pos.y - Render.normal.getHeight()/2,
+						Render.normal.getWidth(number),
+						Render.normal.getHeight());
+			Render.normal.drawString(
+						pos.x - Render.normal.getWidth(number)/2,
+						pos.y - Render.normal.getHeight()/2,
+						number, Color.black);
+			
+			// Check if we also display the local information.
+			if(hoverIndex == i)
+			{
+				Render.titles.drawString(100, -78, entry.getKey().name());
+			}
 		}
-		
-		// Paint the description, if any.
-		
-
 		
 		g.popTransform();
 	}
@@ -156,14 +174,13 @@ public class TaskForceWidget implements UIListener
 		// Get the index.
 		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(force.position()));
 		int index = coordToIndex(local);
-		System.out.println("Click! index=" + index);
 		if(index == -10)
 			return false;
 		
 		// Process if it's a button.
 		if(index < 0)
 		{
-			
+			// TODO
 		}
 		
 		// Process if its a stack.
