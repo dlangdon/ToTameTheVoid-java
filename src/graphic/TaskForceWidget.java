@@ -16,7 +16,7 @@ public class TaskForceWidget implements UIListener
 {
 	private class Stack
 	{
-		float selected;	// Number between 0 and 12, which represents the number of 1/12 increments currently selected.
+		float selected;
 		int max;
 		Design design;
 	}
@@ -69,7 +69,7 @@ public class TaskForceWidget implements UIListener
 				cache[i] = new Stack();
 				cache[i].design = entry.getKey();
 				cache[i].max = entry.getValue();
-				cache[i].selected = numSteps;
+				cache[i].selected = cache[i].max;
 				i++;
 			}
 		}
@@ -99,7 +99,7 @@ public class TaskForceWidget implements UIListener
 			// Calculate location and draw the count for the stack.
 			g.setColor(Color.orange);
 			float length = pos.length();
-			String number = Integer.toString((int)(cache[i].selected * cache[i].max / numSteps));
+			String number = Integer.toString((int)cache[i].selected);
 			pos.normalise().scale(length + 10.0f);
 			g.fillRect(
 						pos.x - Render.normal.getWidth(number)/2,
@@ -217,19 +217,20 @@ public class TaskForceWidget implements UIListener
 		{
 			// This calculation may seem rather convoluted and the % operator may sound like a better idea, but this behavior is rather rare. 
 			// If we are close to the maximum, we want to go to 12 before going pass 12. Example to avoid: 0, 3, 6, 9, 12, 2, 5, 8, 11...
+			float step = Math.max(1.0f * cache[index].max / numSteps, 1.0f);
 			if(button == 0)
 			{
-				if(cache[index].selected == numSteps)
+				if(cache[index].selected == cache[index].max)
 					cache[index].selected = 0;
 				else
-					cache[index].selected = Math.min(cache[index].selected + 1.0f * numSteps / cache[index].max, numSteps);
+					cache[index].selected = Math.min(cache[index].selected + step, cache[index].max);
 			}
 			else if(button == 1)
 			{
-				if(cache[index].selected == 0)
-					cache[index].selected = numSteps;
+				if(cache[index].selected < 1.0f)
+					cache[index].selected = cache[index].max;
 				else
-					cache[index].selected = Math.max(cache[index].selected - (float) Math.ceil(1.0f * numSteps / cache[index].max), 0.0f);
+					cache[index].selected = Math.max(cache[index].selected - step, 0.0f);
 			}
 			System.out.println(cache[index].selected);
 		}
