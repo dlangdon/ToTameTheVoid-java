@@ -185,6 +185,13 @@ public class Game extends BasicGameState
 	{
 		Camera.instance().zoom(change >= 0, new Vector2f(Mouse.getX(), Display.getHeight() - Mouse.getY()));
 	}
+
+	@Override
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
+	{
+		// Notify widgets.
+		taskForceWidget.mouseMoved(oldx, oldy, newx, newy);
+	}
 	
 	@Override
 	public int getID()

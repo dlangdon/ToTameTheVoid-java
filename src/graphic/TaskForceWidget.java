@@ -62,11 +62,11 @@ public class TaskForceWidget implements UIListener
 			backgrounds[i].draw(bckDeltas[0][i], bckDeltas[1][i]);
 
 		// Paint the icons and numbers.
-		int i=0;
+		int i=-1;
 		for(Entry<Design, Integer> entry : force.stacks().entrySet())
 		{
 			// Draw the icon.
-			Vector2f pos = indexToCenterCoord(i++);
+			Vector2f pos = indexToCenterCoord(++i);
 			entry.getKey().image().draw(pos.x-15, pos.y-15);
 			
 			// Calculate location and draw the count for the stack.
@@ -87,7 +87,7 @@ public class TaskForceWidget implements UIListener
 			// Check if we also display the local information.
 			if(hoverIndex == i)
 			{
-				Render.titles.drawString(100, -78, entry.getKey().name());
+				Render.titles.drawString(120, -100, entry.getKey().name());
 			}
 		}
 		
@@ -191,4 +191,16 @@ public class TaskForceWidget implements UIListener
 		
 		return true;
 	}
+	
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
+	{
+		// Check if we are active.
+		if(force == null)
+			return;
+		
+		// Get the index to display.
+		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(force.position()));
+		hoverIndex = coordToIndex(local);
+	}
+
 }
