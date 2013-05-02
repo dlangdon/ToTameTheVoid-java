@@ -14,17 +14,27 @@ import state.TaskForce;
 
 public class TaskForceWidget implements UIListener
 {
+	private class Stack
+	{
+		float selected;	// Number between 0 and 12, which represents the number of 1/12 increments currently selected.
+		int max;
+		Design design;
+	}
+	
 // Internals ==========================================================================================================	
 	private TaskForce force;
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
+	private Stack[] cache;
 	int hoverIndex;
+	int numSteps;
 
 // Public Methods =====================================================================================================
 	TaskForceWidget() throws SlickException
 	{
 		this.force = null;
 		this.hoverIndex = -1;
+		this.numSteps = 6;
 		backgrounds = new Image[] 
 			{
 				new Image("resources/fleetBase.png"),
@@ -39,12 +49,30 @@ public class TaskForceWidget implements UIListener
 				{	-74,	-60,	-121, -168,	-108 },
 				{	-119,	-121,	-105,	-129,	-169 }
 			};
-	
 	}
 
+	/**
+	 * Sets the task force to be displayed by this
+	 * @param force
+	 */
 	void showForce(TaskForce force)
 	{
 		this.force = force;
+		
+		// Reset the selected values of the ships for this force to their maximum value.
+		if(force != null)
+		{
+			cache = new Stack[force.stacks().size()];
+			int i=0;
+			for(Entry<Design, Integer> entry : force.stacks().entrySet())
+			{
+				cache[i] = new Stack();
+				cache[i].design = entry.getKey();
+				cache[i].max = entry.getValue();
+				cache[i].selected = numSteps;
+				i++;
+			}
+		}
 	}
 
 	public void render(GameContainer gc, Graphics g)
@@ -62,17 +90,16 @@ public class TaskForceWidget implements UIListener
 			backgrounds[i].draw(bckDeltas[0][i], bckDeltas[1][i]);
 
 		// Paint the icons and numbers.
-		int i=-1;
-		for(Entry<Design, Integer> entry : force.stacks().entrySet())
+		for(int i=0; i<cache.length; i++)
 		{
 			// Draw the icon.
-			Vector2f pos = indexToCenterCoord(++i);
-			entry.getKey().image().draw(pos.x-15, pos.y-15);
+			Vector2f pos = indexToCenterCoord(i);
+			cache[i].design.image().draw(pos.x-15, pos.y-15);
 			
 			// Calculate location and draw the count for the stack.
 			g.setColor(Color.orange);
 			float length = pos.length();
-			String number = entry.getValue().toString();
+			String number = Integer.toString((int)(cache[i].selected * cache[i].max / numSteps));
 			pos.normalise().scale(length + 10.0f);
 			g.fillRect(
 						pos.x - Render.normal.getWidth(number)/2,
@@ -87,19 +114,21 @@ public class TaskForceWidget implements UIListener
 			// Check if we also display the local information.
 			if(hoverIndex == i)
 			{
-				Render.titles.drawString(120, -100, entry.getKey().name());
+				Render.titles.drawString(120, -100, cache[i].design.name());
 			}
 		}
 		
 		g.popTransform();
 	}
 	
+	
+	/**
+	 * Translates a placeholder index for a stack in this widget to a local coordinates (around widget's center).
+	 * @param index Index to translate, must be in the range 0-22.
+	 * @return A vector with the local coordinates, or null if not
+	 */
 	private Vector2f indexToCenterCoord(int index)
 	{
-		// The widget supports a maximum of 23 different stacks, which should be more than enough.
-		if(index > 22)
-			return null;
-		
 		// Determine first 12 segments.
 		if(index < 12)
 		{
@@ -186,7 +215,23 @@ public class TaskForceWidget implements UIListener
 		// Process if its a stack.
 		else
 		{
-			
+			// This calculation may seem rather convoluted and the % operator may sound like a better idea, but this behavior is rather rare. 
+			// If we are close to the maximum, we want to go to 12 before going pass 12. Example to avoid: 0, 3, 6, 9, 12, 2, 5, 8, 11...
+			if(button == 0)
+			{
+				if(cache[index].selected == numSteps)
+					cache[index].selected = 0;
+				else
+					cache[index].selected = Math.min(cache[index].selected + 1.0f * numSteps / cache[index].max, numSteps);
+			}
+			else if(button == 1)
+			{
+				if(cache[index].selected == 0)
+					cache[index].selected = numSteps;
+				else
+					cache[index].selected = Math.max(cache[index].selected - (float) Math.ceil(1.0f * numSteps / cache[index].max), 0.0f);
+			}
+			System.out.println(cache[index].selected);
 		}
 		
 		return true;
