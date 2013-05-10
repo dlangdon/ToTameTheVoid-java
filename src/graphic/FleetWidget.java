@@ -10,10 +10,13 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Design;
-import state.TaskForce;
+import state.Fleet;
 
-public class TaskForceWidget implements UIListener
+public class FleetWidget implements UIListener
 {
+	/**
+	 * An internal class in order to keep count of unit selections inside a fleet.
+	 */
 	private class Stack
 	{
 		float selected;
@@ -22,7 +25,7 @@ public class TaskForceWidget implements UIListener
 	}
 	
 // Internals ==========================================================================================================	
-	private TaskForce force;
+	private Fleet fleet;
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
 	private Stack[] cache;
@@ -30,9 +33,9 @@ public class TaskForceWidget implements UIListener
 	int numSteps;
 
 // Public Methods =====================================================================================================
-	TaskForceWidget() throws SlickException
+	FleetWidget() throws SlickException
 	{
-		this.force = null;
+		this.fleet = null;
 		this.hoverIndex = -1;
 		this.numSteps = 6;
 		backgrounds = new Image[] 
@@ -52,19 +55,19 @@ public class TaskForceWidget implements UIListener
 	}
 
 	/**
-	 * Sets the task force to be displayed by this
-	 * @param force
+	 * Sets the task fleet to be displayed by this
+	 * @param fleet
 	 */
-	void showForce(TaskForce force)
+	void showForce(Fleet fleet)
 	{
-		this.force = force;
+		this.fleet = fleet;
 		
-		// Reset the selected values of the ships for this force to their maximum value.
-		if(force != null)
+		// Reset the selected values of the ships for this fleet to their maximum value.
+		if(fleet != null)
 		{
-			cache = new Stack[force.stacks().size()];
+			cache = new Stack[fleet.stacks().size()];
 			int i=0;
-			for(Entry<Design, Integer> entry : force.stacks().entrySet())
+			for(Entry<Design, Integer> entry : fleet.stacks().entrySet())
 			{
 				cache[i] = new Stack();
 				cache[i].design = entry.getKey();
@@ -78,14 +81,14 @@ public class TaskForceWidget implements UIListener
 	public void render(GameContainer gc, Graphics g)
 	{
 		// If no star is being displayed, do nothing.
-		if(force == null)
+		if(fleet == null)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
-		Camera.instance().pushLocalTransformation(g, force.position());
+		Camera.instance().pushLocalTransformation(g, fleet.position());
 
 		// Decide how many segments to show.
-		int numStacks = force.stacks().size();
+		int numStacks = fleet.stacks().size();
 		for(int i=0; i<=(numStacks-1)/4 && i<5; i++)
 			backgrounds[i].draw(bckDeltas[0][i], bckDeltas[1][i]);
 
@@ -197,11 +200,11 @@ public class TaskForceWidget implements UIListener
 	public boolean screenCLick(float x, float y, int button)
 	{
 		// Check if visible.
-		if(force == null)
+		if(fleet == null)
 			return false;
 		
 		// Get the index.
-		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(force.position()));
+		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(fleet.position()));
 		int index = coordToIndex(local);
 		if(index == -10 || index >= cache.length)
 			return false;
@@ -241,11 +244,11 @@ public class TaskForceWidget implements UIListener
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
 		// Check if we are active.
-		if(force == null)
+		if(fleet == null)
 			return;
 		
 		// Get the index to display.
-		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(force.position()));
+		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(fleet.position()));
 		hoverIndex = coordToIndex(local);
 	}
 

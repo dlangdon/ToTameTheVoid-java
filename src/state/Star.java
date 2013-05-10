@@ -24,7 +24,7 @@ public class Star implements UIListener
 	private float conditions_;
 	private float resources_;
 	private Colony colony;
-	private List<TaskForce> inOrbit;
+	private List<Fleet> inOrbit;
 	
 	// Drawing internals
 	public static Image img;
@@ -36,7 +36,7 @@ public class Star implements UIListener
 	{
 		index_ = index;
 		pos = new Vector2f(x, y);
-		inOrbit = new ArrayList<TaskForce>();
+		inOrbit = new ArrayList<Fleet>();
 	}
 	
 	public float x()
@@ -129,26 +129,31 @@ public class Star implements UIListener
 	}
 
 	/**
-	 * Receives a signal when a task force arrives on the system.
-	 * @param taskForce The task force that arrived.
+	 * Receives a signal when a task fleet arrives on the system.
+	 * @param fleet The task fleet that arrived.
 	 */
-	public void arrive(TaskForce taskForce)
+	public void arrive(Fleet fleet)
 	{
-		inOrbit.add(taskForce);
+		inOrbit.add(fleet);
 		Collections.sort(inOrbit);
 	}
 
 	/**
-	 * Receives a signal when a task force leaves the system.
-	 * @param taskForce The task force that departed.
+	 * Receives a signal when a task fleet leaves the system.
+	 * @param fleet The task fleet that departed.
 	 */
-	public void leave(TaskForce taskForce)
+	public void leave(Fleet fleet)
 	{
-		inOrbit.remove(taskForce);
+		inOrbit.remove(fleet);
 	}
 	
-	public int getDock(TaskForce tf)
+	public int getDock(Fleet tf)
 	{
 		return inOrbit.indexOf(tf);
+	}
+	
+	List<Fleet> getFleetsInOrbit()
+	{
+		return inOrbit;
 	}
 }

@@ -25,7 +25,7 @@ public class Universe
 // Internals ==========================================================================================================	
 	private List<Star> stars;
 	private List<Empire> empires;
-	private HashSet<TaskForce> forces;
+	private HashSet<Fleet> fleets;
 	private int turn;
 	private Empire playerEmpire;
 
@@ -35,7 +35,7 @@ public class Universe
 		instance_ = this;
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
-		this.forces = new HashSet<TaskForce>();
+		this.fleets = new HashSet<Fleet>();
 		this.turn = 0;
 		
 		createStars();
@@ -74,13 +74,13 @@ public class Universe
 			int empire = r.nextInt(empires.size());
 			int star = r.nextInt(stars.size());
 			
-			TaskForce force = new TaskForce("Fleet" + i, stars.get(star), empires.get(empire), TaskForce.Type.SHIPS); 
-			forces.add(force);
+			Fleet fleet = new Fleet("Fleet" + i, stars.get(star), empires.get(empire), Fleet.Type.SHIPS); 
+			fleets.add(fleet);
 
 			int numFighters = new Random().nextInt(23);
 			for(int j=0; j<numFighters; j++)
-				force.addShips(figthers[j], j*10);
-			force.addShips(colony, 5);
+				fleet.addShips(figthers[j], j*10);
+			fleet.addShips(colony, 5);
 		}
 		
 	}
@@ -117,7 +117,7 @@ public class Universe
 	/**
 	 * Advances the turn for all elements in the universe.
 	 */
-	public void nextTurn()
+	public void updateState()
 	{
 		turn++;
 		
@@ -126,8 +126,14 @@ public class Universe
 		for(Empire e: empires)
 			e.turn();
 		
-		for(TaskForce tf: forces)
+		// Update all fleets.
+		for(Fleet tf: fleets)
 			tf.turn();
+	}
+	
+	public void generateConflicts()
+	{
+		
 	}
 	
 	/**
@@ -147,11 +153,11 @@ public class Universe
 	}
 
 	/**
-	 * @return A set of all task forces in the galaxy.
+	 * @return A set of all task fleets in the galaxy.
 	 */
-	public HashSet<TaskForce> getForces()
+	public HashSet<Fleet> getForces()
 	{
-		return forces;
+		return fleets;
 	}
 
 	/**
@@ -161,4 +167,14 @@ public class Universe
 	{
 		return playerEmpire;
 	}
+
+	/**
+	 * Removes a fleet from the list of all fleets.
+	 * @param f The fleet to remove.
+	 */
+	public void removeFleet(Fleet f)
+	{
+		fleets.remove(f);
+	}
+
 }

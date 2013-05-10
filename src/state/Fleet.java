@@ -6,6 +6,7 @@ import graphic.UIListener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.newdawn.slick.Color;
@@ -13,7 +14,7 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-public class TaskForce implements UIListener, Comparable<TaskForce>
+public class Fleet implements UIListener, Comparable<Fleet>
 {
 	enum Type { SHIPS, AGENTS }
 	
@@ -23,17 +24,17 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
 	private int turnsTraveled;               	///< Number of turns that have been moved towards that destination already.
 	private float speed;								///< Minimum common speed for the stacks.
-	private Empire owner;							///< Empire that owns this TaskForce.
-	private Type type;								///< Type of task force, to separate fleets from agents, etc.
-	private TreeMap<Design, Integer> stacks;	///< Stacks composing this TaskForce (individual ships and types).
+	private Empire owner_;							///< Empire that owns this Fleet.
+	private Type type_;								///< Type of task fleet, to separate fleets from agents, etc.
+	private TreeMap<Design, Integer> stacks;	///< Stacks composing this Fleet (individual ships and types).
 
 // Public Methods =====================================================================================================
-	TaskForce( String name, Star orbiting, Empire empire, Type type )
+	Fleet( String name, Star orbiting, Empire empire, Type type )
 	{
 		// Base values
 		this.speed = 10;
-		this.owner = empire;
-		this.type = type;
+		this.owner_ = empire;
+		this.type_ = type;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
 		this.name = name;
@@ -45,7 +46,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	}
 
 	/**
-	 * Truncates the taskforce route up to a specific star.
+	 * Truncates the fleet route up to a specific star.
 	 * @param destination Point at which the route is truncated. If the star was not part of the route, nothing happens.
 	 * @return True if the route changed.
 	 */
@@ -62,7 +63,9 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 			destinations.removeLast();
 	}
 
-	/// @return True if the route changed.
+	/**
+	 * @param destination Adds a new destination tt this fleet's queued route. 
+	 */
 	public void addToRoute(Star destination)
 	{
 		// Check if destination is reachable
@@ -75,6 +78,32 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 
 	}
 
+	/**
+	 * Merges two fleets into a single one. Note that if the merge is successful, the fleet merged into this one is emptied, and should be later deleted.
+	 * @param other Fleet to be merged with this. It must be of the same type and empire.
+	 * @return true if the fleets were merged correctly and the other fleet removed.
+	 */
+	public boolean mergeIn(Fleet other)
+	{
+		// Check if merge is valid.
+		if(owner_ != other.owner_ || type_ != other.type_)
+			return false;
+		
+		// Do the merge.
+		for(Entry<Design, Integer> entry : other.stacks.entrySet())
+		{
+			Integer quantity = stacks.get(entry.getKey());
+			if(quantity == null)
+				quantity = 0;
+			
+			stacks.put(entry.getKey(), entry.getValue() + quantity);
+		}
+		
+		// Empty the other fleet.
+		other.stacks.clear();
+		return true;
+	}
+	
 	void addShips(Design kind, int number)
 	{
 		Integer current = stacks.get(kind);
@@ -93,7 +122,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		if(destinations.size() > 1 && turnsTraveled == 0)
 			destinations.getFirst().leave(this);
 
-		// Move the task force one turn forward.
+		// Move the task fleet one turn forward.
 		turnsTraveled++;
 		
 		// If we arrived at a star, put ourselves in orbit.
@@ -111,7 +140,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	public void render(GameContainer gc, Graphics g, int flags)
 	{
 		Vector2f zero = new Vector2f();
-		g.setColor(owner.color());
+		g.setColor(owner_.color());
 		
 		if((flags & Render.SELECTED) != 0)
 		{
@@ -140,7 +169,7 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		// Paint the fleet icon.
 		if(turnsTraveled == 0)
 		{
-			// Paint orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
+			// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 			Vector2f pos = new Vector2f(20.0f, 0.0f);
 			pos.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
 			drawIcon(destinations.getFirst().getPos(), g, pos);
@@ -175,13 +204,13 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		Vector2f screen = new Vector2f(20.0f, 0.0f);
 		if(turnsTraveled == 0)
 		{
-			// Force orbiting the star. In this case, each taskforce is separated by a 30 degree angle.
+			// Force orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 			screen.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
 			screen.add(Camera.instance().worldToScreen(destinations.getFirst().getPos()));
 		}
 		else
 		{
-			// Click of a force in orbit. 
+			// Click of a fleet in orbit. 
 			screen = Camera.instance().worldToScreen(destinations.getFirst().getPos()); 
 			Vector2f dir = Camera.instance().worldToScreen(destinations.get(1).getPos()).sub(screen);
 			screen = dir.scale(1.0f * turnsTraveled / turnsTotal).add(screen); 
@@ -193,24 +222,24 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 	}
 
 	/**
-	 * Task forces are ordered in the following way:
-	 * 	1.- A task force which orbits a colony of the same empire always goes first.
-	 * 	2.- Task forces are then ordered by empire, on a fixed order.
-	 * 	3.- Task forces are ordered by type.
+	 * Task fleets are ordered in the following way:
+	 * 	1.- A task fleet which orbits a colony of the same empire always goes first.
+	 * 	2.- Task fleets are then ordered by empire, on a fixed order.
+	 * 	3.- Task fleets are ordered by type.
 	 * 
-	 * Apart from these characteristics, task forces are considered equivalent for ordering purposes, so this method is inconsistent with equals()
+	 * Apart from these characteristics, task fleets are considered equivalent for ordering purposes, so this method is inconsistent with equals()
 	 */
 	@Override
-	public int compareTo(TaskForce o)
+	public int compareTo(Fleet o)
 	{
 		// Check if one or other is owner of the star.
 		int aux = 0;
 		Colony col = destinations.getFirst().getColony(); 
 		if(col != null)
 		{
-			if(col.owner() == owner)
+			if(col.owner() == owner_)
 				aux -= 1;
-			if(col.owner() == o.owner)
+			if(col.owner() == o.owner_)
 				aux += 1;
 			
 			if(aux != 0)
@@ -218,16 +247,16 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		}
 
 		// Check if they belong to different empires.
-		aux = this.owner.name().compareTo(o.owner.name());
+		aux = this.owner_.name().compareTo(o.owner_.name());
 		if(aux != 0)
 			return aux;
 		
 		// Check their types.
-		return type.ordinal() - o.type.ordinal();
+		return type_.ordinal() - o.type_.ordinal();
 	}
 
 	/**
-	 * @return The position were this force is located. If in orbit, this corresponds to the star's position, else, its coordinates in free space.
+	 * @return The position were this fleet is located. If in orbit, this corresponds to the star's position, else, its coordinates in free space.
 	 */
 	public Vector2f position()
 	{
@@ -240,8 +269,34 @@ public class TaskForce implements UIListener, Comparable<TaskForce>
 		return dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos());
 	}
 	
+	/**
+	 * @return A map corresponding to all stacks in this fleet. Each entry corresponds to a (Design, Integer) pair, corresponding to the number of chips of a particular design.
+	 */
 	public TreeMap<Design, Integer> stacks()
 	{
 		return stacks;
+	}
+	
+	/**
+	 * @return True if this fleet is empty (contains no stacks). Else false.
+	 */
+	public boolean isEmpty()
+	{
+		return stacks.size() == 0;
+	}
+
+	public Empire owner()
+	{
+		return owner_;
+	}
+	
+	public Type type()
+	{
+		return type_;
+	}
+	
+	public boolean hasOrders()
+	{
+		return destinations.size() > 1;
 	}
 }

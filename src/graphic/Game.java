@@ -12,9 +12,12 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import state.EmptyFleetSolver;
+import state.FleetMergeSolver;
+import state.GameEventQueue;
 import state.Lane;
 import state.Star;
-import state.TaskForce;
+import state.Fleet;
 import state.Universe;
 
 public class Game extends BasicGameState
@@ -22,9 +25,10 @@ public class Game extends BasicGameState
 	private Image background;
 	private Image starfield;
 	private StarWidget starWidget;
-	private TaskForceWidget taskForceWidget;
+	private FleetWidget fleetWidget;
 	private EconomyDialog econDialog;
-	private TaskForce selectedForce;
+	private Fleet selectedForce;
+	private GameEventQueue eventQueue;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
@@ -34,9 +38,10 @@ public class Game extends BasicGameState
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		new Universe();
 		starWidget = new StarWidget();
-		taskForceWidget = new TaskForceWidget();
+		fleetWidget = new FleetWidget();
 		selectedForce = null;
 		econDialog = new EconomyDialog();
+		eventQueue = new GameEventQueue();
 		
 		// TODO load resources in a more intelligent way...
 		background = new Image("resources/bck2.jpg");
@@ -45,8 +50,12 @@ public class Game extends BasicGameState
 		gc.setTargetFrameRate(120);
 		
 		// Pass two turns to reach a valid starting point (where last turn expenses are based on existing colonies).
-		Universe.instance().nextTurn();
-		Universe.instance().nextTurn();
+		Universe.instance().updateState();
+		Universe.instance().updateState();
+		
+		// FIXME Temporary fixed event code
+		eventQueue.registerSolver(new FleetMergeSolver());
+		eventQueue.registerSolver(new EmptyFleetSolver());
 	}
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
@@ -72,14 +81,14 @@ public class Game extends BasicGameState
 		}
 
 		// Draw fleets
-		for(TaskForce tf : Universe.instance().getForces())
+		for(Fleet tf : Universe.instance().getForces())
 		{
 			tf.render(gc, g, (tf == selectedForce) ? Render.SELECTED : 0);
 		}
 		
 		// Draw in world widgets
 		starWidget.render(gc, g);
-		taskForceWidget.render(gc, g);
+		fleetWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -87,10 +96,17 @@ public class Game extends BasicGameState
 		// Draw HUD widgets
 		g.popTransform();
 		econDialog.render(gc, g);
+		
+		// Draw events
+		eventQueue.render(gc, g);
 	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException
 	{
+		// Process events and stop processing if modal.
+		if(eventQueue.update(gc, delta))
+			return;
+		
 		// Check for input
 		Input input = gc.getInput();
 		  
@@ -118,6 +134,16 @@ public class Game extends BasicGameState
 	}
 	
 	/**
+	 * Advances the game to the next turn.
+	 */
+	public void turn()
+	{
+		// Move the universe forward.
+		Universe.instance().updateState();
+		eventQueue.generateEvents();
+	}
+	
+	/**
 	 * Used for single clicks.
 	 */
 	@Override
@@ -128,7 +154,7 @@ public class Game extends BasicGameState
 		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_T)
-			Universe.instance().nextTurn();
+			this.turn();
 		else if(key == Input.KEY_E)
 			econDialog.setVisible(!econDialog.isVisible());
 	}
@@ -137,12 +163,12 @@ public class Game extends BasicGameState
 	public void mousePressed(int button, int x, int y)
 	{
 		// Check if any of the interfaces consumes this click.
-		if(taskForceWidget.screenCLick(x, y, button))
+		if(fleetWidget.screenCLick(x, y, button))
 			return;
 		
 		// Check which objects may have received the click signal.
-		TaskForce newForceSelected = null;
-		for(TaskForce tf : Universe.instance().getForces())
+		Fleet newForceSelected = null;
+		for(Fleet tf : Universe.instance().getForces())
 		{
 			if(tf.screenCLick((float)x, (float)y, button))
 			{
@@ -173,9 +199,9 @@ public class Game extends BasicGameState
 		}
 		else
 		{
-			// Prioritize force selection to star selection, in case regions overlap.
+			// Prioritize fleet selection to star selection, in case regions overlap.
 			selectedForce = newForceSelected;
-			taskForceWidget.showForce(selectedForce);
+			fleetWidget.showForce(selectedForce);
 			starWidget.showStar(newForceSelected == null ? selectedStar : null);
 		}
 	}
@@ -190,7 +216,7 @@ public class Game extends BasicGameState
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
 		// Notify widgets.
-		taskForceWidget.mouseMoved(oldx, oldy, newx, newy);
+		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
 	}
 	
 	@Override
