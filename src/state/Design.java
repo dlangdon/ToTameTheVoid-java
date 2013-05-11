@@ -7,6 +7,7 @@ public class Design implements Comparable<Design>
 // Internals ==========================================================================================================
 	private String name_;
 	private Image image_;
+	private float hitPoints_;
 	
 // Public Methods =====================================================================================================
 	public Design(String name_, Image image_)
@@ -26,6 +27,11 @@ public class Design implements Comparable<Design>
 		return image_;
 	}
 
+	public float hitPoints()
+	{
+		return hitPoints_;
+	}
+	
 	@Override
 	public int compareTo(Design other)
 	{

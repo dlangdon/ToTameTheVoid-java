@@ -23,21 +23,21 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	 */
 	public class Stack
 	{
-		private int quantity_;
+		private float quantity_;
 		private float baseDamage_;
-		private float maxDamage_;
+		private float maxVarDamage_;
 
 		Stack(int quantity)
 		{
 			this.quantity_ = quantity;
 			this.baseDamage_ = 0;
-			this.maxDamage_ = 0;
+			this.maxVarDamage_ = 0;
 		}
 		
 		void add(Stack other)
 		{
 			baseDamage_ = (baseDamage_ * quantity_ + other.quantity_ * other.baseDamage_) / (quantity_ + other.quantity_); 
-			baseDamage_ = (maxDamage_ * quantity_ + other.quantity_ * other.maxDamage_) / (quantity_ + other.quantity_);
+			baseDamage_ = (maxVarDamage_ * quantity_ + other.quantity_ * other.maxVarDamage_) / (quantity_ + other.quantity_);
 			quantity_ += other.quantity_;
 		}
 		
@@ -46,7 +46,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		 */
 		public int quantity()
 		{
-			return quantity_;
+			return (int) Math.ceil(quantity_);
 		}
 
 		/**
@@ -60,9 +60,9 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		/**
 		 * @return the maxDamage
 		 */
-		public float maxDamage()
+		public float maxVariableDamage()
 		{
-			return maxDamage_;
+			return maxVarDamage_;
 		}
 	}
 	
@@ -165,6 +165,36 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			current.add(toAdd);
 	}
 
+	/**
+	 * Applies a certain amount of damage to the stack of ships specified by the design.
+	 * @param kind Stack of ships to apply the damage.
+	 * @param damage Amount of damage to apply.
+	 */
+	public void takeDamage(Design kind, float damagePerHit, int numHits, boolean unfocused)
+	{
+		Stack stack = stacks.get(kind);
+		if(stack == null)
+			return;
+
+		// Update the damage stats.
+		if(unfocused)																						// Case 1: unfocused attack
+			stack.baseDamage_ += damagePerHit * numHits / stack.quantity_;
+		else if(damagePerHit > kind.hitPoints())													// Case 2: kill ships directly.
+			stack.quantity_ -= numHits;
+		else																									// Case 3: distribute damage around.
+			stack.maxVarDamage_ +=  2.0f * damagePerHit * numHits / stack.quantity_;
+		
+		// Check how many units are left, by intersecting the damage curve: y = b + m/q * x and hitpoints: y = max_hp. Careful with zero div.
+		if(stack.maxVarDamage_ <= 0.0f)
+			stack.quantity_ =  (stack.baseDamage_ >= kind.hitPoints()) ? 0 : stack.quantity_;
+		else
+			stack.quantity_ = (kind.hitPoints() - stack.baseDamage_) * stack.quantity_ / stack.maxVarDamage_;
+		
+		// Remove the stack if it is killed completely.
+		if(stack.quantity_ <= 0)
+			stacks.remove(kind);
+	}
+	
 	public void turn()
 	{
 		// If no destinations, do nothing.
