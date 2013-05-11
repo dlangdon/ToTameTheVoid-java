@@ -16,6 +16,9 @@ import org.newdawn.slick.geom.Vector2f;
 
 public class Fleet implements UIListener, Comparable<Fleet>
 {
+// Statics ============================================================================================================
+	// TODO Separate fleet movement from type, damage, etc. Use instanceof() instead of fixed types, to increase modularity.
+	// Make this class abstract.
 	enum Type { SHIPS, AGENTS }
 	
 	/**
@@ -66,6 +69,17 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		}
 	}
 	
+	private static int maintenanceExpense;
+	
+	/**
+	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
+	 */
+	public static void init()
+	{
+		maintenanceExpense = Economy.registerCause("Fleet Maintenance");
+	}
+	
+	
 // Internals ==========================================================================================================
 	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
@@ -73,7 +87,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner_;							///< Empire that owns this Fleet.
 	private Type type_;								///< Type of task fleet, to separate fleets from agents, etc.
-	private TreeMap<Design, Stack> stacks;		///< Stacks composing this Fleet (individual ships and types).
+	private TreeMap<Unit, Stack> stacks;		///< Stacks composing this Fleet (individual ships and types).
 
 // Public Methods =====================================================================================================
 	Fleet(Star orbiting, Empire empire, Type type)
@@ -84,11 +98,11 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		this.type_ = type;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
-		this.stacks = new TreeMap<Design, Stack>();
-
+		this.stacks = new TreeMap<Unit, Stack>();
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
 		orbiting.arrive(this);
+		
 	}
 
 	/**
@@ -136,7 +150,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			return false;
 		
 		// Do the merge.
-		for(Entry<Design, Stack> entry : other.stacks.entrySet())
+		for(Entry<Unit, Stack> entry : other.stacks.entrySet())
 		{
 			// Find a stack in this fleet for the other's stack design. Add one if there is none.
 			Stack local = stacks.get(entry.getKey());
@@ -155,7 +169,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		return true;
 	}
 	
-	public void addShips(Design kind, int number)
+	public void addUnits(Unit kind, int number)
 	{
 		Stack toAdd = new Stack(number);
 		Stack current = stacks.get(kind);
@@ -170,7 +184,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	 * @param kind Stack of ships to apply the damage.
 	 * @param damage Amount of damage to apply.
 	 */
-	public void takeDamage(Design kind, float damagePerHit, int numHits, boolean unfocused)
+	public void takeDamage(Unit kind, float damagePerHit, int numHits, boolean unfocused)
 	{
 		Stack stack = stacks.get(kind);
 		if(stack == null)
@@ -197,7 +211,18 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	
 	public void turn()
 	{
-		// If no destinations, do nothing.
+		// Generate expenses (repair and maintenance) for this turn.
+		float expenses = 0.0f;
+		for(Entry<Unit, Stack> entry : stacks.entrySet())
+		{
+			// Expenses are 1% of original ship cost per turn. After 100 turns they become a liability ;-)
+			expenses -= entry.getKey().cost() * entry.getValue().quantity() * 0.01f;
+			// TODO Repairs
+		}
+		System.out.println("Total fleet maintenance:" + expenses);
+		owner_.getEconomy().addMovement(expenses, maintenanceExpense);
+
+		// Go for movements. If no destinations, do nothing.
 		if(destinations.size() < 2)
 			return;
 
@@ -355,7 +380,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	/**
 	 * @return A map corresponding to all stacks in this fleet. Each entry corresponds to a (Design, Integer) pair, corresponding to the number of chips of a particular design.
 	 */
-	public TreeMap<Design, Stack> stacks()
+	public TreeMap<Unit, Stack> stacks()
 	{
 		return stacks;
 	}

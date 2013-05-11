@@ -9,7 +9,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-import state.Design;
+import state.Unit;
 import state.Fleet;
 import state.Fleet.Stack;
 
@@ -22,7 +22,7 @@ public class FleetWidget implements UIListener
 	{
 		float selected;
 		int max;
-		Design design;
+		Unit design;
 	}
 	
 // Internals ==========================================================================================================	
@@ -68,7 +68,7 @@ public class FleetWidget implements UIListener
 		{
 			cache = new StackSelection[fleet.stacks().size()];
 			int i=0;
-			for(Entry<Design, Stack> entry : fleet.stacks().entrySet())
+			for(Entry<Unit, Stack> entry : fleet.stacks().entrySet())
 			{
 				cache[i] = new StackSelection();
 				cache[i].design = entry.getKey();

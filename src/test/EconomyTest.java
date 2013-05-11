@@ -38,6 +38,8 @@ public class EconomyTest
 	@Before
 	public void setUp() throws Exception
 	{
+		Economy.init();
+		
 		empire = new Empire("Test Empire", Color.red);
 		economy = new Economy();
 		
@@ -94,9 +96,9 @@ public class EconomyTest
 			Assert.assertEquals(economy.bestROI(), colony.returnOfInvestment());
 			
 			// Check that the posted expenses hold.
-			Assert.assertEquals(economy.movements().get(0).amount, -lastTurnMaintenance);
-			Assert.assertEquals(economy.movements().get(1).amount, economy.reserve() -lastTurnReserve +lastTurnMaintenance - lastTurnProduction, 1E-5);
-			Assert.assertEquals(economy.movements().get(2).amount, lastTurnProduction);
+			Assert.assertEquals(economy.movements()[0], -lastTurnMaintenance);
+			Assert.assertEquals(economy.movements()[1], economy.reserve() -lastTurnReserve +lastTurnMaintenance - lastTurnProduction, 1E-5);
+			Assert.assertEquals(economy.movements()[2], lastTurnProduction);
 			
 //			System.out.format("\nTurn %d: prod=%3.4f, main=%3.4f", i, economy.totalProduction(), economy.totalMaintenance());
 		}

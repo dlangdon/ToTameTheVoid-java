@@ -60,10 +60,10 @@ public class Universe
 		}
 		
 		// Create a few designs, just for kicks
-		Design[] figthers = new Design[23];
+		Unit[] figthers = new Unit[23];
 		for(int i=0; i<23; i++)
-			figthers[i] = new Design(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
-		Design colony = new Design("Colony Ship", new Image("resources/ship1.png"));
+			figthers[i] = new Unit(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
+		Unit colony = new Unit("Colony Ship", new Image("resources/ship1.png"));
 		
 		// Create a bunch of fleets.
 		Random r = new Random();
@@ -77,8 +77,8 @@ public class Universe
 
 			int numFighters = new Random().nextInt(23);
 			for(int j=0; j<numFighters; j++)
-				fleet.addShips(figthers[j], j*10);
-			fleet.addShips(colony, 5);
+				fleet.addUnits(figthers[j], j*10);
+			fleet.addUnits(colony, 5);
 		}
 		
 	}

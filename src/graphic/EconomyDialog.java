@@ -43,14 +43,14 @@ public class EconomyDialog
 		Render.titles.drawString(100, y, "Last turn income:");
 		y += 20;
 		float totalIncome = 0.0f;
-		for(Economy.Movement mov : ec.movements())
+		for(int i=0; i<Economy.causes().size(); i++)
 		{
-			if(mov.amount > 0)
+			if(ec.movements()[i] > 0)
 			{
-				Render.normal.drawString(120, y, mov.cause);
-				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(mov.amount*10000.0f), mov.rejections ? "!" : ""));
+				Render.normal.drawString(120, y, Economy.causes().get(i));
+				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(ec.movements()[i]*10000.0f), ec.rejections()[i] ? "!" : ""));
 				y += 15;
-				totalIncome += mov.amount;
+				totalIncome += ec.movements()[i];
 			}
 		}
 		
@@ -59,14 +59,14 @@ public class EconomyDialog
 		Render.titles.drawString(100, y, "Last turn expenses:");
 		y += 20;
 		float totalExpenses = 0.0f;
-		for(Economy.Movement mov : ec.movements())
+		for(int i=0; i<Economy.causes().size(); i++)
 		{
-			if(mov.amount <= 0)
+			if(ec.movements()[i] <= 0)
 			{
-				Render.normal.drawString(120, y, mov.cause);
-				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(-mov.amount*10000.0f), mov.rejections ? "!" : ""));
+				Render.normal.drawString(120, y, Economy.causes().get(i));
+				Render.normal.drawString(320, y, String.format("$ %10d %s", (int)(-ec.movements()[i]*10000.0f), ec.rejections()[i] ? "!" : ""));
 				y += 15;
-				totalExpenses += mov.amount;
+				totalExpenses += ec.movements()[i];
 			}
 		}
 		

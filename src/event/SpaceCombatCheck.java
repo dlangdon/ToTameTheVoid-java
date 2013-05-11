@@ -20,7 +20,9 @@ public class SpaceCombatCheck implements TurnSubProcess
 	{
 		for(Star s: Universe.instance().getStars())
 		{
+			// TODO Re-make list with fleet type and not empty. 
 			List<Fleet> fleets = s.getFleetsInOrbit();
+
 			SpaceCombatSimulation sim = new SpaceCombatSimulation(fleets);
 			sim.step();
 		}

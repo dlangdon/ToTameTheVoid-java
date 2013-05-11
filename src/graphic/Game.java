@@ -14,6 +14,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import event.GameEventQueue;
 
+import state.Economy;
 import state.Fleet;
 import state.Lane;
 import state.Star;
@@ -22,7 +23,6 @@ import state.Universe;
 public class Game extends BasicGameState
 {
 	private Image background;
-	private Image starfield;
 	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
 	private EconomyDialog econDialog;
@@ -31,7 +31,9 @@ public class Game extends BasicGameState
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
-		Render.initialize();
+		// Run module initialization. Be careful with dependencies.
+		Economy.init();
+		Fleet.init();
 		
 		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
@@ -43,6 +45,7 @@ public class Game extends BasicGameState
 		eventQueue = new GameEventQueue();
 		
 		// TODO load resources in a more intelligent way...
+		Render.initialize();
 		background = new Image("resources/bck2.jpg");
 		Star.img = new Image("resources/star.png");
 		

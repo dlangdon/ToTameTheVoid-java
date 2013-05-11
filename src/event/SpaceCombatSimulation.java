@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import state.Design;
+import state.Unit;
 import state.Empire;
 import state.Fleet;
 import state.Fleet.Stack;
@@ -24,10 +24,10 @@ public class SpaceCombatSimulation
 	protected class Attack
 	{
 		int fleet;
-		Design stack;
+		Unit stack;
 		int kills;
 		
-		protected Attack(int fleet, Design stack)
+		protected Attack(int fleet, Unit stack)
 		{
 			this.fleet = fleet;
 			this.stack = stack;
@@ -78,7 +78,7 @@ public class SpaceCombatSimulation
 		float[] kills = new float[inCombat.length];
 		for(int i=0; i<inCombat.length; i++)
 		{
-			for(Entry<Design, Stack> entry : inCombat[i].stacks().entrySet())
+			for(Entry<Unit, Stack> entry : inCombat[i].stacks().entrySet())
 			{
 				kills[i] += entry.getValue().quantity() / 3.0f;
 			}
@@ -99,7 +99,7 @@ public class SpaceCombatSimulation
 				if(trust < Empire.CEASE_FIRE)
 				{
 					// Distribute attacks evenly over all enemy stacks.
-					for(Design d : inCombat[j].stacks().keySet())
+					for(Unit d : inCombat[j].stacks().keySet())
 						attacks.add(new Attack(j, d));
 				}
 			}

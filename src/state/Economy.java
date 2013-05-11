@@ -1,32 +1,52 @@
 package state;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+/**
+ * Represents the economy of an empire, including growth policy, reserves and turn accounting.
+ * Different game modules can post expenses to the economy, both positive and negative. 
+ * A static list of expense causes needs to be statically created when modules are loaded, so multiple expenses can be added to a single cause by different objects. 
+ * The reason for this static initialization is that the economy module does not have to have prior knowledge of which other modules exist. 
+ * 
+ * @author Daniel Langdon
+ */
 public class Economy
 {
-	/**
-	 * @brief The Movement struct Small structure to store a particular movement to the reserve.
-	 */
-	public class Movement
-	{
-		public String cause;
-		public float amount;
-		public boolean rejections;
+// Statics ==========================================================================================================	
+	private static ArrayList<String> causes_;
 
-		Movement(String description)
-		{
-			cause = description;
-		}
-		
-		public String toString()
-		{
-			return cause + ", " + amount + ", " + rejections;
-			
-		}
-	};	
+	/**
+	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
+	 */
+	public static void init()
+	{
+		causes_ = new ArrayList<String>();
+		registerCause("Colony Maintenance");
+		registerCause("Colony Growth");
+		registerCause("Total Production");
+	}
+
+	/**
+	 * Registers a possible cause for income or expenses for the economy. On each turn, multiple movements can be made due to a single cause, and they will be grouped together.
+	 * @param description The description to which all movements will be added.
+	 * @return A new identifier for the registered cause.
+	 */
+	public static int registerCause(String description)
+	{
+		causes_.add(description);
+		return causes_.size()-1;
+	}
+	
+	/**
+	 * @return A list of all currently registered causes for economic movements (either positive or negative).
+	 */
+	public static ArrayList<String> causes()
+	{
+		return causes_;
+	}
+	
 	
 // Internals ==========================================================================================================	
 	private float totalInfrastructure_;
@@ -38,7 +58,8 @@ public class Economy
 	private float growthPolicy_;
 	private int returnOfInvestmentLimit_;
 	private boolean onlyLocal_;
-	private List<Movement> movements_;
+	private float[] movements_;
+	private boolean[] rejections_;
 
 	// Public Methods =====================================================================================================
 	public Economy()
@@ -46,16 +67,13 @@ public class Economy
 		totalInfrastructure_ = 0;
 		totalGrowth_ = 0;
 		totalProduction_ = 0.01f;						// Initial production for turn 1
-		reserve_ = 0.1f;								// Need to start with some money, else we can't pay first's turns expenses.
+		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
 		growthPolicy_ = 0.5f;
 		returnOfInvestmentLimit_ = 9999;
 		onlyLocal_ = true;
-		movements_ = new ArrayList<Movement>();
-
-		registerCause("Colony Maintenance");
-		registerCause("Colony Growth");
-		registerCause("Total Production");
+		movements_ = new float[causes_.size()];
+		rejections_ = new boolean[causes_.size()];
 	}
 	
 	public float growthPolicy()
@@ -119,20 +137,9 @@ public class Economy
 	}
 
 	/**
-	 * Registers a possible cause for income or expenses for the economy. On each turn, multiple movements can be made due to a single cause, and they will be grouped together.
-	 * @param description The description to which all movements will be added.
-	 * @return A new identifier for the registered cause.
-	 */
-	public int registerCause(String description)
-	{
-		movements_.add(new Movement(description));
-		return movements_.size()-1;
-	}
-
-	/**
 	 * Tries to apply the specified amount to the reserve. If the amount would made the reserve go below 0, the movement is rejected.
 	 * Modules can use reserve() to check before calling, or handle the failure case.
-	 * @param amount Amount of credits to be added or removed from the reserve, a possitive value is considered addition, a negative one subtraction.
+	 * @param amount Amount of credits to be added or removed from the reserve, a positive value is considered addition, a negative one subtraction.
 	 * @param cause Pre-registered bin to which add the movement.
 	 * @return True if the reserve could process the movement, else 0.
 	 */
@@ -140,11 +147,11 @@ public class Economy
 	{
 		if(amount + reserve_ < 0)
 		{
-			movements_.get(cause).rejections = true;
+			rejections_[cause] = true;
 			return false;
 		}
 
-		movements_.get(cause).amount += amount;
+		movements_[cause] += amount;
 		reserve_ += amount;
 		return true;
 	}
@@ -255,10 +262,10 @@ public class Economy
 	public void resetTurn()
 	{
 		// Reset turn counters and get ready to accept expenses.
-		for(int i=0; i<movements_.size(); i++)
+		for(int i=0; i<causes_.size(); i++)
 		{
-			movements_.get(i).amount = 0.0f;
-			movements_.get(i).rejections = false;
+			movements_[i] = 0.0f;
+			rejections_[i] = false;
 		}
 		
 		// Raise production to the reserve.
@@ -268,9 +275,13 @@ public class Economy
 	/**
 	 * @return A list with all the movements done during the turn. It should not be modified externally.
 	 */
-	public List<Movement> movements()
+	public float[] movements()
 	{
 		return movements_;
 	}
-
+	
+	public boolean[] rejections()
+	{
+		return rejections_;
+	}
 }
