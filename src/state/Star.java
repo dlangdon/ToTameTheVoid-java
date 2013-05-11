@@ -152,7 +152,7 @@ public class Star implements UIListener
 		return inOrbit.indexOf(tf);
 	}
 	
-	List<Fleet> getFleetsInOrbit()
+	public List<Fleet> getFleetsInOrbit()
 	{
 		return inOrbit;
 	}

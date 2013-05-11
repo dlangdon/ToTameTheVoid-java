@@ -1,6 +1,7 @@
 package state;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.newdawn.slick.Color;
 
@@ -10,8 +11,7 @@ public class Empire
 	private String name_;
 	private Color color_;
 	private Economy economy_;
-	// QSet<Fleet*> fleets;
-	private HashSet<Colony> colonies;
+	private HashSet<Colony> colonies_;
 
 // Public Methods =====================================================================================================
 
@@ -20,13 +20,13 @@ public class Empire
 		super();
 		this.name_ = name_;
 		this.color_ = color_;
-		colonies = new HashSet<Colony>();
+		colonies_ = new HashSet<Colony>();
 		economy_ = new Economy();
 	}
 
 	public void addColony(Colony colony)
 	{
-		colonies.add(colony);
+		colonies_.add(colony);
 	}
 
 	public String name()
@@ -52,17 +52,20 @@ public class Empire
 //		}
 
 		// Grow colonies and recalculate production.
-		economy_.applyGrowth(colonies);
+		economy_.applyGrowth(colonies_);
 	}
 	
 	/**
 	 * @return The current economy state for this empire.
 	 */
-	public Economy getEconomy_()
+	public Economy getEconomy()
 	{
 		return economy_;
 	}
 
-
+	public Set<Colony> getColonies()
+	{
+		return colonies_;
+	}
 
 }

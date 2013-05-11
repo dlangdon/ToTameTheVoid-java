@@ -46,7 +46,7 @@ public class Economy
 		totalInfrastructure_ = 0;
 		totalGrowth_ = 0;
 		totalProduction_ = 0.01f;						// Initial production for turn 1
-		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
+		reserve_ = 0.1f;								// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
 		growthPolicy_ = 0.5f;
 		returnOfInvestmentLimit_ = 9999;

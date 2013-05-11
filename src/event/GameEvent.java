@@ -1,16 +1,19 @@
 /**
  * 
  */
-package state;
+package event;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.StateBasedGame;
+
+import state.Star;
 
 /**
  * Interface to create game events.
  * Events are handled by a main event loop, and are created and destroyed every turn.
+ * Events can occur at a universal level (random events, victory conditions, etc), empire level (reserve runs low, etc) or location (space battle, etc).
+ * In general, events may be informative-only or require player input. 
  * @author Daniel Langdon
  */
 public abstract class GameEvent 
@@ -20,7 +23,6 @@ public abstract class GameEvent
 	 */
 	public enum Status { PENDING, RESOLVING, PARALLEL, DONE };
 	
-	private int flags_;
 	private Status status_;
 	private Star location_;
 	

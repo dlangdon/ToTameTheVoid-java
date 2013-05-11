@@ -26,7 +26,6 @@ public class Universe
 	private List<Star> stars;
 	private List<Empire> empires;
 	private HashSet<Fleet> fleets;
-	private int turn;
 	private Empire playerEmpire;
 
 // Public Methods =====================================================================================================
@@ -36,7 +35,6 @@ public class Universe
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		this.fleets = new HashSet<Fleet>();
-		this.turn = 0;
 		
 		createStars();
 		
@@ -113,28 +111,6 @@ public class Universe
 		
 		System.out.println("" + stars.size() + " stars created.");
 	}
-
-	/**
-	 * Advances the turn for all elements in the universe.
-	 */
-	public void updateState()
-	{
-		turn++;
-		
-		System.out.println("New turn: " + turn);
-		
-		for(Empire e: empires)
-			e.turn();
-		
-		// Update all fleets.
-		for(Fleet tf: fleets)
-			tf.turn();
-	}
-	
-	public void generateConflicts()
-	{
-		
-	}
 	
 	/**
 	 * @return A list of all stars.
@@ -155,7 +131,7 @@ public class Universe
 	/**
 	 * @return A set of all task fleets in the galaxy.
 	 */
-	public HashSet<Fleet> getForces()
+	public HashSet<Fleet> getFleets()
 	{
 		return fleets;
 	}

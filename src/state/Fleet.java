@@ -104,7 +104,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		return true;
 	}
 	
-	void addShips(Design kind, int number)
+	public void addShips(Design kind, int number)
 	{
 		Integer current = stacks.get(kind);
 		if(current == null)
@@ -112,7 +112,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		stacks.put(kind, current + number);
 	}
 
-	void turn()
+	public void turn()
 	{
 		// If no destinations, do nothing.
 		if(destinations.size() < 2)

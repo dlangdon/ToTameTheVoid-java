@@ -12,12 +12,11 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import state.EmptyFleetSolver;
-import state.FleetMergeSolver;
-import state.GameEventQueue;
+import event.GameEventQueue;
+
+import state.Fleet;
 import state.Lane;
 import state.Star;
-import state.Fleet;
 import state.Universe;
 
 public class Game extends BasicGameState
@@ -50,12 +49,8 @@ public class Game extends BasicGameState
 		gc.setTargetFrameRate(120);
 		
 		// Pass two turns to reach a valid starting point (where last turn expenses are based on existing colonies).
-		Universe.instance().updateState();
-		Universe.instance().updateState();
-		
-		// FIXME Temporary fixed event code
-		eventQueue.registerSolver(new FleetMergeSolver());
-		eventQueue.registerSolver(new EmptyFleetSolver());
+		eventQueue.nextTurn();
+		eventQueue.nextTurn();
 	}
 
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
@@ -81,7 +76,7 @@ public class Game extends BasicGameState
 		}
 
 		// Draw fleets
-		for(Fleet tf : Universe.instance().getForces())
+		for(Fleet tf : Universe.instance().getFleets())
 		{
 			tf.render(gc, g, (tf == selectedForce) ? Render.SELECTED : 0);
 		}
@@ -139,8 +134,7 @@ public class Game extends BasicGameState
 	public void turn()
 	{
 		// Move the universe forward.
-		Universe.instance().updateState();
-		eventQueue.generateEvents();
+		eventQueue.nextTurn();
 	}
 	
 	/**
@@ -168,7 +162,7 @@ public class Game extends BasicGameState
 		
 		// Check which objects may have received the click signal.
 		Fleet newForceSelected = null;
-		for(Fleet tf : Universe.instance().getForces())
+		for(Fleet tf : Universe.instance().getFleets())
 		{
 			if(tf.screenCLick((float)x, (float)y, button))
 			{

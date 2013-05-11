@@ -25,7 +25,7 @@ public class EconomyDialog
 			return;
 		
 		Empire e = Universe.instance().getPlayerEmpire();
-		Economy ec = e.getEconomy_();
+		Economy ec = e.getEconomy();
 
 		// Background.
 		g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.8f));
