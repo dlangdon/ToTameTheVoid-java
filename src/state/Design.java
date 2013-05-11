@@ -15,6 +15,7 @@ public class Design implements Comparable<Design>
 		super();
 		this.name_ = name_;
 		this.image_ = image_;
+		this.hitPoints_ = 1.0f;
 	}
 
 	public String name()

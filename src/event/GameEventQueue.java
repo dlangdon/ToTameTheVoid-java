@@ -36,6 +36,7 @@ public class GameEventQueue
 		registerSubProcess(new FleetUpdater());
 		registerSubProcess(new ColonyUpdater());
 		registerSubProcess(new FleetMerger());
+		registerSubProcess(new SpaceCombatCheck());
 		registerSubProcess(new EmptyFleetRemover());
 	}
 

@@ -1,0 +1,130 @@
+/**
+ * 
+ */
+package event;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+
+import state.Design;
+import state.Empire;
+import state.Fleet;
+import state.Fleet.Stack;
+
+/**
+ * A fairly simple combat simulation, that can be overloaded by other simulations.
+ * @author Daniel Langdon
+ */
+public class SpaceCombatSimulation
+{
+	/**
+	 * A quick structure to store targets for attack.
+	 */
+	protected class Attack
+	{
+		int fleet;
+		Design stack;
+		int kills;
+		
+		protected Attack(int fleet, Design stack)
+		{
+			this.fleet = fleet;
+			this.stack = stack;
+		}
+		
+		protected void addDamage(int damage)
+		{
+			kills += damage;
+		}
+		
+		protected void applyEffects()
+		{
+			inCombat[fleet].takeDamage(stack, 9999, kills, false);
+		}
+	}
+	
+	protected Fleet[] inCombat;					// All fleets in combat.
+	protected boolean[] noTargets;				// If a specific fleet should keep shooting.
+	
+	/**
+	 * Constructor. 
+	 */
+	public SpaceCombatSimulation(List<Fleet> fleets)
+	{
+		inCombat = new Fleet[fleets.size()];
+		inCombat = fleets.toArray(inCombat);
+		noTargets = new boolean[fleets.size()];
+	}
+	
+	/**
+	 * @return True if no mutually hostile forces remain.
+	 */
+	public boolean finished()
+	{
+		for(boolean t : noTargets)
+			if(t == false)
+				return false;
+		return true;
+	}
+	
+	/**
+	 * Runs the simulation.
+	 * In this case, each 3 ships randomly kill a ship in the opposite fleet.  
+	 */
+	public void step()
+	{
+		// Pre-calculate the damage caused by a fleet before damage is applied.
+		float[] kills = new float[inCombat.length];
+		for(int i=0; i<inCombat.length; i++)
+		{
+			for(Entry<Design, Stack> entry : inCombat[i].stacks().entrySet())
+			{
+				kills[i] += entry.getValue().quantity() / 3.0f;
+			}
+			kills[i] = (float) Math.ceil(kills[i]);
+		}
+
+		for(int i=0; i<inCombat.length; i++)
+		{
+			// If there were no target, they will not appear from nowhere.
+			if(noTargets[i])
+				continue;
+
+			// Collect potential targets to apply the damage to.
+			ArrayList<Attack> attacks = new ArrayList<Attack>(); 
+			for(int j=0; j<inCombat.length; j++)
+			{
+				int trust = inCombat[i].owner().reciprocalTrust(inCombat[j].owner());
+				if(trust < Empire.CEASE_FIRE)
+				{
+					// Distribute attacks evenly over all enemy stacks.
+					for(Design d : inCombat[j].stacks().keySet())
+						attacks.add(new Attack(j, d));
+				}
+			}
+
+			// Check if there is anything to hit.
+			if(attacks.isEmpty())
+			{
+				noTargets[i] = true;
+				continue;
+			}
+			
+			// Apply the damage evenly.
+			for(Attack a : attacks)
+			{
+				Stack s = inCombat[a.fleet].stacks().get(a.stack);
+				if(s != null)
+				{
+					int trueKills = (int) (kills[i] > s.quantity() ? s.quantity() : kills[i]);
+					kills[i] -= trueKills;
+					a.addDamage(trueKills);
+					a.applyEffects();
+					if(kills[i] <= 0)
+						break;
+				}
+			}
+		}
+	}
+}

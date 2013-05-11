@@ -85,6 +85,9 @@ public class Empire
 	 */
 	public int trustLevel(Empire other)
 	{
+		if(this == other)
+			return 100;
+
 		Integer aux = trust.get(other);
 		return aux == null ? 0 : aux;
 	}
