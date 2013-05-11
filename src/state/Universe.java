@@ -72,7 +72,7 @@ public class Universe
 			int empire = r.nextInt(empires.size());
 			int star = r.nextInt(stars.size());
 			
-			Fleet fleet = new Fleet("Fleet" + i, stars.get(star), empires.get(empire), Fleet.Type.SHIPS); 
+			Fleet fleet = new Fleet(stars.get(star), empires.get(empire), Fleet.Type.SHIPS); 
 			fleets.add(fleet);
 
 			int numFighters = new Random().nextInt(23);

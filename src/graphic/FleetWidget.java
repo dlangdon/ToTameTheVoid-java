@@ -11,13 +11,14 @@ import org.newdawn.slick.geom.Vector2f;
 
 import state.Design;
 import state.Fleet;
+import state.Fleet.Stack;
 
 public class FleetWidget implements UIListener
 {
 	/**
 	 * An internal class in order to keep count of unit selections inside a fleet.
 	 */
-	private class Stack
+	private class StackSelection
 	{
 		float selected;
 		int max;
@@ -28,7 +29,7 @@ public class FleetWidget implements UIListener
 	private Fleet fleet;
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
-	private Stack[] cache;
+	private StackSelection[] cache;
 	int hoverIndex;
 	int numSteps;
 
@@ -65,13 +66,13 @@ public class FleetWidget implements UIListener
 		// Reset the selected values of the ships for this fleet to their maximum value.
 		if(fleet != null)
 		{
-			cache = new Stack[fleet.stacks().size()];
+			cache = new StackSelection[fleet.stacks().size()];
 			int i=0;
-			for(Entry<Design, Integer> entry : fleet.stacks().entrySet())
+			for(Entry<Design, Stack> entry : fleet.stacks().entrySet())
 			{
-				cache[i] = new Stack();
+				cache[i] = new StackSelection();
 				cache[i].design = entry.getKey();
-				cache[i].max = entry.getValue();
+				cache[i].max = entry.getValue().quantity();
 				cache[i].selected = cache[i].max;
 				i++;
 			}

@@ -18,18 +18,65 @@ public class Fleet implements UIListener, Comparable<Fleet>
 {
 	enum Type { SHIPS, AGENTS }
 	
+	/**
+	 * Helper class to store temporary status for a stack of ships.
+	 */
+	public class Stack
+	{
+		private int quantity_;
+		private float baseDamage_;
+		private float maxDamage_;
+
+		Stack(int quantity)
+		{
+			this.quantity_ = quantity;
+			this.baseDamage_ = 0;
+			this.maxDamage_ = 0;
+		}
+		
+		void add(Stack other)
+		{
+			baseDamage_ = (baseDamage_ * quantity_ + other.quantity_ * other.baseDamage_) / (quantity_ + other.quantity_); 
+			baseDamage_ = (maxDamage_ * quantity_ + other.quantity_ * other.maxDamage_) / (quantity_ + other.quantity_);
+			quantity_ += other.quantity_;
+		}
+		
+		/**
+		 * @return the quantity
+		 */
+		public int quantity()
+		{
+			return quantity_;
+		}
+
+		/**
+		 * @return the baseDamage
+		 */
+		public float baseDamage()
+		{
+			return baseDamage_;
+		}
+
+		/**
+		 * @return the maxDamage
+		 */
+		public float maxDamage()
+		{
+			return maxDamage_;
+		}
+	}
+	
 // Internals ==========================================================================================================
-	private String name;
 	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
 	private int turnsTraveled;               	///< Number of turns that have been moved towards that destination already.
 	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner_;							///< Empire that owns this Fleet.
 	private Type type_;								///< Type of task fleet, to separate fleets from agents, etc.
-	private TreeMap<Design, Integer> stacks;	///< Stacks composing this Fleet (individual ships and types).
+	private TreeMap<Design, Stack> stacks;		///< Stacks composing this Fleet (individual ships and types).
 
 // Public Methods =====================================================================================================
-	Fleet( String name, Star orbiting, Empire empire, Type type )
+	Fleet(Star orbiting, Empire empire, Type type)
 	{
 		// Base values
 		this.speed = 10;
@@ -37,8 +84,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		this.type_ = type;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
-		this.name = name;
-		this.stacks = new TreeMap<Design, Integer>();
+		this.stacks = new TreeMap<Design, Stack>();
 
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
@@ -64,7 +110,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	}
 
 	/**
-	 * @param destination Adds a new destination tt this fleet's queued route. 
+	 * @param destination Adds a new destination to this fleet's queued route. 
 	 */
 	public void addToRoute(Star destination)
 	{
@@ -90,13 +136,18 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			return false;
 		
 		// Do the merge.
-		for(Entry<Design, Integer> entry : other.stacks.entrySet())
+		for(Entry<Design, Stack> entry : other.stacks.entrySet())
 		{
-			Integer quantity = stacks.get(entry.getKey());
-			if(quantity == null)
-				quantity = 0;
+			// Find a stack in this fleet for the other's stack design. Add one if there is none.
+			Stack local = stacks.get(entry.getKey());
+			if(local == null)
+			{
+				local = new Stack(0);
+				stacks.put(entry.getKey(), local);
+			}
 			
-			stacks.put(entry.getKey(), entry.getValue() + quantity);
+			// Update the local stack.
+			local.add(entry.getValue());
 		}
 		
 		// Empty the other fleet.
@@ -106,10 +157,12 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	
 	public void addShips(Design kind, int number)
 	{
-		Integer current = stacks.get(kind);
+		Stack toAdd = new Stack(number);
+		Stack current = stacks.get(kind);
 		if(current == null)
-			current = 0;
-		stacks.put(kind, current + number);
+			stacks.put(kind, toAdd);
+		else
+			current.add(toAdd);
 	}
 
 	public void turn()
@@ -272,7 +325,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	/**
 	 * @return A map corresponding to all stacks in this fleet. Each entry corresponds to a (Design, Integer) pair, corresponding to the number of chips of a particular design.
 	 */
-	public TreeMap<Design, Integer> stacks()
+	public TreeMap<Design, Stack> stacks()
 	{
 		return stacks;
 	}

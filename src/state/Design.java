@@ -7,7 +7,6 @@ public class Design implements Comparable<Design>
 // Internals ==========================================================================================================
 	private String name_;
 	private Image image_;
-	private Empire owner;
 	
 // Public Methods =====================================================================================================
 	public Design(String name_, Image image_)
