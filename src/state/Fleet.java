@@ -79,7 +79,6 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		maintenanceExpense = Economy.registerCause("Fleet Maintenance");
 	}
 	
-	
 // Internals ==========================================================================================================
 	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.

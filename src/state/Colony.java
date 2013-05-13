@@ -152,4 +152,15 @@ public class Colony
 	{
 		return owner_;
 	}
+
+	/**
+	 * @param owner A new owner for the colony (invasion, trade, who knows) 
+	 */
+	public void setOwner(Empire owner)
+	{
+		owner_.getColonies().remove(this);
+		owner.addColony(this);
+		this.owner_ = owner;
+	}
+
 }

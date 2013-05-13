@@ -38,6 +38,7 @@ public class GameEventQueue
 		registerSubProcess(new FleetMerger());
 		registerSubProcess(new SpaceCombatCheck());
 		registerSubProcess(new EmptyFleetRemover());
+		registerSubProcess(new InvasionCheck());
 	}
 
 	/**
