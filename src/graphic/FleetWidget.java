@@ -1,5 +1,6 @@
 package graphic;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.newdawn.slick.Color;
@@ -9,9 +10,9 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-import state.Unit;
 import state.Fleet;
 import state.Fleet.Stack;
+import state.Unit;
 
 public class FleetWidget implements UIListener
 {
@@ -124,7 +125,27 @@ public class FleetWidget implements UIListener
 		
 		g.popTransform();
 	}
-	
+
+	public Fleet getFleetFromSelection()
+	{
+		// Check if a split can be done.
+		if(fleet.orbiting() == null)
+			return null;	// Can't split in transit.
+		
+		// Collect a map of selections.
+		HashMap<Unit, Integer> split = new HashMap<Unit, Integer>();
+		boolean everything = true;
+		for(StackSelection s : cache)
+		{
+			if(s.selected > 0)
+				split.put(s.design, (int)s.selected);
+			
+			if(s.selected != s.max)
+				everything = false;
+		}
+		
+		return everything ? fleet : fleet.split(split);
+	}
 	
 	/**
 	 * Translates a placeholder index for a stack in this widget to a local coordinates (around widget's center).

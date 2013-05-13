@@ -190,7 +190,10 @@ public class Game extends BasicGameState
 		{
 			// If a fleet was selected and a star was clicked, we might be adding a route point.
 			if(button == 0)
+			{
+				selectedForce = fleetWidget.getFleetFromSelection();
 				selectedForce.addToRoute(selectedStar);
+			}
 			else
 				selectedForce.removeFromRoute(selectedStar);
 		}

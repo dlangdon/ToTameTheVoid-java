@@ -6,6 +6,8 @@ import graphic.UIListener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -101,7 +103,6 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
 		orbiting.arrive(this);
-		
 	}
 
 	/**
@@ -134,9 +135,46 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		// Calculate route if this is the first destination.
 		if(destinations.size() == 2)
 			turnsTotal = (int) Math.ceil(Lane.getDistance(destinations.getFirst(), destinations.get(1)) / speed); 
-
+	}
+	
+	/**
+	 * @return the planned route for this fleet.
+	 */
+	public List<Star> getRoute()
+	{
+		return destinations;
 	}
 
+	/**
+	 * @return The position were this fleet is located. If in orbit, this corresponds to the star's position, else, its coordinates in free space.
+	 */
+	public Vector2f position()
+	{
+		if(turnsTraveled == 0)
+			return destinations.getFirst().getPos();
+		
+		Vector2f dir = new Vector2f();
+		dir.set(destinations.get(1).getPos());
+		dir.sub(destinations.getFirst().getPos());
+		return dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos());
+	}
+
+	/**
+	 * @return The star this fleet is orbiting, null if in transit.
+	 */
+	public Star orbiting()
+	{
+		return turnsTraveled == 0 ? destinations.getFirst() : null;
+	}
+
+	/**
+	 * @return True if this fleet has orders to go somewhere, else false.
+	 */
+	public boolean hasOrders()
+	{
+		return destinations.size() > 1;
+	}
+	
 	/**
 	 * Merges two fleets into a single one. Note that if the merge is successful, the fleet merged into this one is emptied, and should be later deleted.
 	 * @param other Fleet to be merged with this. It must be of the same type and empire.
@@ -168,8 +206,38 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		return true;
 	}
 	
+	/**
+	 * Splits this fleet into 2 fleets, maintaining other info.
+	 * @param units A map indicating how many units and from which stacks they should be taken. Specified units are expected to be valid (a valid Unit type, plus enough units to remove). An empty map will create an empty copy of this fleet.
+	 * @return A new fleet with the specified stacks and units and no route to follow, sharing all other stats (owner, etc) with the current fleet.
+	 */
+	public Fleet split(Map<Unit, Integer> units)
+	{
+		Fleet aux = new Fleet(destinations.getFirst(), owner_, type_);
+		Universe.instance().getFleets().add(aux);
+		
+		// Create new stacks.
+		for(Entry<Unit, Integer> split : units.entrySet())
+		{
+			// Remove from old stack.
+			Stack previous = stacks.get(split.getKey());
+			previous.quantity_ -= split.getValue();
+			if(previous.quantity_ <= 0)
+				stacks.remove(split.getKey());
+
+			// Create new stack.
+			Stack created = new Stack(split.getValue());
+			created.baseDamage_ = previous.baseDamage_;
+			created.maxVarDamage_ = previous.maxVarDamage_;
+			aux.stacks.put(split.getKey(), created);
+		}
+		
+		return aux;
+	}
+	
 	public void addUnits(Unit kind, int number)
 	{
+		// FIXME fix for subtraction
 		Stack toAdd = new Stack(number);
 		Stack current = stacks.get(kind);
 		if(current == null)
@@ -361,20 +429,6 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		// Check their types.
 		return type_.ordinal() - o.type_.ordinal();
 	}
-
-	/**
-	 * @return The position were this fleet is located. If in orbit, this corresponds to the star's position, else, its coordinates in free space.
-	 */
-	public Vector2f position()
-	{
-		if(turnsTraveled == 0)
-			return destinations.getFirst().getPos();
-		
-		Vector2f dir = new Vector2f();
-		dir.set(destinations.get(1).getPos());
-		dir.sub(destinations.getFirst().getPos());
-		return dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos());
-	}
 	
 	/**
 	 * @return A map corresponding to all stacks in this fleet. Each entry corresponds to a (Design, Integer) pair, corresponding to the number of chips of a particular design.
@@ -402,8 +456,5 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		return type_;
 	}
 	
-	public boolean hasOrders()
-	{
-		return destinations.size() > 1;
-	}
+
 }
