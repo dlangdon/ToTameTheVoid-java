@@ -1,6 +1,9 @@
-package event;
+package military;
 
 import java.util.List;
+
+import event.GameEventQueue;
+import event.TurnSubProcess;
 
 import state.Colony;
 import state.Empire;

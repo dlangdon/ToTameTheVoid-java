@@ -1,7 +1,10 @@
-package event;
+package military;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import event.GameEventQueue;
+import event.TurnSubProcess;
 
 import state.Empire;
 import state.Fleet;

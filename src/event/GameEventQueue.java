@@ -2,6 +2,9 @@ package event;
 
 import java.util.LinkedList;
 
+import military.InvasionCheck;
+import military.SpaceCombatCheck;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;

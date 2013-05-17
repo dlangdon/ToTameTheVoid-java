@@ -1,7 +1,7 @@
 /**
  * 
  */
-package event;
+package military;
 
 import java.util.ArrayList;
 import java.util.List;

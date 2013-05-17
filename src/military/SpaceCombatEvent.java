@@ -1,7 +1,7 @@
 /**
  * 
  */
-package event;
+package military;
 
 /**
  * @author Daniel Langdon
