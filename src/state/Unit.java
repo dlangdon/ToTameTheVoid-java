@@ -2,7 +2,7 @@ package state;
 
 import org.newdawn.slick.Image;
 
-public class Unit implements Comparable<Unit>
+public abstract class Unit implements Comparable<Unit>
 {
 // Internals ==========================================================================================================
 	private String name_;
@@ -43,6 +43,9 @@ public class Unit implements Comparable<Unit>
 	@Override
 	public int compareTo(Unit other)
 	{
-		return name_.compareTo(other.name_);
+		int aux = type().compareTo(other.type());
+		return (aux != 0) ? aux : name_.compareTo(other.name_);
 	}
+
+	public abstract String type();
 }

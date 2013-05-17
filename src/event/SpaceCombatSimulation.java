@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import state.Unit;
 import state.Empire;
 import state.Fleet;
-import state.Fleet.Stack;
+import state.Unit;
+import state.UnitStack;
 
 /**
  * A fairly simple combat simulation, that can be overloaded by other simulations.
@@ -78,7 +78,7 @@ public class SpaceCombatSimulation
 		float[] kills = new float[inCombat.length];
 		for(int i=0; i<inCombat.length; i++)
 		{
-			for(Entry<Unit, Stack> entry : inCombat[i].stacks().entrySet())
+			for(Entry<Unit, UnitStack> entry : inCombat[i].stacks().entrySet())
 			{
 				kills[i] += entry.getValue().quantity() / 3.0f;
 			}
@@ -114,7 +114,7 @@ public class SpaceCombatSimulation
 			// Apply the damage evenly.
 			for(Attack a : attacks)
 			{
-				Stack s = inCombat[a.fleet].stacks().get(a.stack);
+				UnitStack s = inCombat[a.fleet].stacks().get(a.stack);
 				if(s != null)
 				{
 					int trueKills = (int) (kills[i] > s.quantity() ? s.quantity() : kills[i]);

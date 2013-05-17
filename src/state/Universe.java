@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
+import military.Ship;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -62,8 +64,8 @@ public class Universe
 		// Create a few designs, just for kicks
 		Unit[] figthers = new Unit[23];
 		for(int i=0; i<23; i++)
-			figthers[i] = new Unit(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
-		Unit colony = new Unit("Colony Ship", new Image("resources/ship1.png"));
+			figthers[i] = new Ship(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
+		Unit colony = new Ship("Colony Ship", new Image("resources/ship1.png"));
 		
 		// Create a bunch of fleets.
 		Random r = new Random();
@@ -72,7 +74,7 @@ public class Universe
 			int empire = r.nextInt(empires.size());
 			int star = r.nextInt(stars.size());
 			
-			Fleet fleet = new Fleet(stars.get(star), empires.get(empire), Fleet.Type.SHIPS); 
+			Fleet fleet = new Fleet(stars.get(star), empires.get(empire)); 
 			fleets.add(fleet);
 
 			int numFighters = new Random().nextInt(23);

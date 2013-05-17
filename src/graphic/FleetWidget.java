@@ -11,8 +11,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Fleet;
-import state.Fleet.Stack;
 import state.Unit;
+import state.UnitStack;
 
 public class FleetWidget implements UIListener
 {
@@ -69,7 +69,7 @@ public class FleetWidget implements UIListener
 		{
 			cache = new StackSelection[fleet.stacks().size()];
 			int i=0;
-			for(Entry<Unit, Stack> entry : fleet.stacks().entrySet())
+			for(Entry<Unit, UnitStack> entry : fleet.stacks().entrySet())
 			{
 				cache[i] = new StackSelection();
 				cache[i].design = entry.getKey();

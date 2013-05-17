@@ -19,58 +19,6 @@ import org.newdawn.slick.geom.Vector2f;
 public class Fleet implements UIListener, Comparable<Fleet>
 {
 // Statics ============================================================================================================
-	// TODO Separate fleet movement from type, damage, etc. Use instanceof() instead of fixed types, to increase modularity.
-	// Make this class abstract.
-	enum Type { SHIPS, AGENTS }
-	
-	/**
-	 * Helper class to store temporary status for a stack of ships.
-	 */
-	public class Stack
-	{
-		private float quantity_;
-		private float baseDamage_;
-		private float maxVarDamage_;
-
-		Stack(int quantity)
-		{
-			this.quantity_ = quantity;
-			this.baseDamage_ = 0;
-			this.maxVarDamage_ = 0;
-		}
-		
-		void add(Stack other)
-		{
-			baseDamage_ = (baseDamage_ * quantity_ + other.quantity_ * other.baseDamage_) / (quantity_ + other.quantity_); 
-			baseDamage_ = (maxVarDamage_ * quantity_ + other.quantity_ * other.maxVarDamage_) / (quantity_ + other.quantity_);
-			quantity_ += other.quantity_;
-		}
-		
-		/**
-		 * @return the quantity
-		 */
-		public int quantity()
-		{
-			return (int) Math.ceil(quantity_);
-		}
-
-		/**
-		 * @return the baseDamage
-		 */
-		public float baseDamage()
-		{
-			return baseDamage_;
-		}
-
-		/**
-		 * @return the maxDamage
-		 */
-		public float maxVariableDamage()
-		{
-			return maxVarDamage_;
-		}
-	}
-	
 	private static int maintenanceExpense;
 	
 	/**
@@ -87,19 +35,17 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	private int turnsTraveled;               	///< Number of turns that have been moved towards that destination already.
 	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner_;							///< Empire that owns this Fleet.
-	private Type type_;								///< Type of task fleet, to separate fleets from agents, etc.
-	private TreeMap<Unit, Stack> stacks;		///< Stacks composing this Fleet (individual ships and types).
+	private TreeMap<Unit, UnitStack> stacks;	///< Stacks composing this Fleet (individual ships and types).
 
 // Public Methods =====================================================================================================
-	Fleet(Star orbiting, Empire empire, Type type)
+	Fleet(Star orbiting, Empire empire)
 	{
 		// Base values
 		this.speed = 10;
 		this.owner_ = empire;
-		this.type_ = type;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;
-		this.stacks = new TreeMap<Unit, Stack>();
+		this.stacks = new TreeMap<Unit, UnitStack>();
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
 		orbiting.arrive(this);
@@ -183,17 +129,17 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	public boolean mergeIn(Fleet other)
 	{
 		// Check if merge is valid.
-		if(owner_ != other.owner_ || type_ != other.type_)
+		if(owner_ != other.owner_ || type() != other.type())
 			return false;
 		
 		// Do the merge.
-		for(Entry<Unit, Stack> entry : other.stacks.entrySet())
+		for(Entry<Unit, UnitStack> entry : other.stacks.entrySet())
 		{
 			// Find a stack in this fleet for the other's stack design. Add one if there is none.
-			Stack local = stacks.get(entry.getKey());
+			UnitStack local = stacks.get(entry.getKey());
 			if(local == null)
 			{
-				local = new Stack(0);
+				local = new UnitStack(0);
 				stacks.put(entry.getKey(), local);
 			}
 			
@@ -213,20 +159,20 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	 */
 	public Fleet split(Map<Unit, Integer> units)
 	{
-		Fleet aux = new Fleet(destinations.getFirst(), owner_, type_);
+		Fleet aux = new Fleet(destinations.getFirst(), owner_);
 		Universe.instance().getFleets().add(aux);
 		
 		// Create new stacks.
 		for(Entry<Unit, Integer> split : units.entrySet())
 		{
 			// Remove from old stack.
-			Stack previous = stacks.get(split.getKey());
+			UnitStack previous = stacks.get(split.getKey());
 			previous.quantity_ -= split.getValue();
 			if(previous.quantity_ <= 0)
 				stacks.remove(split.getKey());
 
 			// Create new stack.
-			Stack created = new Stack(split.getValue());
+			UnitStack created = new UnitStack(split.getValue());
 			created.baseDamage_ = previous.baseDamage_;
 			created.maxVarDamage_ = previous.maxVarDamage_;
 			aux.stacks.put(split.getKey(), created);
@@ -238,8 +184,8 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	public void addUnits(Unit kind, int number)
 	{
 		// FIXME fix for subtraction
-		Stack toAdd = new Stack(number);
-		Stack current = stacks.get(kind);
+		UnitStack toAdd = new UnitStack(number);
+		UnitStack current = stacks.get(kind);
 		if(current == null)
 			stacks.put(kind, toAdd);
 		else
@@ -253,7 +199,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	 */
 	public void takeDamage(Unit kind, float damagePerHit, int numHits, boolean unfocused)
 	{
-		Stack stack = stacks.get(kind);
+		UnitStack stack = stacks.get(kind);
 		if(stack == null)
 			return;
 
@@ -280,7 +226,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	{
 		// Generate expenses (repair and maintenance) for this turn.
 		float expenses = 0.0f;
-		for(Entry<Unit, Stack> entry : stacks.entrySet())
+		for(Entry<Unit, UnitStack> entry : stacks.entrySet())
 		{
 			// Expenses are 1% of original ship cost per turn. After 100 turns they become a liability ;-)
 			expenses -= entry.getKey().cost() * entry.getValue().quantity() * 0.01f;
@@ -427,13 +373,13 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			return aux;
 		
 		// Check their types.
-		return type_.ordinal() - o.type_.ordinal();
+		return type().compareTo(o.type());
 	}
 	
 	/**
 	 * @return A map corresponding to all stacks in this fleet. Each entry corresponds to a (Design, Integer) pair, corresponding to the number of chips of a particular design.
 	 */
-	public TreeMap<Unit, Stack> stacks()
+	public TreeMap<Unit, UnitStack> stacks()
 	{
 		return stacks;
 	}
@@ -450,11 +396,16 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	{
 		return owner_;
 	}
-	
-	public Type type()
+
+	/**
+	 * Type of units in this fleet. All units have to be of the same type.
+	 * @return
+	 */
+	public String type()
 	{
-		return type_;
+		if(stacks.isEmpty())
+			return "None";
+		return stacks.firstKey().type();
 	}
 	
-
 }

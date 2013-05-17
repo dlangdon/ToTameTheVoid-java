@@ -43,6 +43,7 @@ public class GameEventQueue
 
 	/**
 	 * Registers a sub process to be evaluated at each turn. It is added at the end of the process queue.
+	 * REGISTRATION ORDER IS EXTREMELLY IMPORTANT
 	 * @param subProcess The process to add.
 	 */
  	public void registerSubProcess(TurnSubProcess subProcess)
