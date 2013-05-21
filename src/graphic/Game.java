@@ -1,5 +1,7 @@
 package graphic;
 
+import military.Shipyard;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -14,8 +16,10 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import event.GameEventQueue;
 
+import state.BaseIHQSlot;
 import state.Economy;
 import state.Fleet;
+import state.ImperialHQ;
 import state.Lane;
 import state.Star;
 import state.Universe;
@@ -25,6 +29,7 @@ public class Game extends BasicGameState
 	private Image background;
 	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
+	private IHQWidget ihqWidget;
 	private EconomyDialog econDialog;
 	private Fleet selectedForce;
 	private GameEventQueue eventQueue;
@@ -32,21 +37,26 @@ public class Game extends BasicGameState
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// Run module initialization. Be careful with dependencies.
+		// This is for now very hard-coded and not very modular.
 		Economy.init();
 		Fleet.init();
+		ImperialHQ.init();
+		BaseIHQSlot.init();
+		Shipyard.init();
 		
 		// TODO figure out universe sizes, 500x500 for now.
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
-		new Universe();
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
+		ihqWidget = new IHQWidget();
 		selectedForce = null;
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
+		new Universe();
 		
 		// TODO load resources in a more intelligent way...
 		Render.initialize();
-		background = new Image("resources/bck2.jpg");
+		background = new Image("resources/bck3.jpg");
 		Star.img = new Image("resources/star.png");
 		
 		gc.setTargetFrameRate(120);
@@ -96,7 +106,7 @@ public class Game extends BasicGameState
 		econDialog.render(gc, g);
 		
 		// Draw events
-		eventQueue.render(gc, g);
+		// eventQueue.render(gc, g);
 	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException

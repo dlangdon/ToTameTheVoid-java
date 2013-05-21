@@ -1,6 +1,7 @@
 package event;
 
 import state.Empire;
+import state.Star;
 import state.Universe;
 
 /**
@@ -13,7 +14,7 @@ public class EconomyReset implements TurnSubProcess
 	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
 	 */
 	@Override
-	public void run(GameEventQueue queue)
+	public void check(GameEventQueue queue, Star location)
 	{
 		for(Empire e: Universe.instance().getEmpires())
 		{

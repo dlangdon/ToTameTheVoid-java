@@ -16,20 +16,17 @@ public class EmptyFleetRemover implements TurnSubProcess
 	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
 	 */
 	@Override
-	public void run(GameEventQueue queue)
+	public void check(GameEventQueue queue, Star location)
 	{
-		for(Star s: Universe.instance().getStars())
+		// Checks for any empty fleet and removes it.
+		Iterator<Fleet> i = location.getFleetsInOrbit().iterator();
+		while(i.hasNext())
 		{
-			// Checks for any empty fleet and removes it.
-			Iterator<Fleet> i = s.getFleetsInOrbit().iterator();
-			while(i.hasNext())
+			Fleet aux = i.next();
+			if(aux.isEmpty())
 			{
-				Fleet aux = i.next();
-				if(aux.isEmpty())
-				{
-					i.remove();
-					Universe.instance().removeFleet(aux);
-				}
+				i.remove();
+				Universe.instance().removeFleet(aux);
 			}
 		}
 	}

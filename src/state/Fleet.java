@@ -1,5 +1,6 @@
 package state;
 
+import event.GameEventQueue;
 import graphic.Camera;
 import graphic.Render;
 import graphic.UIListener;
@@ -406,6 +407,26 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		if(stacks.isEmpty())
 			return "None";
 		return stacks.firstKey().type();
+	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("Fleet:");
+		for(Entry<Unit, UnitStack> entry : stacks.entrySet())
+		{
+			sb
+				.append("\n\t")
+				.append(entry.getValue().quantity())
+				.append(' ')
+				.append(entry.getKey().name());
+		}
+		sb.append('\n');
+		
+		return sb.toString();
+		
 	}
 	
 }

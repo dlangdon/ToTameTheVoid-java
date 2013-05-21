@@ -1,6 +1,7 @@
 package event;
 
 import state.Fleet;
+import state.Star;
 import state.Universe;
 
 /**
@@ -14,7 +15,7 @@ public class FleetUpdater implements TurnSubProcess
 	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
 	 */
 	@Override
-	public void run(GameEventQueue queue)
+	public void check(GameEventQueue queue, Star location)
 	{
 		for(Fleet f: Universe.instance().getFleets())
 			f.turn();

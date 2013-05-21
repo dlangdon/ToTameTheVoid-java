@@ -14,6 +14,7 @@ import java.util.LinkedList;
 public class ImperialHQ
 {
 // Statics ============================================================================================================
+	
 	private static int maintenanceExpense;
 	private static int upgradeExpense;
 	private static int constructionExpense;
@@ -26,14 +27,39 @@ public class ImperialHQ
 		maintenanceExpense = Economy.registerCause("IHQ Maintenance");
 		upgradeExpense = Economy.registerCause("IHQ Expansion");
 		constructionExpense = Economy.registerCause("Fleet Construction");
-	}	
-	
-// Internals ==========================================================================================================
-	private IHQSlot[] slots;							// The 3 or 4 slots per IHQ
+	}
+
+
+	// Internals ==========================================================================================================
+	private IHQSlot[] slots_;						// The 3 or 4 slots per IHQ
 	private Empire owner_;							// Empire that owns this Fleet.
 	private LinkedList<Star> relocation;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
 
 // Public Methods =====================================================================================================
+	/**
+	 * Constructor. 
+	 */
+	public ImperialHQ()
+	{
+		relocation = new LinkedList<Star>();
+		slots_ = new IHQSlot[4];
+	}
 	
-	
+	/**
+	 * Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
+	 * @return A modifiable list of stars.
+	 */
+	public LinkedList<Star> getRelocation()
+	{
+		return relocation;
+	}
+
+
+	/**
+	 * @return the slots
+	 */
+	public IHQSlot[] slots()
+	{
+		return slots_;
+	}
 }

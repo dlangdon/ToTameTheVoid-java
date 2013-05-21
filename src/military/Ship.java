@@ -12,7 +12,6 @@ import state.Unit;
  */
 public class Ship extends Unit
 {
-
 	/**
 	 * @param name_
 	 * @param image_
@@ -30,5 +29,4 @@ public class Ship extends Unit
 	{
 		return "Ship";
 	}
-
 }

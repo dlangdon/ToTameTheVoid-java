@@ -21,31 +21,28 @@ public class SpaceCombatCheck implements TurnSubProcess
 	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
 	 */
 	@Override
-	public void run(GameEventQueue queue)
+	public void check(GameEventQueue queue, Star location)
 	{
-		for(Star s: Universe.instance().getStars())
+		// Get the list of fleets really in conflict. Remove fleets that have no hostile opponents (hence would not engage at all).
+		List<Fleet> fleets = new ArrayList<Fleet>();
+		for(Fleet f: location.getFleetsInOrbit())
 		{
-			// Get the list of fleets really in conflict. Remove fleets that have no hostile opponents (hence would not engage at all).
-			List<Fleet> fleets = new ArrayList<Fleet>();
-			for(Fleet f: s.getFleetsInOrbit())
-			{
-				// Empty fleet is ignored.
-				if(f.isEmpty())
-					continue;
+			// Empty fleet is ignored.
+			if(f.isEmpty())
+				continue;
 
-				// Check if this fleet is in conflict with any other. (not too optimal, but fleet list is supposed to be pretty small.
-				for(Fleet f2: s.getFleetsInOrbit())
+			// Check if this fleet is in conflict with any other. (not too optimal, but fleet list is supposed to be pretty small.
+			for(Fleet f2: location.getFleetsInOrbit())
+			{
+				if(!f2.isEmpty() && f2.owner().reciprocalTrust(f.owner()) < Empire.CEASE_FIRE)
 				{
-					if(!f2.isEmpty() && f2.owner().reciprocalTrust(f.owner()) < Empire.CEASE_FIRE)
-					{
-						fleets.add(f);
-						break;
-					}
+					fleets.add(f);
+					break;
 				}
 			}
-			
-			SpaceCombatSimulation sim = new SpaceCombatSimulation(fleets);
-			sim.step();
 		}
+		
+		SpaceCombatSimulation sim = new SpaceCombatSimulation(fleets);
+		sim.run();
 	}
 }

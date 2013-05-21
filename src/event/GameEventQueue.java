@@ -1,72 +1,125 @@
 package event;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import military.InvasionCheck;
 import military.SpaceCombatCheck;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
+import state.Empire;
+import state.Fleet;
+import state.Star;
+import state.Universe;
+
 /**
- * HIGHLY EXPERIMENTAL
- * Event queue for special turn events. 
- * This is needed to solve a special set of conflicts arising during the turn update that require additional interaction, race conditions, information, etc.
- * For instance:
- *   - A fleet A arriving into a system might need to be merged to a fleet B already in it. But we won't know if B will remain in the system until all fleets have been updated.
- *   - A fleet A arriving into a system might engage a fleet B already in it, a separate module needs to be called to solve the conflict.
- *   - An important event should go into a situation report or something similar.
+ * HIGHLY EXPERIMENTAL Event queue for special turn events. This is needed to
+ * solve a special set of conflicts arising during the turn update that require
+ * additional interaction, race conditions, information, etc. For instance: - A
+ * fleet A arriving into a system might need to be merged to a fleet B already
+ * in it. But we won't know if B will remain in the system until all fleets have
+ * been updated. - A fleet A arriving into a system might engage a fleet B
+ * already in it, a separate module needs to be called to solve the conflict. -
+ * An important event should go into a situation report or something similar.
+ * 
  * @author Daniel Langdon
  */
 public class GameEventQueue
 {
+// Statics ==========================================================================================================	
+	private static GameEventQueue instance_;
+
+	public static GameEventQueue instance()
+	{
+		return instance_;
+	}
+
+// Internals ==========================================================================================================	
+
 	private int turn;
-	private LinkedList<GameEvent> events;
-	private LinkedList<TurnSubProcess> solvers;
+	private LinkedList<Star> checkLocations;
+	private HashMap<Star, List<GameEvent>> events;
+	private LinkedList<TurnSubProcess> checks;
+
+// Public methods ==========================================================================================================	
 
 	/**
 	 * Constructor.
 	 */
 	public GameEventQueue()
 	{
-		events = new LinkedList<GameEvent>();
-		solvers = new LinkedList<TurnSubProcess>();
+		instance_ = this;
+		checkLocations = new LinkedList<Star>();
+		events = new HashMap<Star, List<GameEvent>>();
+		checks = new LinkedList<TurnSubProcess>();
 		turn = 0;
-		
-		// FIXME Instantiate all sub processes. This should be done by configuration or something like that. Fixed for now.
-		registerSubProcess(new EconomyReset());
-		registerSubProcess(new FleetUpdater());
-		registerSubProcess(new ColonyUpdater());
-		registerSubProcess(new FleetMerger());
-		registerSubProcess(new SpaceCombatCheck());
-		registerSubProcess(new EmptyFleetRemover());
-		registerSubProcess(new InvasionCheck());
+
+		// FIXME Instantiate all sub processes. This should be done by
+		// configuration or something like that. Fixed for now.
+//		registerSubProcess(new EconomyReset());			// Empire level
+//		registerSubProcess(new FleetUpdater());			// Star
+//		registerSubProcess(new ColonyUpdater());			// Star
+		registerSubProcess(new ColonizationCheck()); // Star
+		registerSubProcess(new FleetMerger()); // Star
+		registerSubProcess(new SpaceCombatCheck()); // Star
+		registerSubProcess(new EmptyFleetRemover()); // Star
+		registerSubProcess(new InvasionCheck()); // Star
 	}
 
 	/**
-	 * Registers a sub process to be evaluated at each turn. It is added at the end of the process queue.
-	 * REGISTRATION ORDER IS EXTREMELLY IMPORTANT
-	 * @param subProcess The process to add.
+	 * Registers a sub process to be evaluated at each turn. It is added at the
+	 * end of the process queue. REGISTRATION ORDER IS EXTREMELLY IMPORTANT
+	 * 
+	 * @param subProcess
+	 *           The process to add.
 	 */
- 	public void registerSubProcess(TurnSubProcess subProcess)
- 	{
- 		solvers.add(subProcess);
- 	}
-	
- 	/**
- 	 * Adds an event to the turn's event queue.
- 	 * @param e The event to add.
- 	 */
-	public void addEvent(GameEvent e)
+	public void registerSubProcess(TurnSubProcess subProcess)
 	{
-		events.add(e);
+		checks.add(subProcess);
 	}
- 	
+
+	public void addLocationToCheck(Star location)
+	{
+		checkLocations.add(location);
+	}
+
 	/**
-	 * Process a turn.
-	 * This is done by running all turn sub-processes, which depend on individual modules.
-	 * The order at which these processes are run is important, hence registration order matters.
+	 * Adds an event to the turn's event queue.
+	 * 
+	 * @param e
+	 *           The event to add.
+	 */
+	public void addEvent(GameEvent event)
+	{
+		List<GameEvent> localEvents = events.get(event.location());
+		if (localEvents == null)
+		{
+			localEvents = new ArrayList<GameEvent>();
+			events.put(event.location(), localEvents);
+		}
+		events.put(event.location(), localEvents);
+	}
+
+	/**
+	 * @param location
+	 *           A location in the galaxy where events may occur.
+	 * @return A list of all events tied to the specified location, which could
+	 *         be empty.
+	 */
+	public List<GameEvent> eventsForLocation(Star location)
+	{
+		List<GameEvent> localEvents = events.get(location);
+		return localEvents == null ? new ArrayList<GameEvent>() : localEvents;
+	}
+
+	/**
+	 * Process a turn. This is done by running all turn sub-processes, which
+	 * depend on individual modules. The order at which these processes are run
+	 * is important, hence registration order matters.
 	 */
 	public void nextTurn()
 	{
@@ -74,26 +127,41 @@ public class GameEventQueue
 		turn++;
 		System.out.println("New turn: " + turn);
 
-		// Run all update processes and conflict solvers.
-		events.clear();
-		for(TurnSubProcess sol : solvers)
+		// Resets
+		for (Empire e : Universe.instance().getEmpires())
 		{
-			sol.run(this);
+			e.getEconomy().resetTurn();
 		}
-		
+
+		// Update all fleets
+		checkLocations.clear();
+		for (Fleet f : Universe.instance().getFleets())
+			f.turn();
+
+		// Update all empires.
+		for (Empire e : Universe.instance().getEmpires())
+		{
+			e.getEconomy().applyGrowth(e.getColonies());
+		}
+
+		// Update all stars
+		events.clear();
+		for (Star s : checkLocations)
+		{
+			// Run all registered checks for this location.
+			for (TurnSubProcess sp : checks)
+				sp.check(this, s);
+		}
+
 		// Try to process outstanding events.
+
 	}
-	
-	public void render(GameContainer gc, Graphics g) throws SlickException
-	{
-		// TODO
-	}
-	
+
 	/**
-	 * 
 	 * @param gc
 	 * @param delta
-	 * @return True if all input was processed on this event (effectively creating a modal dialog for instance), else false.
+	 * @return True if all input was processed on this event (effectively
+	 *         creating a modal dialog for instance), else false.
 	 * @throws SlickException
 	 */
 	public boolean update(GameContainer gc, int delta) throws SlickException

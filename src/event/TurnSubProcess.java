@@ -3,6 +3,8 @@
  */
 package event;
 
+import state.Star;
+
 
 /**
  * Interface for game event tests and creation.
@@ -18,7 +20,7 @@ public interface TurnSubProcess
 	 * @param location The location to test for conflicts.
 	 * @param queue Event queue for conflicts that could not be solved automatically.
 	 */
-	public void run(GameEventQueue queue);
+	public void check(GameEventQueue queue, Star location);
 	
 	/**
 	 * Returns a priority for this process. Higher priority processes are run first every turn. 

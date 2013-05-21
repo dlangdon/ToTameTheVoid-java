@@ -72,57 +72,60 @@ public class SpaceCombatSimulation
 	 * Runs the simulation.
 	 * In this case, each 3 ships randomly kill a ship in the opposite fleet.  
 	 */
-	public void step()
+	public void run()
 	{
-		// Pre-calculate the damage caused by a fleet before damage is applied.
-		float[] kills = new float[inCombat.length];
-		for(int i=0; i<inCombat.length; i++)
+		while(!finished())
 		{
-			for(Entry<Unit, UnitStack> entry : inCombat[i].stacks().entrySet())
+			// Pre-calculate the damage caused by a fleet before damage is applied.
+			float[] kills = new float[inCombat.length];
+			for(int i=0; i<inCombat.length; i++)
 			{
-				kills[i] += entry.getValue().quantity() / 3.0f;
-			}
-			kills[i] = (float) Math.ceil(kills[i]);
-		}
-
-		for(int i=0; i<inCombat.length; i++)
-		{
-			// If there were no target, they will not appear from nowhere.
-			if(noTargets[i])
-				continue;
-
-			// Collect potential targets to apply the damage to.
-			ArrayList<Attack> attacks = new ArrayList<Attack>(); 
-			for(int j=0; j<inCombat.length; j++)
-			{
-				int trust = inCombat[i].owner().reciprocalTrust(inCombat[j].owner());
-				if(trust < Empire.CEASE_FIRE)
+				for(Entry<Unit, UnitStack> entry : inCombat[i].stacks().entrySet())
 				{
-					// Distribute attacks evenly over all enemy stacks.
-					for(Unit d : inCombat[j].stacks().keySet())
-						attacks.add(new Attack(j, d));
+					kills[i] += entry.getValue().quantity() / 3.0f;
 				}
+				kills[i] = (float) Math.ceil(kills[i]);
 			}
-
-			// Check if there is anything to hit.
-			if(attacks.isEmpty())
+	
+			for(int i=0; i<inCombat.length; i++)
 			{
-				noTargets[i] = true;
-				continue;
-			}
-			
-			// Apply the damage evenly.
-			for(Attack a : attacks)
-			{
-				UnitStack s = inCombat[a.fleet].stacks().get(a.stack);
-				if(s != null)
+				// If there were no target, they will not appear from nowhere.
+				if(noTargets[i])
+					continue;
+	
+				// Collect potential targets to apply the damage to.
+				ArrayList<Attack> attacks = new ArrayList<Attack>(); 
+				for(int j=0; j<inCombat.length; j++)
 				{
-					int trueKills = (int) (kills[i] > s.quantity() ? s.quantity() : kills[i]);
-					kills[i] -= trueKills;
-					a.addDamage(trueKills);
-					a.applyEffects();
-					if(kills[i] <= 0)
-						break;
+					int trust = inCombat[i].owner().reciprocalTrust(inCombat[j].owner());
+					if(trust < Empire.CEASE_FIRE)
+					{
+						// Distribute attacks evenly over all enemy stacks.
+						for(Unit d : inCombat[j].stacks().keySet())
+							attacks.add(new Attack(j, d));
+					}
+				}
+	
+				// Check if there is anything to hit and I can actually hit it.
+				if(kills[i] <= 0 || attacks.isEmpty())
+				{
+					noTargets[i] = true;
+					continue;
+				}
+				
+				// Apply the damage evenly.
+				for(Attack a : attacks)
+				{
+					UnitStack s = inCombat[a.fleet].stacks().get(a.stack);
+					if(s != null)
+					{
+						int trueKills = (int) (kills[i] > s.quantity() ? s.quantity() : kills[i]);
+						kills[i] -= trueKills;
+						a.addDamage(trueKills);
+						a.applyEffects();
+						if(kills[i] <= 0)
+							break;
+					}
 				}
 			}
 		}

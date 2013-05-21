@@ -1,5 +1,6 @@
 package state;
 
+import event.GameEventQueue;
 import graphic.Camera;
 import graphic.UIListener;
 
@@ -136,6 +137,7 @@ public class Star implements UIListener
 	{
 		inOrbit.add(fleet);
 		Collections.sort(inOrbit);
+		GameEventQueue.instance().addLocationToCheck(this);
 	}
 
 	/**

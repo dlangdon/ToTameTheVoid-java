@@ -79,7 +79,7 @@ public class Universe
 
 			int numFighters = new Random().nextInt(23);
 			for(int j=0; j<numFighters; j++)
-				fleet.addUnits(figthers[j], j*10);
+				fleet.addUnits(figthers[j], j*10+1);
 			fleet.addUnits(colony, 5);
 		}
 		
