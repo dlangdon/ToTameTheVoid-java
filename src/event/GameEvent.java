@@ -21,7 +21,7 @@ import state.Star;
 public abstract class GameEvent implements Comparable<GameEvent>
 {
 	/**
-	 * Status of the event. Events start with pending status
+	 * Status of the event. Events start with pending status.
 	 */
 	public enum Status { PENDING, RESOLVING, PARALLEL, DONE };
 	
@@ -31,6 +31,7 @@ public abstract class GameEvent implements Comparable<GameEvent>
 	protected GameEvent(Star location)
 	{
 		location_ = location;
+		status_ = Status.PENDING;
 	}
 	
 	public Star location()

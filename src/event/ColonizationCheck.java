@@ -12,8 +12,12 @@ import state.Unit;
 import state.UnitStack;
 
 /**
- * Eliminates empty fleets.
+ * Checks if the option to colonize is available on a specific star. 
+ * For this to happen:
+ * <br>1.- The star needs to be unclaimed.
+ * <br>2.- Only a single empire can have fleets on top of it.
  * 
+ * TODO Careful with influence units, which can so far be used to block stars invisibly. In the future, the "blocking" behavior should be better defined.
  * @author Daniel Langdon
  */
 public class ColonizationCheck implements TurnSubProcess
@@ -26,8 +30,8 @@ public class ColonizationCheck implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
-		// We don't need previous colonization events from last turn.
-		List<GameEvent> existing = GameEventQueue.instance().eventsForLocation(location);
+		// We don't need previous colonization events.
+		List<GameEvent> existing = queue.eventsForLocation(location);
 		Iterator<GameEvent> i = existing.iterator();
 		while(i.hasNext())
 		{

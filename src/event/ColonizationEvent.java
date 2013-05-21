@@ -3,8 +3,6 @@
  */
 package event;
 
-import java.util.Iterator;
-
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
@@ -37,6 +35,7 @@ public class ColonizationEvent extends GameEvent
 	 */
 	public Image icon()
 	{
+		// FIXME Ugly, I definitely need to tackle the whole resources thingy...
 		try
 		{
 			return new Image("resources/icon_colonize.png");
@@ -70,6 +69,7 @@ public class ColonizationEvent extends GameEvent
 	{
 		// Create the colony.
 		location().setColony(new Colony(location(), e));
+		stack.add(-1, false);
 		
 		// Can't colonize twice. The event is done.
 		status_ = Status.DONE;

@@ -5,7 +5,6 @@ package state;
 
 import java.util.LinkedList;
 
-
 /**
  * An Imperial Headquarters.
  * An IHQ is a center to pool resources to, in order to build units. 
@@ -29,8 +28,7 @@ public class ImperialHQ
 		constructionExpense = Economy.registerCause("Fleet Construction");
 	}
 
-
-	// Internals ==========================================================================================================
+// Internals ==========================================================================================================
 	private IHQSlot[] slots_;						// The 3 or 4 slots per IHQ
 	private Empire owner_;							// Empire that owns this Fleet.
 	private LinkedList<Star> relocation;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.

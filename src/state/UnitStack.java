@@ -23,8 +23,24 @@ public class UnitStack
 	void add(UnitStack other)
 	{
 		baseDamage_ = (baseDamage_ * quantity_ + other.quantity_ * other.baseDamage_) / (quantity_ + other.quantity_); 
-		baseDamage_ = (maxVarDamage_ * quantity_ + other.quantity_ * other.maxVarDamage_) / (quantity_ + other.quantity_);
+		maxVarDamage_ = (maxVarDamage_ * quantity_ + other.quantity_ * other.maxVarDamage_) / (quantity_ + other.quantity_);
 		quantity_ += other.quantity_;
+	}
+
+	/**
+	 * Changes the number of units in this stack.
+	 * @param delta A positive number if new ships should be added.
+	 * @param brandNew True if the added quantity is a positive number and the new ships are undamaged.
+	 */
+	public void add(int delta, boolean brandNew)
+	{
+		// Check if the damage distribution needs recalculation...
+		if(brandNew && delta > 0)
+		{
+			baseDamage_ = (baseDamage_ * quantity_) / (quantity_ + quantity_); 
+			maxVarDamage_ = (maxVarDamage_ * quantity_) / (quantity_ + quantity_);
+		}
+		quantity_ += delta;
 	}
 	
 	/**
@@ -50,4 +66,5 @@ public class UnitStack
 	{
 		return maxVarDamage_;
 	}
+
 }
