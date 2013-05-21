@@ -3,6 +3,8 @@
  */
 package event;
 
+import java.util.Iterator;
+
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
@@ -66,6 +68,10 @@ public class ColonizationEvent extends GameEvent
 	@Override
 	public void runAction()
 	{
+		// Create the colony.
 		location().setColony(new Colony(location(), e));
+		
+		// Can't colonize twice. The event is done.
+		status_ = Status.DONE;
 	}
 }

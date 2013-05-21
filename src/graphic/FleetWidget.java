@@ -31,8 +31,8 @@ public class FleetWidget implements UIListener
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
 	private StackSelection[] cache;
-	int hoverIndex;
-	int numSteps;
+	private int hoverIndex;
+	private int numSteps;
 
 // Public Methods =====================================================================================================
 	FleetWidget() throws SlickException

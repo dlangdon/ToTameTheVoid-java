@@ -172,6 +172,8 @@ public class Game extends BasicGameState
 		// Check if any of the interfaces consumes this click.
 		if(fleetWidget.screenCLick(x, y, button))
 			return;
+		if(starWidget.screenCLick(x, y, button))
+			return;
 		
 		// Check which objects may have received the click signal.
 		Fleet newForceSelected = null;
@@ -227,6 +229,7 @@ public class Game extends BasicGameState
 	{
 		// Notify widgets.
 		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
+		starWidget.mouseMoved(oldx, oldy, newx, newy);
 	}
 	
 	@Override
