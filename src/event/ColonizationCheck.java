@@ -1,5 +1,6 @@
 package event;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -25,9 +26,19 @@ public class ColonizationCheck implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
+		// We don't need previous colonization events from last turn.
+		List<GameEvent> existing = GameEventQueue.instance().eventsForLocation(location);
+		Iterator<GameEvent> i = existing.iterator();
+		while(i.hasNext())
+		{
+			GameEvent e = i.next();
+			if(e instanceof ColonizationEvent)
+				i.remove();
+		}
+		
 		// If there is a colony already, nothing to do.
 		Colony colony = location.getColony();
-		if (colony == null)
+		if (colony != null)
 			return;
 
 		List<Fleet> fleets = location.getFleetsInOrbit();

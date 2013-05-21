@@ -1,10 +1,15 @@
 package graphic;
 
+import java.util.List;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+
+import event.GameEvent;
+import event.GameEventQueue;
 
 import state.Colony;
 import state.Star;
@@ -73,6 +78,17 @@ public class StarWidget
 			Render.titles.drawString(100, 2, "No outpost");
 		}
 		
+		// Render possible actions on this system.
+		List<GameEvent> existing = GameEventQueue.instance().eventsForLocation(star);
+		for(GameEvent event : existing)
+		{
+			if(event.slot() >= 0)
+			{
+				// TODO use correct circular coordinates...
+				event.icon().draw();
+			}
+		}
+		
 		g.popTransform();
 	}
 	
@@ -81,4 +97,8 @@ public class StarWidget
 		meter.draw(x, y);
 		g.fillRect(x+2, y+2, value*50.0f, 6);
 	}
+
+
+
+
 }

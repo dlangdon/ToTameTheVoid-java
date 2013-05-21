@@ -63,11 +63,11 @@ public class GameEventQueue
 //		registerSubProcess(new EconomyReset());			// Empire level
 //		registerSubProcess(new FleetUpdater());			// Star
 //		registerSubProcess(new ColonyUpdater());			// Star
-		registerSubProcess(new ColonizationCheck()); // Star
 		registerSubProcess(new FleetMerger()); // Star
 		registerSubProcess(new SpaceCombatCheck()); // Star
 		registerSubProcess(new EmptyFleetRemover()); // Star
 		registerSubProcess(new InvasionCheck()); // Star
+		registerSubProcess(new ColonizationCheck()); // Star
 	}
 
 	/**
@@ -101,8 +101,9 @@ public class GameEventQueue
 			localEvents = new ArrayList<GameEvent>();
 			events.put(event.location(), localEvents);
 		}
-		events.put(event.location(), localEvents);
+		localEvents.add(event);
 	}
+	
 
 	/**
 	 * @param location
@@ -145,7 +146,6 @@ public class GameEventQueue
 		}
 
 		// Update all stars
-		events.clear();
 		for (Star s : checkLocations)
 		{
 			// Run all registered checks for this location.
