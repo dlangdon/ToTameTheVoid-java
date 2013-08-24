@@ -29,7 +29,7 @@ public class ImperialHQ
 	}
 
 // Internals ==========================================================================================================
-	private IHQSlot[] slots_;						// The 3 or 4 slots per IHQ
+	private IHQSlot[] slots_;						// The 3 or 4 slots per IHQ.
 	private Empire owner_;							// Empire that owns this Fleet.
 	private LinkedList<Star> relocation;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
 
@@ -60,4 +60,5 @@ public class ImperialHQ
 	{
 		return slots_;
 	}
+
 }

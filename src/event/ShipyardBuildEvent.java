@@ -8,6 +8,8 @@ import org.newdawn.slick.SlickException;
 
 import state.Colony;
 import state.Empire;
+import state.IHQSlot;
+import state.ImperialHQ;
 import state.Star;
 import state.UnitStack;
 
@@ -15,19 +17,19 @@ import state.UnitStack;
  * Stores information when a star system can be colonized by an empire, allowing such an action.
  * @author Daniel Langdon
  */
-public class ColonizationEvent extends GameEvent
+public class ShipyardBuildEvent extends GameEvent
 {
-	UnitStack stack;
-	Empire e;
+	Colony colony;
+	int turns;
+	int cost;
 	
 	/**
 	 * Constructs a colonization event. 
 	 */
-	public ColonizationEvent(Star location, UnitStack stack, Empire empire)
+	public ShipyardBuildEvent(Colony colony)
 	{
-		super(location);
-		this.stack = stack;
-		this.e = empire;
+		super(colony.location());
+		this.colony = colony;
 	}
 	
 	/**
@@ -38,7 +40,7 @@ public class ColonizationEvent extends GameEvent
 		// FIXME Ugly, I definitely need to tackle the whole resources thingy...
 		try
 		{
-			return new Image("resources/icon_colonize.png");
+			return new Image("resources/icon_ihq.png");
 		}
 		catch (SlickException e)
 		{
@@ -52,7 +54,7 @@ public class ColonizationEvent extends GameEvent
 	 */
 	public int slot()
 	{
-		return 1;
+		return 2;
 	}
 
 	/* (non-Javadoc)
@@ -61,21 +63,18 @@ public class ColonizationEvent extends GameEvent
 	@Override
 	public String description()
 	{
-		return "Colonize this star system.";
+		return "Build a shipyard in this colony";
 	}
 	
 	@Override
 	public void runAction()
 	{
-		// Create the colony.
-		Colony colony = new Colony(location(), e);
-		location().setColony(colony);
-		stack.add(-1, false);
-
-		// Add new options that become available for the colony
-		GameEventQueue.instance().addEvent(new ShipyardBuildEvent(colony));
-		
-		// Can't colonize twice. The event is done.
-		GameEventQueue.instance().removeEvent(this);
+		// Check if an IHQ exist in this colony.
+		ImperialHQ ihq = colony.ihq();
+		if(ihq == null)
+		{
+			ihq = new ImperialHQ();
+			colony.setIhq(ihq);
+		}
 	}
 }

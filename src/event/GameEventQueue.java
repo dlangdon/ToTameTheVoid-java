@@ -23,7 +23,7 @@ import state.Universe;
  * fleet A arriving into a system might need to be merged to a fleet B already
  * in it. But we won't know if B will remain in the system until all fleets have
  * been updated. - A fleet A arriving into a system might engage a fleet B
- * already in it, a separate module needs to be called to solve the conflict. -
+ * already in it, a separate module needs to be called to solve the conflict and one of them might be destroyed. -
  * An important event should go into a situation report or something similar.
  * 
  * @author Daniel Langdon
@@ -104,17 +104,22 @@ public class GameEventQueue
 		localEvents.add(event);
 	}
 	
-
 	/**
 	 * @param location
 	 *           A location in the galaxy where events may occur.
 	 * @return A list of all events tied to the specified location, which could
-	 *         be empty.
+	 *         be empty. A copy of stored events is always returned, as actions on these events could modify this list by removing or adding items.
 	 */
 	public List<GameEvent> eventsForLocation(Star location)
 	{
 		List<GameEvent> localEvents = events.get(location);
-		return localEvents == null ? new ArrayList<GameEvent>() : localEvents;
+		return localEvents == null ? new ArrayList<GameEvent>() : new ArrayList<GameEvent>(localEvents);
+	}
+	
+	public void removeEvent(GameEvent event)
+	{
+		List<GameEvent> localEvents = events.get(event.location());
+		localEvents.remove(event);
 	}
 
 	/**

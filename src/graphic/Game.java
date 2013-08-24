@@ -58,6 +58,7 @@ public class Game extends BasicGameState
 		Render.initialize();
 		background = new Image("resources/bck3.jpg");
 		Star.img = new Image("resources/star.png");
+		Star.ihqIcon = new Image("resources/ironfist.png");
 		
 		gc.setTargetFrameRate(120);
 		

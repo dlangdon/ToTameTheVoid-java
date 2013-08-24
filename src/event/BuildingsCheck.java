@@ -12,15 +12,11 @@ import state.Unit;
 import state.UnitStack;
 
 /**
- * Checks if the option to colonize is available on a specific star. 
- * For this to happen:
- * <br>1.- The star needs to be unclaimed.
- * <br>2.- Only a single empire can have fleets on top of it.
- * 
- * TODO Careful with influence units, which can so far be used to block stars invisibly. In the future, the "blocking" behavior should be better defined.
+ * Checks if a certain building of type T can be built in the star. Where type T is any kind of building.
+ * This check and corresponding event are generic so they can handle the construction of all kinds of buildings.
  * @author Daniel Langdon
  */
-public class ColonizationCheck implements TurnSubProcess
+public class BuildingsCheck<T> implements TurnSubProcess
 {
 	/*
 	 * (non-Javadoc)
@@ -30,6 +26,15 @@ public class ColonizationCheck implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
+		// Check if the building can still be made.
+		
+		// Check if we had such an event before.
+		
+		// Delete it if no longer valid.
+		
+		// Create a new one if needed.
+		
+		
 		// We don't need previous colonization events.
 		List<GameEvent> existing = queue.eventsForLocation(location);
 		Iterator<GameEvent> i = existing.iterator();
@@ -45,11 +50,7 @@ public class ColonizationCheck implements TurnSubProcess
 		if (colony != null)
 			return;
 
-		// Are there still fleets in orbit?
 		List<Fleet> fleets = location.getFleetsInOrbit();
-		if(fleets.isEmpty())
-			return;
-		
 		Empire e = fleets.get(0).owner();
 		UnitStack canColonize = null;
 		for (Fleet f : fleets)

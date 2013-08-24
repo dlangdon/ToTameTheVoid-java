@@ -26,7 +26,7 @@ public class InvasionCheck implements TurnSubProcess
 	public void check(GameEventQueue queue, Star location)
 	{
 		// If there is no colony, nothing to invade.
-		Colony colony = location.getColony();
+		Colony colony = location.colony();
 		if(colony == null)
 			return;				
 		

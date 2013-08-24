@@ -356,7 +356,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 	{
 		// Check if one or other is owner of the star.
 		int aux = 0;
-		Colony col = destinations.getFirst().getColony(); 
+		Colony col = destinations.getFirst().colony(); 
 		if(col != null)
 		{
 			if(col.owner() == owner_)

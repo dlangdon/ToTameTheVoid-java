@@ -47,7 +47,7 @@ public class StarWidget implements UIListener
 		Camera.instance().pushLocalTransformation(g, star.getPos());
 
 		// draw star icon
-		Colony colony = star.getColony(); 
+		Colony colony = star.colony(); 
 
 		g.setColor(Color.white);
 		background.draw(-84, -119);
@@ -160,11 +160,7 @@ public class StarWidget implements UIListener
 		{
 			GameEvent event = existing.next(); 
 			if(event.slot() == index)
-			{
 				event.runAction();
-				if(event.status() == Status.DONE)
-					existing.remove();
-			}
 		}
 		return true;
 	}

@@ -94,6 +94,6 @@ public abstract class GameEvent implements Comparable<GameEvent>
 	 */
 	public void runAction()
 	{
-		
+		// Default in case nothing has to be done.
 	}
 }
