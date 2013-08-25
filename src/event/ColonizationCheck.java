@@ -55,7 +55,7 @@ public class ColonizationCheck implements TurnSubProcess
 		for (Fleet f : fleets)
 		{
 			// Check if there are fleets from more than one empire.
-			if(f.owner() != e)
+   			if(f.owner() != e)
 				return;
 
 			// Check if this fleets contains a colony ship.

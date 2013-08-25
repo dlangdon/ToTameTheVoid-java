@@ -9,16 +9,15 @@ import java.util.List;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
-import state.BaseIHQSlot;
-import state.BaseIHQSlot.IHQSlotFactory;
-import state.IHQSlot;
+import state.Colony;
+import state.HQ;
 import state.Unit;
 
 /**
  * A slot that builds military units.
  * @author Daniel Langdon
  */
-public class Shipyard extends IHQSlot
+public class Shipyard extends HQ
 {
 	private static Image icon_;
 	private static List<Unit> availableUnits_;
@@ -42,26 +41,18 @@ public class Shipyard extends IHQSlot
 			System.out.println("Problem initializing resources.");
 			e.printStackTrace();
 		}
+	}
 
-		// Register a factory for this sort of slots.
-		BaseIHQSlot.registerFactory(new IHQSlotFactory()
-		{
-			@Override
-			public Image getIcon()
-			{
-				return icon_;
-			}
-			
-			@Override
-			public IHQSlot create()
-			{
-				return new Shipyard();
-			}
-		});
+	/**
+	 * @param colony
+	 */
+	public Shipyard(Colony colony)
+	{
+		super(colony);
 	}
 	
 	/* (non-Javadoc)
-	 * @see state.IHQSlot#getType()
+	 * @see state.HQ#getType()
 	 */
 	@Override
 	public String getType()
@@ -70,7 +61,7 @@ public class Shipyard extends IHQSlot
 	}
 
 	/* (non-Javadoc)
-	 * @see state.IHQSlot#availableUnits()
+	 * @see state.HQ#availableUnits()
 	 */
 	@Override
 	public List<Unit> availableUnits()
@@ -80,7 +71,7 @@ public class Shipyard extends IHQSlot
 
 
 	/* (non-Javadoc)
-	 * @see state.IHQSlot#icon()
+	 * @see state.HQ#icon()
 	 */
 	@Override
 	public Image icon()

@@ -14,22 +14,22 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import event.GameEventQueue;
-
 import state.BaseIHQSlot;
 import state.Economy;
 import state.Fleet;
+import state.HQ;
 import state.ImperialHQ;
 import state.Lane;
 import state.Star;
 import state.Universe;
+import event.GameEventQueue;
 
 public class Game extends BasicGameState
 {
 	private Image background;
 	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
-	private IHQWidget ihqWidget;
+	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
 	private Fleet selectedForce;
 	private GameEventQueue eventQueue;
@@ -48,7 +48,7 @@ public class Game extends BasicGameState
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
-		ihqWidget = new IHQWidget();
+		hqWidget = new HQWidget();
 		selectedForce = null;
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
@@ -98,6 +98,7 @@ public class Game extends BasicGameState
 		// Draw in world widgets
 		starWidget.render(gc, g);
 		fleetWidget.render(gc, g);
+		hqWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -173,6 +174,8 @@ public class Game extends BasicGameState
 		// Check if any of the interfaces consumes this click.
 		if(fleetWidget.screenCLick(x, y, button))
 			return;
+		if(hqWidget.screenCLick(x, y, button))
+			return;
 		if(starWidget.screenCLick(x, y, button))
 			return;
 		
@@ -197,6 +200,18 @@ public class Game extends BasicGameState
 				break;
 			}
 		}
+
+		// HQs
+		HQ selectedHQ = null;
+		for(HQ hq : Universe.instance().getHQs())
+		{
+			if(hq.screenCLick((float)x, (float)y, button))
+			{
+				selectedStar = s;
+				break;
+			}
+		}
+
 		
 		// Handle special selected cases. 
 		if(selectedForce != null && selectedStar != null)
@@ -230,6 +245,7 @@ public class Game extends BasicGameState
 	{
 		// Notify widgets.
 		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
+		hqWidget.mouseMoved(oldx, oldy, newx, newy);
 		starWidget.mouseMoved(oldx, oldy, newx, newy);
 	}
 	

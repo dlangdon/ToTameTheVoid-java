@@ -162,6 +162,7 @@ public class Star implements UIListener
 	public void leave(Fleet fleet)
 	{
 		inOrbit.remove(fleet);
+		GameEventQueue.instance().addLocationToCheck(this);
 	}
 
 	public int getDock(Fleet tf)
