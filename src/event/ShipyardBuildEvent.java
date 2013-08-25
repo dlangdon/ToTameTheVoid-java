@@ -76,7 +76,7 @@ public class ShipyardBuildEvent extends GameEvent
 		HQ ihq = colony.ihq();
 		if(ihq == null)
 		{
-			ihq = new Shipyard(colony);
+			ihq = new Shipyard(colony.location());
 			colony.setIhq(ihq);
 		}
 	}

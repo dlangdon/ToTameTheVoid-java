@@ -15,43 +15,9 @@ import org.newdawn.slick.SlickException;
 /**
  * @author Daniel Langdon
  */
-public abstract class HQ
+public abstract class HQ extends Orbiter
 {
 // Statics ============================================================================================================
-	private static int maintenanceExpense;
-	private static int upgradeExpense;
-	private static int constructionExpense;
-	private static List<Unit> availableUnits_;
-	private static Image icon_;
-
-	/**
-	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
-	 */
-	public static void init()
-	{
-		maintenanceExpense = Economy.registerCause("IHQ Maintenance");
-		upgradeExpense = Economy.registerCause("IHQ Expansion");
-		constructionExpense = Economy.registerCause("Fleet Construction");
-	
-		availableUnits_ = new ArrayList<Unit>();
-		
-		try
-		{
-			// Add units.
-			// TODO For now, just a hardcoded list of units.
-			availableUnits_.add(new Ship("Figther", new Image("resources/ship2.png")));
-			availableUnits_.add(new Ship("Colony Ship", new Image("resources/ship1.png")));
-			
-			// Load icon.
-			icon_ = new Image("resources/ironFist.png");
-		}
-		catch (SlickException e)
-		{
-			System.out.println("Problem initializing resources.");
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * An internal class in order to keep count of unit selection.
 	 */
@@ -62,7 +28,6 @@ public abstract class HQ
 	}
 
 // Internals ==========================================================================================================
-	private Colony colony_;							// Empire that owns this Fleet.
 	private LinkedList<Star> relocation_;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
 	private LinkedList<QueuedUnit> queue_;
 	private int level_;
@@ -71,9 +36,9 @@ public abstract class HQ
 	/**
 	 * Constructor. 
 	 */
-	public HQ(Colony colony)
+	public HQ(Star location)
 	{
-		colony_ = colony;
+		super(location);
 		relocation_ = new LinkedList<Star>();
 		level_ = 1;
 	}
@@ -93,14 +58,6 @@ public abstract class HQ
 	public LinkedList<QueuedUnit> queue()
 	{
 		return queue_;
-	}
-
-	/**
-	 * @return the colony where this HQ has been created.
-	 */
-	public Colony colony()
-	{
-		return colony_;
 	}
 
 	/**

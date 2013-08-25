@@ -60,7 +60,7 @@ public class FleetWidget implements UIListener
 	 * Sets the task fleet to be displayed by this
 	 * @param fleet
 	 */
-	void showForce(Fleet fleet)
+	void showFleet(Fleet fleet)
 	{
 		this.fleet = fleet;
 		
@@ -78,6 +78,11 @@ public class FleetWidget implements UIListener
 				i++;
 			}
 		}
+	}
+	
+	Fleet selectedfleet()
+	{
+		return fleet;
 	}
 
 	public void render(GameContainer gc, Graphics g)

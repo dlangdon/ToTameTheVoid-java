@@ -9,8 +9,9 @@ import java.util.List;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
-import state.Colony;
+import state.Economy;
 import state.HQ;
+import state.Star;
 import state.Unit;
 
 /**
@@ -19,11 +20,17 @@ import state.Unit;
  */
 public class Shipyard extends HQ
 {
+	private static int maintenanceExpense;
+	private static int upgradeExpense;
+	private static int constructionExpense;
 	private static Image icon_;
 	private static List<Unit> availableUnits_;
 	
 	public static void init()
 	{
+		maintenanceExpense = Economy.registerCause("Shipyard Maintenance");
+		upgradeExpense = Economy.registerCause("Shipyard Expansion");
+		constructionExpense = Economy.registerCause("Fleet Construction");
 		availableUnits_ = new ArrayList<Unit>();
 		
 		try
@@ -46,9 +53,9 @@ public class Shipyard extends HQ
 	/**
 	 * @param colony
 	 */
-	public Shipyard(Colony colony)
+	public Shipyard(Star location)
 	{
-		super(colony);
+		super(location);
 	}
 	
 	/* (non-Javadoc)
@@ -69,7 +76,6 @@ public class Shipyard extends HQ
 		return availableUnits_;
 	}
 
-
 	/* (non-Javadoc)
 	 * @see state.HQ#icon()
 	 */
@@ -77,5 +83,15 @@ public class Shipyard extends HQ
 	public Image icon()
 	{
 		return icon_;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see state.Orbiter#priority()
+	 */
+	@Override
+	public int priority()
+	{
+		return 50;
 	}
 }

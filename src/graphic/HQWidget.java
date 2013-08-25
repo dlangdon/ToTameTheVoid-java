@@ -52,7 +52,7 @@ public class HQWidget implements UIListener
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
-		Camera.instance().pushLocalTransformation(g, hq.colony().location().getPos());
+		Camera.instance().pushLocalTransformation(g, hq.location().getPos());
 		
 		// Paint all backgrounds. TODO mix with single resource set or create single static background.
 		backgrounds[0].draw(-74, -119);
@@ -191,7 +191,7 @@ public class HQWidget implements UIListener
 		List<Unit> options = hq.availableUnits();
 		
 		// Get the index.
-		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(hq.colony().location().getPos()));
+		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(hq.location().getPos()));
 		int index = coordToIndex(local);
 		if(index >= 12)		// Queue
 		{
@@ -252,7 +252,7 @@ public class HQWidget implements UIListener
 			return;
 		
 		// Get the index to display.
-		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(hq.colony().location().getPos()));
+		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(hq.location().getPos()));
 		hoverIndex = coordToIndex(local);
 	}
 

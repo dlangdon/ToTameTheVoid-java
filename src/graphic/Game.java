@@ -31,7 +31,7 @@ public class Game extends BasicGameState
 	private FleetWidget fleetWidget;
 	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
-	private Fleet selectedForce;
+	private Object selected;
 	private GameEventQueue eventQueue;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
@@ -49,7 +49,7 @@ public class Game extends BasicGameState
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
 		hqWidget = new HQWidget();
-		selectedForce = null;
+		selected = null;
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
 		new Universe();
@@ -92,7 +92,7 @@ public class Game extends BasicGameState
 		// Draw fleets
 		for(Fleet tf : Universe.instance().getFleets())
 		{
-			tf.render(gc, g, (tf == selectedForce) ? Render.SELECTED : 0);
+			tf.render(gc, g, (tf == selected) ? Render.SELECTED : 0);
 		}
 		
 		// Draw in world widgets
@@ -178,19 +178,8 @@ public class Game extends BasicGameState
 			return;
 		if(starWidget.screenCLick(x, y, button))
 			return;
-		
-		// Check which objects may have received the click signal.
-		Fleet newForceSelected = null;
-		for(Fleet tf : Universe.instance().getFleets())
-		{
-			if(tf.screenCLick((float)x, (float)y, button))
-			{
-				newForceSelected = tf;
-				break;
-			}
-		}
-		
-		// Stars
+
+		// Check if the click corresponds to a star.
 		Star selectedStar = null;
 		for(Star s : Universe.instance().getStars())
 		{
@@ -201,37 +190,51 @@ public class Game extends BasicGameState
 			}
 		}
 
-		// HQs
-		HQ selectedHQ = null;
+		// If a star, check if we add routepoints.
+		if(selectedStar != null)
+		{
+			Fleet fleet = fleetWidget.selectedfleet(); 
+			if(fleet != null)
+			{
+				// If a fleet was selected and a star was clicked, we might be adding a route point.
+				if(button == 0)
+				{
+					fleet = fleetWidget.getFleetFromSelection();
+					fleet.addToRoute(selectedStar);
+				}
+				else
+					fleet.removeFromRoute(selectedStar);
+			}
+			else
+				selected = selectedStar;
+			
+			// TODO HQ relocation
+		}
+		else
+			selected = null;
+		
+		// Check which objects may have received the click signal.
+		for(Fleet tf : Universe.instance().getFleets())
+		{
+			if(tf.screenCLick((float)x, (float)y, button))
+			{
+				selected = tf;
+				break;
+			}
+		}
 		for(HQ hq : Universe.instance().getHQs())
 		{
 			if(hq.screenCLick((float)x, (float)y, button))
 			{
-				selectedStar = s;
+				selected = hq;
 				break;
 			}
 		}
-
 		
-		// Handle special selected cases. 
-		if(selectedForce != null && selectedStar != null)
-		{
-			// If a fleet was selected and a star was clicked, we might be adding a route point.
-			if(button == 0)
-			{
-				selectedForce = fleetWidget.getFleetFromSelection();
-				selectedForce.addToRoute(selectedStar);
-			}
-			else
-				selectedForce.removeFromRoute(selectedStar);
-		}
-		else
-		{
-			// Prioritize fleet selection to star selection, in case regions overlap.
-			selectedForce = newForceSelected;
-			fleetWidget.showForce(selectedForce);
-			starWidget.showStar(newForceSelected == null ? selectedStar : null);
-		}
+		// Toggle modal interfaces according to the new selection.
+		fleetWidget.showFleet((selected instanceof Fleet) ? (Fleet)selected : null);
+		starWidget.showStar((selected instanceof Star) ? (Star)selected : null);
+		hqWidget.showHQ((selected instanceof HQ) ? (HQ)selected : null);
 	}
 	
 	@Override

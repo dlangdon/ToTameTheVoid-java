@@ -5,7 +5,6 @@ import graphic.Camera;
 import graphic.UIListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.newdawn.slick.Color;
@@ -25,7 +24,7 @@ public class Star implements UIListener
 	private float conditions_;
 	private float resources_;
 	private Colony colony_;
-	private List<Fleet> inOrbit;
+	private List<Orbiter> inOrbit;
 
 	// Drawing internals
 	public static Image img;
@@ -37,7 +36,7 @@ public class Star implements UIListener
 	{
 		index_ = index;
 		pos = new Vector2f(x, y);
-		inOrbit = new ArrayList<Fleet>();
+		inOrbit = new ArrayList<Orbiter>();
 	}
 
 	public float x()
@@ -91,7 +90,6 @@ public class Star implements UIListener
 	{
 		// Make it so drawing stars is always done in local coordinates.
 		Camera.instance().pushLocalTransformation(g, pos);
-
 		
 		// draw star icon
 		Color color = colony_ != null ? colony_.owner().color() : Color.white;
@@ -143,13 +141,18 @@ public class Star implements UIListener
 	/**
 	 * Receives a signal when a task fleet arrives on the system.
 	 * 
-	 * @param fleet
+	 * @param orbiter
 	 *           The task fleet that arrived.
 	 */
-	public void arrive(Fleet fleet)
+	public void arrive(Orbiter orbiter)
 	{
-		inOrbit.add(fleet);
-		Collections.sort(inOrbit);
+		// Find the correct location for this item and insert it there.
+		int priority = orbiter.priority();
+		int index = 0;
+		while(index < inOrbit.size() && priority < inOrbit.get(index).priority())
+			index++;
+		inOrbit.add(index, orbiter);
+
 		GameEventQueue.instance().addLocationToCheck(this);
 	}
 
@@ -159,19 +162,23 @@ public class Star implements UIListener
 	 * @param fleet
 	 *           The task fleet that departed.
 	 */
-	public void leave(Fleet fleet)
+	public void leave(Orbiter orbiter)
 	{
-		inOrbit.remove(fleet);
-		GameEventQueue.instance().addLocationToCheck(this);
+		inOrbit.remove(orbiter);
+//		GameEventQueue.instance().addLocationToCheck(this);
 	}
 
-	public int getDock(Fleet tf)
+	public int getDock(Orbiter selectable)
 	{
-		return inOrbit.indexOf(tf);
+		return inOrbit.indexOf(selectable);
 	}
 
 	public List<Fleet> getFleetsInOrbit()
 	{
-		return inOrbit;
+		List<Fleet> fleets = new ArrayList<Fleet>();
+		for(Orbiter o : inOrbit)
+			if(o instanceof Fleet)
+				fleets.add((Fleet) o);
+		return fleets;
 	}
 }

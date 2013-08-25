@@ -1,9 +1,7 @@
 package state;
 
-import event.GameEventQueue;
 import graphic.Camera;
 import graphic.Render;
-import graphic.UIListener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,19 +13,23 @@ import java.util.TreeMap;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-public class Fleet implements UIListener, Comparable<Fleet>
+public class Fleet extends Orbiter
 {
 // Statics ============================================================================================================
 	private static int maintenanceExpense;
+	private static Image fleet;
 	
 	/**
 	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
 	 */
-	public static void init()
+	public static void init() throws SlickException
 	{
 		maintenanceExpense = Economy.registerCause("Fleet Maintenance");
+		fleet = new Image("resources/fleet.png");
 	}
 	
 // Internals ==========================================================================================================
@@ -41,6 +43,8 @@ public class Fleet implements UIListener, Comparable<Fleet>
 // Public Methods =====================================================================================================
 	Fleet(Star orbiting, Empire empire)
 	{
+		super(orbiting);
+
 		// Base values
 		this.speed = 10;
 		this.owner_ = empire;
@@ -49,7 +53,8 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		this.stacks = new TreeMap<Unit, UnitStack>();
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
-		orbiting.arrive(this);
+
+		orbiting.arrive(this);	// Needs to happen after destinations exist, else priority can't be calculated.
 	}
 
 	/**
@@ -242,7 +247,10 @@ public class Fleet implements UIListener, Comparable<Fleet>
 
 		// Check if we need to leave the current star.
 		if(destinations.size() > 1 && turnsTraveled == 0)
+		{
 			destinations.getFirst().leave(this);
+			location_ = null;
+		}
 
 		// Move the task fleet one turn forward.
 		turnsTraveled++;
@@ -253,12 +261,14 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			turnsTraveled = 0;
 			destinations.removeFirst();
 			destinations.getFirst().arrive(this);
+			location_ = destinations.getFirst();
 			
 			if(destinations.size() > 1)
 				turnsTotal = (int) Math.ceil(Lane.getDistance(destinations.getFirst(), destinations.get(1)) / speed); 
 		}
 	}	
 	
+	@Override
 	public void render(GameContainer gc, Graphics g, int flags)
 	{
 		Vector2f zero = new Vector2f();
@@ -294,7 +304,7 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 			Vector2f pos = new Vector2f(20.0f, 0.0f);
 			pos.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
-			drawIcon(destinations.getFirst().getPos(), g, pos);
+			drawIcon(destinations.getFirst().getPos(), g, pos, owner_.color());
 		}
 		else
 		{
@@ -302,16 +312,10 @@ public class Fleet implements UIListener, Comparable<Fleet>
 			Vector2f dir = new Vector2f();
 			dir.set(destinations.get(1).getPos());
 			dir.sub(destinations.getFirst().getPos());
-			drawIcon(dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos()), g, zero);
+			drawIcon(dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos()), g, zero, owner_.color());
 		}
 	}
 	
-	private void drawIcon(Vector2f world, Graphics g, Vector2f screenDisp)
-	{
-		Camera.instance().pushLocalTransformation(g, world);
-		g.fillRect(screenDisp.x-4, screenDisp.y-4, 9, 9);
-		g.popTransform();
-	}
 
 	private void drawRoutePoint(Vector2f world, Graphics g, Vector2f screenDisp)
 	{
@@ -319,62 +323,20 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		g.fillRect(screenDisp.x-2, screenDisp.y-2, 5, 5);
 		g.popTransform();
 	}
-	
+
 	@Override
 	public boolean screenCLick(float x, float y, int button)
 	{
-		Vector2f screen = new Vector2f(20.0f, 0.0f);
 		if(turnsTraveled == 0)
-		{
-			// Force orbiting the star. In this case, each fleet is separated by a 30 degree angle.
-			screen.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
-			screen.add(Camera.instance().worldToScreen(destinations.getFirst().getPos()));
-		}
-		else
-		{
-			// Click of a fleet in orbit. 
-			screen = Camera.instance().worldToScreen(destinations.getFirst().getPos()); 
-			Vector2f dir = Camera.instance().worldToScreen(destinations.get(1).getPos()).sub(screen);
-			screen = dir.scale(1.0f * turnsTraveled / turnsTotal).add(screen); 
-		}
+			return super.screenCLick(x, y, button);
+
+		Vector2f screen = Camera.instance().worldToScreen(destinations.getFirst().getPos()); 
+		Vector2f dir = Camera.instance().worldToScreen(destinations.get(1).getPos()).sub(screen);
+		screen = dir.scale(1.0f * turnsTraveled / turnsTotal).add(screen); 
 
 		// Compare against mouse screen position.
 		Vector2f local = new Vector2f(x, y).sub(screen);
 		return (local.x * local.x <= 25 && local.y * local.y <= 25);
-	}
-
-	/**
-	 * Task fleets are ordered in the following way:
-	 * 	1.- A task fleet which orbits a colony of the same empire always goes first.
-	 * 	2.- Task fleets are then ordered by empire, on a fixed order.
-	 * 	3.- Task fleets are ordered by type.
-	 * 
-	 * Apart from these characteristics, task fleets are considered equivalent for ordering purposes, so this method is inconsistent with equals()
-	 */
-	@Override
-	public int compareTo(Fleet o)
-	{
-		// Check if one or other is owner of the star.
-		int aux = 0;
-		Colony col = destinations.getFirst().colony(); 
-		if(col != null)
-		{
-			if(col.owner() == owner_)
-				aux -= 1;
-			if(col.owner() == o.owner_)
-				aux += 1;
-			
-			if(aux != 0)
-				return aux;
-		}
-
-		// Check if they belong to different empires.
-		aux = this.owner_.name().compareTo(o.owner_.name());
-		if(aux != 0)
-			return aux;
-		
-		// Check their types.
-		return type().compareTo(o.type());
 	}
 	
 	/**
@@ -427,6 +389,35 @@ public class Fleet implements UIListener, Comparable<Fleet>
 		
 		return sb.toString();
 		
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see state.Orbiter#icon()
+	 */
+	@Override
+	public Image icon()
+	{
+		return fleet;
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see state.Orbiter#priority()
+	 */
+	@Override
+	public int priority()
+	{
+		int base = 10;
+		
+		// Check if one or other is owner of the star.
+		Colony col = destinations.getFirst().colony();
+		if(col != null && col.owner() == owner_)
+			base += 9;
+		else
+			base += Universe.instance().getEmpires().indexOf(owner_);
+		
+		return base;
 	}
 	
 }
