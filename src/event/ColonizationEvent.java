@@ -73,7 +73,7 @@ public class ColonizationEvent extends GameEvent
 		stack.add(-1, false);
 
 		// Add new options that become available for the colony
-		GameEventQueue.instance().addEvent(new ShipyardBuildEvent(colony));
+		GameEventQueue.instance().addEvent(new ShipyardBuildEvent(location()));
 		
 		// Can't colonize twice. The event is done.
 		GameEventQueue.instance().removeEvent(this);

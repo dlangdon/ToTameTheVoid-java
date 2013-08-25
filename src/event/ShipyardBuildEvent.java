@@ -8,13 +8,8 @@ import military.Shipyard;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
-import state.Colony;
-import state.Empire;
-import state.HQ;
-import state.IHQSlot;
-import state.ImperialHQ;
 import state.Star;
-import state.UnitStack;
+import state.Universe;
 
 /**
  * Stores information when a star system can be colonized by an empire, allowing such an action.
@@ -22,17 +17,15 @@ import state.UnitStack;
  */
 public class ShipyardBuildEvent extends GameEvent
 {
-	Colony colony;
 	int turns;
 	int cost;
 	
 	/**
 	 * Constructs a colonization event. 
 	 */
-	public ShipyardBuildEvent(Colony colony)
+	public ShipyardBuildEvent(Star location)
 	{
-		super(colony.location());
-		this.colony = colony;
+		super(location);
 	}
 	
 	/**
@@ -73,11 +66,11 @@ public class ShipyardBuildEvent extends GameEvent
 	public void runAction()
 	{
 		// Check if an IHQ exist in this colony.
-		HQ ihq = colony.ihq();
-		if(ihq == null)
+		Shipyard sy = location().getOrbiter(Shipyard.class);
+		if(sy == null)
 		{
-			ihq = new Shipyard(colony.location());
-			colony.setIhq(ihq);
+			sy = new Shipyard(location());
+			Universe.instance().getHQs().add(sy);
 		}
 	}
 }

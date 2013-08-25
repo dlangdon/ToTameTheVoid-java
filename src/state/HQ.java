@@ -3,14 +3,10 @@
  */
 package state;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import military.Ship;
-
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 
 /**
  * @author Daniel Langdon
@@ -41,6 +37,7 @@ public abstract class HQ extends Orbiter
 		super(location);
 		relocation_ = new LinkedList<Star>();
 		level_ = 1;
+		location.arrive(this);
 	}
 	
 	/**

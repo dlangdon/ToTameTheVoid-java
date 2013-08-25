@@ -28,7 +28,6 @@ public class Star implements UIListener
 
 	// Drawing internals
 	public static Image img;
-	public static Image ihqIcon;
 
 // Public Methods =====================================================================================================
 
@@ -96,12 +95,6 @@ public class Star implements UIListener
 		
 		img.draw(-16, -16, color);
 
-		// If it has an HQ, draw it.
-		if(colony_ != null && colony_.ihq() != null)
-		{
-			ihqIcon.draw(10, 10, color);
-		}
-		
 		g.popTransform();
 	}
 
@@ -181,4 +174,15 @@ public class Star implements UIListener
 				fleets.add((Fleet) o);
 		return fleets;
 	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Orbiter> T getOrbiter(Class<T> objectClass)
+	{
+		for(Orbiter o : inOrbit)
+			if(objectClass.isInstance(o))
+				return (T)o;
+		
+		return null;
+	}
+
 }

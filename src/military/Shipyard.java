@@ -56,6 +56,7 @@ public class Shipyard extends HQ
 	public Shipyard(Star location)
 	{
 		super(location);
+		
 	}
 	
 	/* (non-Javadoc)

@@ -6,8 +6,6 @@ package state;
 import graphic.Camera;
 import graphic.UIListener;
 
-import java.util.HashSet;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;

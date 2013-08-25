@@ -14,7 +14,6 @@ public class Colony
 	private float roi_;
 	private Star location_;
 	private Empire owner_;
-	private HQ hq_;
 
 // Public Methods =====================================================================================================
 	public Colony(Star location, Empire empire)
@@ -162,23 +161,6 @@ public class Colony
 		owner_.getColonies().remove(this);
 		owner.addColony(this);
 		this.owner_ = owner;
-	}
-
-	/**
-	 * @return the hq_
-	 */
-	public HQ ihq()
-	{
-		return hq_;
-	}
-
-	/**
-	 * @param hq_
-	 *           the hq_ to set
-	 */
-	public void setIhq(HQ hq_)
-	{
-		this.hq_ = hq_;
 	}
 
 	public Star location()

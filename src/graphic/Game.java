@@ -58,7 +58,6 @@ public class Game extends BasicGameState
 		Render.initialize();
 		background = new Image("resources/bck3.jpg");
 		Star.img = new Image("resources/star.png");
-		Star.ihqIcon = new Image("resources/ironfist.png");
 		
 		gc.setTargetFrameRate(120);
 		
@@ -93,6 +92,12 @@ public class Game extends BasicGameState
 		for(Fleet tf : Universe.instance().getFleets())
 		{
 			tf.render(gc, g, (tf == selected) ? Render.SELECTED : 0);
+		}
+
+		// Draw HQ
+		for(HQ hq : Universe.instance().getHQs())
+		{
+			hq.render(gc, g, (hq == selected) ? Render.SELECTED : 0);
 		}
 		
 		// Draw in world widgets
