@@ -3,6 +3,7 @@
  */
 package state;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public abstract class HQ extends Orbiter
 
 // Internals ==========================================================================================================
 	private LinkedList<Star> relocation_;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
-	private LinkedList<QueuedUnit> queue_;
+	private List<QueuedUnit> queue_;
 	private int level_;
 	
 // Public Methods =====================================================================================================
@@ -35,6 +36,7 @@ public abstract class HQ extends Orbiter
 	public HQ(Star location)
 	{
 		super(location);
+		queue_ = new ArrayList<HQ.QueuedUnit>(5);
 		relocation_ = new LinkedList<Star>();
 		level_ = 1;
 		location.arrive(this);
@@ -52,7 +54,7 @@ public abstract class HQ extends Orbiter
 	/**
 	 * @return the queue
 	 */
-	public LinkedList<QueuedUnit> queue()
+	public List<QueuedUnit> queue()
 	{
 		return queue_;
 	}

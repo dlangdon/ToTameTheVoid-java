@@ -56,7 +56,7 @@ public class Game extends BasicGameState
 		
 		// TODO load resources in a more intelligent way...
 		Render.initialize();
-		background = new Image("resources/bck3.jpg");
+		background = new Image("resources/bck1.jpg");
 		Star.img = new Image("resources/star.png");
 		
 		gc.setTargetFrameRate(120);

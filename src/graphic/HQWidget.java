@@ -19,14 +19,12 @@ public class HQWidget implements UIListener
 	private HQ hq;
 	private Image[] backgrounds;
 	private int hoverIndex;
-	private int numSteps;
 
 // Public Methods =====================================================================================================
 	HQWidget() throws SlickException
 	{
 		this.hq = null;
 		this.hoverIndex = -1;
-		this.numSteps = 6;
 		backgrounds = new Image[] 
 			{
 				new Image("resources/fleetBase.png"),
@@ -47,7 +45,6 @@ public class HQWidget implements UIListener
 
 	public void render(GameContainer gc, Graphics g)
 	{
-		// If no star is being displayed, do nothing.
 		if(hq == null)
 			return;
 		
@@ -78,7 +75,7 @@ public class HQWidget implements UIListener
 		// Display current queue (with numbers)
 		for(int i=0; i<5; i++)
 		{
-			Vector2f pos = indexToCenterCoord(i);
+			Vector2f pos = indexToCenterCoord(i+12);
 			if(i<queue.size())
 			{
 				QueuedUnit qu = queue.get(i);
@@ -106,7 +103,7 @@ public class HQWidget implements UIListener
 				Render.normal.drawString(
 						pos.x - Render.normal.getWidth(number)/2,
 						pos.y - Render.normal.getHeight()/2,
-						number, Color.black);
+						number, Color.white);
 			}
 		}
 		g.popTransform();
@@ -130,7 +127,7 @@ public class HQWidget implements UIListener
 		}
 		else
 		{
-			float angle = -(index-12)*10.0f - 200.0f;
+			float angle = -(index-12)*20.0f - 140.0f;
 			return new Vector2f(angle).scale(145.5f);
 		}
 	}
@@ -205,7 +202,7 @@ public class HQWidget implements UIListener
 				return false;
 			
 			int i = 0;
-			while(queue.get(i).design != options.get(index) && i<= queue.size())
+			while(i < queue.size() && queue.get(i).design != options.get(index))
 				i++;
 
 			QueuedUnit unit = null;
@@ -214,12 +211,12 @@ public class HQWidget implements UIListener
 				System.out.println("Can put more than 5 units in the queue");
 				return true;
 			}
-			else if(i > queue.size())
+			else if(i >= queue.size())
 			{
 				unit = new QueuedUnit();
 				unit.design = options.get(index);
 				unit.queued = 0;
-				queue.add(new QueuedUnit());
+				queue.add(unit);
 			}
 			else
 				unit = queue.get(i);
