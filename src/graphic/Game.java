@@ -14,11 +14,9 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import state.BaseIHQSlot;
 import state.Economy;
 import state.Fleet;
 import state.HQ;
-import state.ImperialHQ;
 import state.Lane;
 import state.Star;
 import state.Universe;
@@ -40,8 +38,6 @@ public class Game extends BasicGameState
 		// This is for now very hard-coded and not very modular.
 		Economy.init();
 		Fleet.init();
-		ImperialHQ.init();
-		BaseIHQSlot.init();
 		Shipyard.init();
 		
 		// TODO figure out universe sizes, 500x500 for now.
