@@ -37,8 +37,8 @@ public class Shipyard extends HQ
 		{
 			// Add units.
 			// TODO For now, just a hardcoded list of units.
-			availableUnits_.add(new Ship("Figther", new Image("resources/ship2.png")));
-			availableUnits_.add(new Ship("Colony Ship", new Image("resources/ship1.png")));
+			availableUnits_.add(new Ship("Figther", new Image("resources/ship2.png"), 1.0f));
+			availableUnits_.add(new Ship("Colony Ship", new Image("resources/ship1.png"), 10.0f));
 			
 			// Load icon.
 			icon_ = new Image("resources/ironFist.png");
@@ -86,7 +86,6 @@ public class Shipyard extends HQ
 		return icon_;
 	}
 
-
 	/* (non-Javadoc)
 	 * @see state.Orbiter#priority()
 	 */
@@ -94,5 +93,15 @@ public class Shipyard extends HQ
 	public int priority()
 	{
 		return 50;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see state.HQ#outputExpense()
+	 */
+	@Override
+	protected int outputExpense()
+	{
+		return constructionExpense;
 	}
 }

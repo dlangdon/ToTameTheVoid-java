@@ -85,7 +85,7 @@ public class HQWidget implements UIListener
 				// Calculate location and draw the count for the stack.
 				g.setColor(Color.orange);
 				float length = pos.length();
-				String number = Integer.toString((int)qu.queued);
+				String number = Integer.toString((int)Math.ceil(qu.queued));
 				pos.normalise().scale(length + 10.0f);
 				g.fillRect(
 							pos.x - Render.normal.getWidth(number)/2,

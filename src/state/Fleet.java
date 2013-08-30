@@ -41,6 +41,11 @@ public class Fleet extends Orbiter
 	private TreeMap<Unit, UnitStack> stacks;	///< Stacks composing this Fleet (individual ships and types).
 
 // Public Methods =====================================================================================================
+	
+	/**
+	 * @param orbiting Star this fleet is going to be orbiting.
+	 * @param empire
+	 */
 	Fleet(Star orbiting, Empire empire)
 	{
 		super(orbiting);
@@ -55,6 +60,7 @@ public class Fleet extends Orbiter
 		this.destinations.add(orbiting);
 
 		orbiting.arrive(this);	// Needs to happen after destinations exist, else priority can't be calculated.
+		Universe.instance().getFleets().add(this);
 	}
 
 	/**
@@ -166,7 +172,6 @@ public class Fleet extends Orbiter
 	public Fleet split(Map<Unit, Integer> units)
 	{
 		Fleet aux = new Fleet(destinations.getFirst(), owner_);
-		Universe.instance().getFleets().add(aux);
 		
 		// Create new stacks.
 		for(Entry<Unit, Integer> split : units.entrySet())
@@ -190,12 +195,15 @@ public class Fleet extends Orbiter
 	public void addUnits(Unit kind, int number)
 	{
 		// FIXME fix for subtraction
-		UnitStack toAdd = new UnitStack(number);
-		UnitStack current = stacks.get(kind);
-		if(current == null)
-			stacks.put(kind, toAdd);
-		else
-			current.add(toAdd);
+		if(number != 0)
+		{
+			UnitStack toAdd = new UnitStack(number);
+			UnitStack current = stacks.get(kind);
+			if(current == null)
+				stacks.put(kind, toAdd);
+			else
+				current.add(toAdd);
+		}
 	}
 
 	/**
@@ -316,7 +324,6 @@ public class Fleet extends Orbiter
 		}
 	}
 	
-
 	private void drawRoutePoint(Vector2f world, Graphics g, Vector2f screenDisp)
 	{
 		Camera.instance().pushLocalTransformation(g, world);

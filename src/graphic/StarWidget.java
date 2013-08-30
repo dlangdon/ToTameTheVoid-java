@@ -14,7 +14,6 @@ import org.newdawn.slick.geom.Vector2f;
 import state.Colony;
 import state.Star;
 import event.GameEvent;
-import event.GameEvent.Status;
 import event.GameEventQueue;
 
 public class StarWidget implements UIListener
@@ -80,14 +79,6 @@ public class StarWidget implements UIListener
 		else
 		{
 			Render.titles.drawString(100, 2, "No outpost");
-		}
-		
-		// FIXME Coordinate test, remove later.
-		for(int i=0; i<12; i++)
-		{
-			Vector2f pos = indexToCenterCoord(i);
-			g.drawRect(pos.x-1, pos.y-1, 3, 3);
-			Render.normal.drawString(pos.x, pos.y+3, Integer.toString(i));
 		}
 		
 		// Render possible actions on this system.

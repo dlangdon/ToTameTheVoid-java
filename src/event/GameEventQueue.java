@@ -13,6 +13,7 @@ import org.newdawn.slick.SlickException;
 
 import state.Empire;
 import state.Fleet;
+import state.HQ;
 import state.Star;
 import state.Universe;
 
@@ -135,12 +136,14 @@ public class GameEventQueue
 
 		// Resets
 		for (Empire e : Universe.instance().getEmpires())
-		{
 			e.getEconomy().resetTurn();
-		}
+
+		// Produce new units
+		checkLocations.clear();
+		for (HQ hq : Universe.instance().getHQs())
+			hq.turn();
 
 		// Update all fleets
-		checkLocations.clear();
 		for (Fleet f : Universe.instance().getFleets())
 			f.turn();
 

@@ -11,13 +11,13 @@ public abstract class Unit implements Comparable<Unit>
 	private float cost_;
 	
 // Public Methods =====================================================================================================
-	public Unit(String name_, Image image_)
+	public Unit(String name, Image image, float cost)
 	{
 		super();
-		this.name_ = name_;
-		this.image_ = image_;
+		this.name_ = name;
+		this.image_ = image;
 		this.hitPoints_ = 1.0f;
-		this.cost_ = 1e-4f;
+		this.cost_ = cost;
 	}
 
 	public String name()

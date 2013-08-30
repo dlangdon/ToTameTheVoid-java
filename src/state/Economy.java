@@ -139,20 +139,20 @@ public class Economy
 	/**
 	 * Tries to apply the specified amount to the reserve. If the amount would made the reserve go below 0, the movement is rejected.
 	 * Modules can use reserve() to check before calling, or handle the failure case.
-	 * @param amount Amount of credits to be added or removed from the reserve, a positive value is considered addition, a negative one subtraction.
+	 * @param d Amount of credits to be added or removed from the reserve, a positive value is considered addition, a negative one subtraction.
 	 * @param cause Pre-registered bin to which add the movement.
 	 * @return True if the reserve could process the movement, else 0.
 	 */
-	public boolean addMovement(float amount, int cause)
+	public boolean addMovement(double d, int cause)
 	{
-		if(amount + reserve_ < 0)
+		if(d + reserve_ < 0)
 		{
 			rejections_[cause] = true;
 			return false;
 		}
 
-		movements_[cause] += amount;
-		reserve_ += amount;
+		movements_[cause] += d;
+		reserve_ += d;
 		return true;
 	}
 

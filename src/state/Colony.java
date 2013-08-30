@@ -148,6 +148,10 @@ public class Colony
 		return roi_;
 	}
 
+	/**
+	 * TODO set the owner to be on the star rather than the colony, so a star does not have to know colonies...
+	 * @return
+	 */
 	public Empire owner()
 	{
 		return owner_;

@@ -66,8 +66,8 @@ public class Universe
 		// Create a few designs, just for kicks
 		Unit[] figthers = new Unit[23];
 		for(int i=0; i<23; i++)
-			figthers[i] = new Ship(String.format("A-Figther %02d", i), new Image("resources/ship2.png")); 
-		Unit colony = new Ship("Colony Ship", new Image("resources/ship1.png"));
+			figthers[i] = new Ship(String.format("A-Figther %02d", i), new Image("resources/ship2.png"), 1.0f); 
+		Unit colony = new Ship("Colony Ship", new Image("resources/ship1.png"), 10.0f);
 		
 		// Create a bunch of fleets.
 		Random r = new Random();

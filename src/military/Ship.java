@@ -16,9 +16,9 @@ public class Ship extends Unit
 	 * @param name_
 	 * @param image_
 	 */
-	public Ship(String name_, Image image_)
+	public Ship(String name, Image image, float cost)
 	{
-		super(name_, image_);
+		super(name, image, cost);
 	}
 
 	/* (non-Javadoc)
