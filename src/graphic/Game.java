@@ -32,6 +32,8 @@ public class Game extends BasicGameState
 	private Object selected;
 	private GameEventQueue eventQueue;
 	
+	private boolean showWorldMode;
+	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// Run module initialization. Be careful with dependencies.
@@ -49,6 +51,8 @@ public class Game extends BasicGameState
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
 		new Universe();
+		
+		showWorldMode = false;
 		
 		// TODO load resources in a more intelligent way...
 		Render.initialize();
@@ -97,9 +101,12 @@ public class Game extends BasicGameState
 		}
 		
 		// Draw in world widgets
-		starWidget.render(gc, g);
-		fleetWidget.render(gc, g);
-		hqWidget.render(gc, g);
+		if(!showWorldMode)
+		{
+			starWidget.render(gc, g);
+			fleetWidget.render(gc, g);
+			hqWidget.render(gc, g);
+		}
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -167,18 +174,31 @@ public class Game extends BasicGameState
 			this.turn();
 		else if(key == Input.KEY_E)
 			econDialog.setVisible(!econDialog.isVisible());
+		else if(key == Input.KEY_SPACE)
+			this.showWorldMode = true;
 	}
 
 	@Override
+	public void keyReleased(int key, char c)
+	{
+		if(key == Input.KEY_SPACE)
+			this.showWorldMode = false;
+		
+	}
+	
+	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		// Check if any of the interfaces consumes this click.
-		if(fleetWidget.screenCLick(x, y, button))
-			return;
-		if(hqWidget.screenCLick(x, y, button))
-			return;
-		if(starWidget.screenCLick(x, y, button))
-			return;
+		if(!showWorldMode)
+		{
+			// Check if any of the interfaces consumes this click.
+			if(fleetWidget.screenCLick(x, y, button))
+				return;
+			if(hqWidget.screenCLick(x, y, button))
+				return;
+			if(starWidget.screenCLick(x, y, button))
+				return;
+		}
 
 		// Check if the click corresponds to a star.
 		Star selectedStar = null;

@@ -46,7 +46,7 @@ public class HQWidget implements UIListener
 
 	public void render(GameContainer gc, Graphics g)
 	{
-		if(hq == null || gc.getInput().isKeyDown(Input.KEY_SPACE))
+		if(hq == null)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.

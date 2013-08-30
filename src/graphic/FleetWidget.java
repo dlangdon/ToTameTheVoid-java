@@ -89,7 +89,7 @@ public class FleetWidget implements UIListener
 	public void render(GameContainer gc, Graphics g)
 	{
 		// If no star is being displayed, do nothing.
-		if(fleet == null || gc.getInput().isKeyDown(Input.KEY_SPACE))
+		if(fleet == null)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.

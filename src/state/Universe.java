@@ -54,14 +54,14 @@ public class Universe
 		int turn = 0;
 		
 		// Create a bunch of colonies for the empires, just for fun.
-		Empire[] empireList = new Empire[empires.size()];
-		empires.toArray(empireList);
-		for(Star star: stars)
-		{
-			if(turn < 5)
-				new Colony(star, empireList[turn]);
-			turn = (turn+1)%7;
-		}
+//		Empire[] empireList = new Empire[empires.size()];
+//		empires.toArray(empireList);
+//		for(Star star: stars)
+//		{
+//			if(turn < 5)
+//				new Colony(star, empireList[turn]);
+//			turn = (turn+1)%7;
+//		}
 		
 		// Create a few designs, just for kicks
 		Unit[] figthers = new Unit[23];
