@@ -63,6 +63,7 @@ public class SimplePointCreator implements ForceOfNature
 					if(x+i >= 0 && x+i < map.length && y+j >= 0 && y+j < map[0].length && (i*i + j*j < exclusionRadius*exclusionRadius))
 						map[x+i][y+j] = 1.0f;
 		}
+		System.out.println("INFO: Created " + nascent.points.size() + " points.");
 		return true;
 	}
 

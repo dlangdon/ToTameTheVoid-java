@@ -30,7 +30,7 @@ public class NascentGalaxy
 	Set<Lane> initialLanes;
 	Set<Lane> prunedLanes;
 	List<Star> bornStars;
-	private List<ForceOfNature> forces;
+	List<ForceOfNature> forces;
 	
 	/**
 	 * 

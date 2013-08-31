@@ -4,27 +4,60 @@
 package galaxy.generation;
 
 import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Game;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-public class GenerationVisualTest implements Game
+public class GenerationVisualTest extends BasicGame
 {
 	NascentGalaxy nascent;
+	int maxSteps;
+	boolean showHeatMap;
 
 	public GenerationVisualTest()
 	{
-		super();
+		super("Generation Test");
+		
+		this.maxSteps = 99;
+		this.showHeatMap = true;
+		
+		runPipeline();
+	}
+	
+	void runPipeline()
+	{
 		nascent = new NascentGalaxy();
 
 		// Configure pipeline
 		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 4, 15));
 		nascent.addForce(new SimplePointCreator(5,100, 1.0f));
+		
+		if(maxSteps < nascent.forces.size())
+				nascent.forces = nascent.forces.subList(0, maxSteps);
+		
 		if(!nascent.runAllForces())
 			System.out.println("ERROR: Could not run all pipeline forces.");
+	}
+	
+	@Override
+	public void keyPressed(int key, char c)
+	{
+		if(key == Input.KEY_H)
+			showHeatMap = !showHeatMap;
+
+		// Re-run experiment
+		if(key == Input.KEY_H)
+			showHeatMap = !showHeatMap;
+		
+		if(c >= '0' && c <= '9')
+		{
+			maxSteps = c - '0';
+			runPipeline();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -49,7 +82,7 @@ public class GenerationVisualTest implements Game
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		if(nascent.heatmap != null)
+		if(nascent.heatmap != null && showHeatMap)
 		{
 			g.setColor(Color.red);
 			g.drawRect(49, 49, 402, 402);
@@ -78,7 +111,8 @@ public class GenerationVisualTest implements Game
 		{
 			
 		}
-		else if(nascent.points != null)
+		
+		if(nascent.points != null)
 		{
 			g.setColor(Color.red);
 			for(Vector2f point : nascent.points)
@@ -86,24 +120,6 @@ public class GenerationVisualTest implements Game
 				
 		}
 		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.newdawn.slick.Game#closeRequested()
-	 */
-	@Override
-	public boolean closeRequested()
-	{
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.newdawn.slick.Game#getTitle()
-	 */
-	@Override
-	public String getTitle()
-	{
-		return "Generation Test";
 	}
 	
 	/**
