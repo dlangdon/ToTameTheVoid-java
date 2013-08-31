@@ -49,9 +49,6 @@ public class Universe
 		empires.add(new Empire("Blops", new Color(180,180,0)));
 		empires.add(new Empire("Blups", new Color(0,180,180)));
 		playerEmpire = empires.get(0);
-
-		// Initialize game objects.
-		int turn = 0;
 		
 		// Create a bunch of colonies for the empires, just for fun.
 //		Empire[] empireList = new Empire[empires.size()];
