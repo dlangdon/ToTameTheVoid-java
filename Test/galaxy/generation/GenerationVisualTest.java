@@ -20,7 +20,7 @@ public class GenerationVisualTest implements Game
 		nascent = new NascentGalaxy();
 
 		// Configure pipeline
-		nascent.addForce(new SimpleBlobCreator(100, 100, 50, 12));
+		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 2, 12));
 		nascent.runAllForces();
 	}
 

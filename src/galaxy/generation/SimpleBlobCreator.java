@@ -13,14 +13,16 @@ public class SimpleBlobCreator implements ForceOfNature
 	private int height;
 	private int width;
 	private int numBlobs;
-	private int blobRadius;
+	private int minBlobRadius;
+	private int maxBlobRadius;
 	
-	public SimpleBlobCreator(int height, int width, int numblobs, int blobRadius)
+	public SimpleBlobCreator(int height, int width, int numblobs, int minBlobRadius, int maxBlobRadius)
 	{
 		this.height = height;
 		this.width = width;
 		this.numBlobs = numblobs;
-		this.blobRadius = blobRadius;
+		this.minBlobRadius = minBlobRadius;
+		this.maxBlobRadius = (maxBlobRadius > minBlobRadius) ? maxBlobRadius : minBlobRadius+5;
 	}
 	
 	/* (non-Javadoc)
@@ -38,10 +40,16 @@ public class SimpleBlobCreator implements ForceOfNature
 			int y = rand.nextInt(height);
 			System.out.println(x + "," + y);
 
-			for(int i=-blobRadius; i<=blobRadius; i++)
-				for(int j=-blobRadius; j<=blobRadius; j++)
+			for(int i=-maxBlobRadius; i<=maxBlobRadius; i++)
+				for(int j=-maxBlobRadius; j<=maxBlobRadius; j++)
 					if(x+i >= 0 && x+i < width && y+j >= 0 && y+j < height)
-						map[x+i][y+j] = Math.min(map[x+i][y+j] + (2.0f / (float)(i*i + j*j)), 1.0f);
+					{
+//						map[x+i][y+j] = Math.min(map[x+i][y+j] + (1.0f / (float)(i*i + j*j)), 1.0f);
+						int dX = Math.max(Math.abs(i)-minBlobRadius, 0);
+						int dY = Math.max(Math.abs(j)-minBlobRadius, 0);
+						float intensity = 1.0f / (float)(dX*dX + dY*dY);
+						map[x+i][y+j] = Math.min(map[x+i][y+j] + intensity, 1.0f);
+					}
 		}
 		
 		return false;
