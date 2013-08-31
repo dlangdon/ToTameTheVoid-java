@@ -50,9 +50,6 @@ public class GenerationVisualTest extends BasicGame
 			showHeatMap = !showHeatMap;
 
 		// Re-run experiment
-		if(key == Input.KEY_H)
-			showHeatMap = !showHeatMap;
-		
 		if(c >= '0' && c <= '9')
 		{
 			maxSteps = c - '0';
@@ -119,6 +116,11 @@ public class GenerationVisualTest extends BasicGame
 				g.fillOval(50+point.x*4-2, 50+point.y*4-2, 5, 5);
 				
 		}
+		
+		g.setColor(Color.white);
+		g.drawString("F"+maxSteps, 10, 30);
+		if(showHeatMap)
+			g.drawString("HM", 10, 50);
 		
 	}
 	
