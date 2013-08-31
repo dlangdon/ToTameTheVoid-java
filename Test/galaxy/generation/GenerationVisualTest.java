@@ -3,6 +3,8 @@
  */
 package galaxy.generation;
 
+import galaxy.generation.NascentGalaxy.Lane;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -34,7 +36,8 @@ public class GenerationVisualTest extends BasicGame
 
 		// Configure pipeline
 		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 4, 15));
-		nascent.addForce(new SimplePointCreator(5,100, 1.0f));
+		nascent.addForce(new SimplePointCreator(5,3, 1.0f));
+		nascent.addForce(new DelaunayLaneGenerator(0.5f));
 		
 		if(maxSteps < nascent.forces.size())
 				nascent.forces = nascent.forces.subList(0, maxSteps);
@@ -81,9 +84,6 @@ public class GenerationVisualTest extends BasicGame
 	{
 		if(nascent.heatmap != null && showHeatMap)
 		{
-			g.setColor(Color.red);
-			g.drawRect(49, 49, 402, 402);
-
 			for(int i=0; i<nascent.heatmap.length ; i++)
 			{
 				float[] row = nascent.heatmap[i];
@@ -106,7 +106,13 @@ public class GenerationVisualTest extends BasicGame
 		
 		if(nascent.initialLanes != null)
 		{
-			
+			g.setColor(Color.cyan);
+			for(Lane l : nascent.initialLanes)
+			{
+				Vector2f from = nascent.points.get(l.v1);
+				Vector2f to = nascent.points.get(l.v2);
+				g.drawLine(50+from.x*4, 50+from.y*4, 50+to.x*4, 50+to.y*4);
+			}
 		}
 		
 		if(nascent.points != null)
@@ -117,6 +123,8 @@ public class GenerationVisualTest extends BasicGame
 				
 		}
 		
+		g.setColor(Color.red);
+		g.drawRect(49, 49, 402, 402);
 		g.setColor(Color.white);
 		g.drawString("F"+maxSteps, 10, 30);
 		if(showHeatMap)

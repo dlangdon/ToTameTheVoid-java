@@ -21,8 +21,24 @@ public class NascentGalaxy
 {
 	class Lane
 	{
-		public int a;
-		public int b;
+		public int v1;
+		public int v2;
+		
+		/**
+		 * @param v12
+		 * @param v22
+		 */
+		public Lane(int v1, int v2)
+		{
+			this.v1 = v1;
+			this.v2 = v2;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return v1 < v2 ? v1 * points.size() + v2 : v2 * points.size() + v1;
+		}
 	}
 	
 	float[][] heatmap;
