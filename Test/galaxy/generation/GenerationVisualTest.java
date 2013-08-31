@@ -9,6 +9,7 @@ import org.newdawn.slick.Game;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
 
 public class GenerationVisualTest implements Game
 {
@@ -20,8 +21,10 @@ public class GenerationVisualTest implements Game
 		nascent = new NascentGalaxy();
 
 		// Configure pipeline
-		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 2, 12));
-		nascent.runAllForces();
+		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 4, 15));
+		nascent.addForce(new SimplePointCreator(5,100, 1.0f));
+		if(!nascent.runAllForces())
+			System.out.println("ERROR: Could not run all pipeline forces.");
 	}
 
 	/* (non-Javadoc)
@@ -46,23 +49,7 @@ public class GenerationVisualTest implements Game
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		if(nascent.bornStars != null)
-		{
-			// TODO paint stars. Should they be clickable and use the widget??
-		}
-		else if(nascent.prunedLanes != null)
-		{
-			
-		}
-		else if(nascent.initialLanes != null)
-		{
-			
-		}
-		else if(nascent.points != null)
-		{
-			
-		}
-		else if(nascent.heatmap != null)
+		if(nascent.heatmap != null)
 		{
 			g.setColor(Color.red);
 			g.drawRect(49, 49, 402, 402);
@@ -77,6 +64,28 @@ public class GenerationVisualTest implements Game
 				}
 			}
 		}
+
+		if(nascent.bornStars != null)
+		{
+			// TODO paint stars. Should they be clickable and use the widget??
+		}
+		else if(nascent.prunedLanes != null)
+		{
+			
+		}
+		
+		if(nascent.initialLanes != null)
+		{
+			
+		}
+		else if(nascent.points != null)
+		{
+			g.setColor(Color.red);
+			for(Vector2f point : nascent.points)
+				g.fillOval(50+point.x*4-2, 50+point.y*4-2, 5, 5);
+				
+		}
+		
 	}
 
 	/* (non-Javadoc)

@@ -38,7 +38,6 @@ public class SimpleBlobCreator implements ForceOfNature
 		{
 			int x = rand.nextInt(width);
 			int y = rand.nextInt(height);
-			System.out.println(x + "," + y);
 
 			for(int i=-maxBlobRadius; i<=maxBlobRadius; i++)
 				for(int j=-maxBlobRadius; j<=maxBlobRadius; j++)
@@ -52,7 +51,7 @@ public class SimpleBlobCreator implements ForceOfNature
 					}
 		}
 		
-		return false;
+		return true;
 	}
 
 }
