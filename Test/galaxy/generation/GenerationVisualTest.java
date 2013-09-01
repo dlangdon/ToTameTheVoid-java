@@ -20,43 +20,43 @@ import org.newdawn.slick.geom.Vector2f;
 public class GenerationVisualTest extends BasicGame
 {
 	NascentGalaxy nascent;
-	int maxSteps;
-	boolean showHeatMap;
-	int pointCount;
-	boolean laneDetails;
+	ForceOfNature[] forces;
 	DelaunayLaneGenerator laneGenerator;
+	
+	boolean showHeatMap;
+	boolean showPoints;
+	boolean showTriangles;
+	boolean showInitialEdges;
+	boolean showPrunnedEdges;
+	
+	/**
+	 * For triangulation tests, this iterates one step at the time instead of running the whole thing.
+	 * -1 is the initial value, then adds one point at the time, then cleans up and created edges.
+	 */
+	int pointCount;
 
 	public GenerationVisualTest()
 	{
 		super("Generation Test");
 		
-		this.maxSteps = 0;
 		this.showHeatMap = true;
-		this.laneDetails = false;
+		this.showPoints = true;
+		this.showTriangles = true;
+		this.showInitialEdges = true;
+		this.showPrunnedEdges = true;
 		this.pointCount = -1;
+		
 		this.laneGenerator = new DelaunayLaneGenerator(0.5f);
+		forces = new ForceOfNature[] {
+				new SimpleBlobCreator(100, 100, 30, 4, 15),
+				new SimplePointCreator(5,3, 1.0f),
+				this.laneGenerator
+		};
 		
-//		runPipeline();
-		runFixedPoints();
-	}
-	
-	void runPipeline()
-	{
-		nascent = new NascentGalaxy();
-
-		// Configure pipeline
-		nascent.addForce(new SimpleBlobCreator(100, 100, 30, 4, 15));
-		nascent.addForce(new SimplePointCreator(5,3, 1.0f));
-		nascent.addForce(laneGenerator);
-		
-		if(maxSteps < nascent.forces.size())
-				nascent.forces = nascent.forces.subList(0, maxSteps);
-		
-		if(!nascent.runAllForces())
-			System.out.println("ERROR: Could not run all pipeline forces.");
+		setInitialData();
 	}
 
-	void runFixedPoints()
+	void setInitialData()
 	{
 		nascent = new NascentGalaxy();
 		nascent.points = new ArrayList<Vector2f>();
@@ -73,10 +73,23 @@ public class GenerationVisualTest extends BasicGame
 	@Override
 	public void keyPressed(int key, char c)
 	{
-		if(key == Input.KEY_H)
+		// All visibility options.
+		if(key == Input.KEY_Q)
 			showHeatMap = !showHeatMap;
-		if(key == Input.KEY_L)
-			laneDetails = !laneDetails;
+		if(key == Input.KEY_W)
+			showPoints = !showPoints;
+		if(key == Input.KEY_E)
+			showTriangles = !showTriangles;
+		if(key == Input.KEY_R)
+			showInitialEdges = !showInitialEdges;
+		if(key == Input.KEY_T)
+			showPrunnedEdges = !showPrunnedEdges;
+		
+		// Whole forces to unleash.
+		if(c >= '1' && c <= '9')
+		{
+			forces[c-'1'].apply(nascent);
+		}
 		
 		// Enter controls steps for the delaunay generation.
 		if(key == Input.KEY_ENTER)
@@ -90,16 +103,9 @@ public class GenerationVisualTest extends BasicGame
 				laneGenerator.step(this.pointCount++);
 			else if(pointCount == nascent.points.size()-3)
 			{
-//				laneGenerator.end();
+				laneGenerator.end();
 				laneGenerator.generateAllEdges();
 			}
-		}
-		
-		// Re-run experiment
-		if(c >= '0' && c <= '9')
-		{
-			maxSteps = c - '0';
-			runPipeline();
 		}
 	}
 
@@ -147,11 +153,15 @@ public class GenerationVisualTest extends BasicGame
 			
 		}
 		
-		if(laneGenerator.triangles != null)
+		if(laneGenerator.triangles != null && showTriangles)
 		{
 			Vector2f disp = new Vector2f(50, 50);
+			int size = nascent.points.size();
 			for(Triangle t: laneGenerator.triangles)
 			{
+				if(t.v1 >= size || t.v2 >= size || t.v3 >= size )
+					continue;
+				
 				Vector2f v1 = new Vector2f(nascent.points.get(t.v1)).scale(4.0f).add(disp);
 				Vector2f v2 = new Vector2f(nascent.points.get(t.v2)).scale(4.0f).add(disp);
 				Vector2f v3 = new Vector2f(nascent.points.get(t.v3)).scale(4.0f).add(disp);
@@ -164,12 +174,12 @@ public class GenerationVisualTest extends BasicGame
 				g.drawLine(v3.x, v3.y, v2.x, v2.y);
 
 				g.fillOval(center.x-1, center.y-1, 3, 3);
-				g.setColor(new Color(0.0f, 1.0f, 0.0f, 0.3f));
+				g.setColor(new Color(0.0f, 1.0f, 0.0f, 0.1f));
 				g.fillOval(center.x-r, center.y-r, 2*r, 2*r);
 			}
 		}
 		
-		if(nascent.initialLanes != null)
+		if(nascent.initialLanes != null && showInitialEdges)
 		{
 			g.setColor(Color.cyan);
 			for(Edge l : nascent.initialLanes)
@@ -180,7 +190,7 @@ public class GenerationVisualTest extends BasicGame
 			}
 		}
 		
-		if(nascent.points != null)
+		if(nascent.points != null && showPoints)
 		{
 			g.setColor(Color.red);
 			for(int p=0; p<nascent.points.size(); p++)
@@ -188,12 +198,20 @@ public class GenerationVisualTest extends BasicGame
 					g.fillOval(50+nascent.points.get(p).x*4-2, 50+nascent.points.get(p).y*4-2, 5, 5);
 		}
 		
+		// Paint configuration feedback
 		g.setColor(Color.red);
 		g.drawRect(49, 49, 402, 402);
 		g.setColor(Color.white);
-		g.drawString("F"+maxSteps, 10, 30);
 		if(showHeatMap)
-			g.drawString("HM", 10, 50);
+			g.drawString("HM", 10, 30);
+		if(showPoints)
+			g.drawString("PT", 10, 50);
+		if(showTriangles)
+			g.drawString("TR", 10, 70);
+		if(showInitialEdges)
+			g.drawString("IE", 10, 90);
+		if(showPrunnedEdges)
+			g.drawString("PE", 10, 110);
 		
 	}
 	
