@@ -22,11 +22,13 @@ public class GenerationVisualTest extends BasicGame
 	NascentGalaxy nascent;
 	ForceOfNature[] forces;
 	DelaunayLaneGenerator laneGenerator;
+	MinimumSpanningTreeForce mstForce;
 	
 	boolean showHeatMap;
 	boolean showPoints;
 	boolean showTriangles;
 	boolean showInitialEdges;
+	boolean showMST;
 	boolean showPrunnedEdges;
 	
 	/**
@@ -44,13 +46,16 @@ public class GenerationVisualTest extends BasicGame
 		this.showTriangles = true;
 		this.showInitialEdges = true;
 		this.showPrunnedEdges = true;
+		this.showMST = true;
 		this.pointCount = -1;
 		
-		this.laneGenerator = new DelaunayLaneGenerator(0.5f);
+		this.laneGenerator = new DelaunayLaneGenerator(0.2f);
+		this.mstForce = new MinimumSpanningTreeForce();
 		forces = new ForceOfNature[] {
 				new SimpleBlobCreator(100, 100, 30, 4, 15),
-				new SimplePointCreator(5,3, 1.0f),
-				this.laneGenerator
+				new SimplePointCreator(5, 50, 1.0f),
+				this.laneGenerator,
+				this.mstForce
 		};
 		
 		setInitialData();
@@ -83,12 +88,15 @@ public class GenerationVisualTest extends BasicGame
 		if(key == Input.KEY_R)
 			showInitialEdges = !showInitialEdges;
 		if(key == Input.KEY_T)
+			showMST = !showMST;
+		if(key == Input.KEY_Y)
 			showPrunnedEdges = !showPrunnedEdges;
 		
 		// Whole forces to unleash.
 		if(c >= '1' && c <= '9')
 		{
-			forces[c-'1'].apply(nascent);
+			if(c-'1' < forces.length)
+				forces[c-'1'].unleash(nascent);
 		}
 		
 		// Enter controls steps for the delaunay generation.
@@ -143,15 +151,6 @@ public class GenerationVisualTest extends BasicGame
 				}
 			}
 		}
-
-		if(nascent.bornStars != null)
-		{
-			// TODO paint stars. Should they be clickable and use the widget??
-		}
-		else if(nascent.prunedLanes != null)
-		{
-			
-		}
 		
 		if(laneGenerator.triangles != null && showTriangles)
 		{
@@ -190,6 +189,28 @@ public class GenerationVisualTest extends BasicGame
 			}
 		}
 		
+		if(nascent.prunedLanes != null && showPrunnedEdges)
+		{
+			g.setColor(Color.cyan);
+			for(Edge l : nascent.prunedLanes)
+			{
+				Vector2f from = nascent.points.get(l.v1);
+				Vector2f to = nascent.points.get(l.v2);
+				g.drawLine(50+from.x*4, 50+from.y*4, 50+to.x*4, 50+to.y*4);
+			}
+		}
+		
+		if(mstForce.mst != null && showMST)
+		{
+			g.setColor(Color.red);
+			for(Edge l : mstForce.mst)
+			{
+				Vector2f from = nascent.points.get(l.v1);
+				Vector2f to = nascent.points.get(l.v2);
+				g.drawLine(50+from.x*4, 50+from.y*4, 50+to.x*4, 50+to.y*4);
+			}
+		}
+		
 		if(nascent.points != null && showPoints)
 		{
 			g.setColor(Color.red);
@@ -210,9 +231,10 @@ public class GenerationVisualTest extends BasicGame
 			g.drawString("TR", 10, 70);
 		if(showInitialEdges)
 			g.drawString("IE", 10, 90);
+		if(showMST)
+			g.drawString("MST", 10, 110);
 		if(showPrunnedEdges)
-			g.drawString("PE", 10, 110);
-		
+			g.drawString("PE", 10, 130);
 	}
 	
 	/**

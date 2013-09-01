@@ -8,5 +8,5 @@ package galaxy.generation;
  */
 public interface ForceOfNature
 {
-	boolean apply(NascentGalaxy nascentGalaxy);
+	boolean unleash(NascentGalaxy nascentGalaxy);
 }

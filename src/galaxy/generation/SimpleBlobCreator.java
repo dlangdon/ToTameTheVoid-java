@@ -29,7 +29,7 @@ public class SimpleBlobCreator implements ForceOfNature
 	 * @see galaxy.generation.ForceOfNature#apply(galaxy.generation.NascentGalaxy)
 	 */
 	@Override
-	public boolean apply(NascentGalaxy nascentGalaxy)
+	public boolean unleash(NascentGalaxy nascentGalaxy)
 	{
 		Random rand = new Random();
 		float[][] map = nascentGalaxy.heatmap = new float[width][height];

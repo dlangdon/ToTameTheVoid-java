@@ -19,6 +19,10 @@ import state.Star;
  */
 public class NascentGalaxy
 {
+	/**
+	 * An edge between two points, stored from their index in the point list.
+	 * The first index, v1, is always less or equal than the second one.
+	 */
 	class Edge
 	{
 		public int v1;
@@ -30,8 +34,8 @@ public class NascentGalaxy
 		 */
 		public Edge(int v1, int v2)
 		{
-			this.v1 = v1;
-			this.v2 = v2;
+			this.v1 = v1 < v2 ? v1 : v2;
+			this.v2 = v1 < v2 ? v2 : v1;
 		}
 
 		@Override
@@ -95,7 +99,7 @@ public class NascentGalaxy
 	public boolean runAllForces()
 	{
 		for(ForceOfNature force : forces)
-			if(!force.apply(this))
+			if(!force.unleash(this))
 				return false;
 		return true;
 	}

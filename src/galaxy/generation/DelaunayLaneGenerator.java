@@ -155,7 +155,7 @@ public class DelaunayLaneGenerator implements ForceOfNature
 	 * @see galaxy.generation.ForceOfNature#apply(galaxy.generation.NascentGalaxy)
 	 */
 	@Override
-	public boolean apply(NascentGalaxy nascent)
+	public boolean unleash(NascentGalaxy nascent)
 	{
 		if(nascent.points == null)
 			return false;
@@ -238,8 +238,6 @@ public class DelaunayLaneGenerator implements ForceOfNature
 		nascent.points.remove(size-1);
 		nascent.points.remove(size-2);
 		nascent.points.remove(size-3);
-		
-		System.out.println("Created " + triangles.size() + " triangles.");
 	}
 
 	void generateAllEdges()

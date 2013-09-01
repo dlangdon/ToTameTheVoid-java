@@ -34,7 +34,7 @@ public class SimplePointCreator implements ForceOfNature
 	 * @see galaxy.generation.ForceOfNature#apply(galaxy.generation.NascentGalaxy)
 	 */
 	@Override
-	public boolean apply(NascentGalaxy nascent)
+	public boolean unleash(NascentGalaxy nascent)
 	{
 		if(nascent.heatmap == null)
 			return false;
