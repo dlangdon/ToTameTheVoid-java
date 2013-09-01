@@ -16,7 +16,7 @@ public class SimpleBlobCreator implements ForceOfNature
 	private int minBlobRadius;
 	private int maxBlobRadius;
 	
-	public SimpleBlobCreator(int height, int width, int numblobs, int minBlobRadius, int maxBlobRadius)
+	public SimpleBlobCreator(int width, int height, int numblobs, int minBlobRadius, int maxBlobRadius)
 	{
 		this.height = height;
 		this.width = width;

@@ -1,8 +1,11 @@
 package state;
 
+import galaxy.generation.DelaunayLaneGenerator;
+import galaxy.generation.MinimumSpanningTreeForce;
 import galaxy.generation.NascentGalaxy;
 import galaxy.generation.RandomStarGenerator;
-import galaxy.generation.StaticGalaxyCreator;
+import galaxy.generation.SimpleBlobCreator;
+import galaxy.generation.SimplePointCreator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +48,14 @@ public class Universe
 		this.hqs = new HashSet<HQ>();
 		
 		NascentGalaxy ng = new NascentGalaxy();
-		ng.addForce(new StaticGalaxyCreator());
+
+//		ng.addForce(new StaticGalaxyCreator());
+
+		ng.addForce(new SimpleBlobCreator(125, 75, 30, 4, 15));
+		ng.addForce(new SimplePointCreator(5, 50, 4.0f));
+		ng.addForce(new DelaunayLaneGenerator(0.15f));
+		ng.addForce(new MinimumSpanningTreeForce());
+		
 		ng.addForce(new RandomStarGenerator());
 		ng.unleashAllForces();
 		ng.blosom();

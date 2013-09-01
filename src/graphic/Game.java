@@ -42,7 +42,7 @@ public class Game extends BasicGameState
 		Fleet.init();
 		Shipyard.init();
 		
-		// TODO figure out universe sizes, 500x500 for now.
+		// TODO figure out universe sizes, 500x500 for now. Size should be in the universe, not the camera!
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 300));
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
