@@ -49,7 +49,7 @@ public class GenerationVisualTest extends BasicGame
 		this.showMST = true;
 		this.pointCount = -1;
 		
-		this.laneGenerator = new DelaunayLaneGenerator(0.2f);
+		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
 		forces = new ForceOfNature[] {
 				new SimpleBlobCreator(100, 100, 30, 4, 15),
@@ -95,8 +95,20 @@ public class GenerationVisualTest extends BasicGame
 		// Whole forces to unleash.
 		if(c >= '1' && c <= '9')
 		{
-			if(c-'1' < forces.length)
-				forces[c-'1'].unleash(nascent);
+			int f = c-'1'; 
+			if(f < forces.length)
+			{
+				forces[f].unleash(nascent);
+				
+				// Re-creating points has serious consequences on existing lanes.
+				if(f == 1)
+				{
+					nascent.initialLanes = null;
+					nascent.prunedLanes = null;
+					laneGenerator.triangles = null;
+					mstForce.mst = null;
+				}
+			}
 		}
 		
 		// Enter controls steps for the delaunay generation.
@@ -191,7 +203,7 @@ public class GenerationVisualTest extends BasicGame
 		
 		if(nascent.prunedLanes != null && showPrunnedEdges)
 		{
-			g.setColor(Color.cyan);
+			g.setColor(Color.blue);
 			for(Edge l : nascent.prunedLanes)
 			{
 				Vector2f from = nascent.points.get(l.v1);
@@ -221,7 +233,6 @@ public class GenerationVisualTest extends BasicGame
 		
 		// Paint configuration feedback
 		g.setColor(Color.red);
-		g.drawRect(49, 49, 402, 402);
 		g.setColor(Color.white);
 		if(showHeatMap)
 			g.drawString("HM", 10, 30);

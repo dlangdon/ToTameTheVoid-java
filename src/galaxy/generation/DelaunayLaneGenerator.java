@@ -240,24 +240,34 @@ public class DelaunayLaneGenerator implements ForceOfNature
 		nascent.points.remove(size-3);
 	}
 
+	/**
+	 * Generates all edges by collapsing the triangles together.
+	 * Also generates a trimmed set of edges, given by the ratio between the triangle area and its circumcircle. 
+	 * When the ratio is too low, the triangle is to narrow to be useful. 
+	 * Note that edges to be removed are first collected and then applied, as triangles at the sides (with good ratio) might insert them again against our needs.
+	 */
 	void generateAllEdges()
 	{
 		nascent.initialLanes = new HashSet<Edge>();
-		nascent.prunedLanes = new HashSet<Edge>();
 		
+		HashSet<Edge> toBeRemoved = new HashSet<Edge>();
 		for(Triangle triangle : triangles)
 		{
 			addEdge(triangle.v1, triangle.v3, nascent.initialLanes);
 			addEdge(triangle.v2, triangle.v3, nascent.initialLanes);
 			addEdge(triangle.v1, triangle.v2, nascent.initialLanes);
 
-			if(triangle.areaVsCircle > prunningRatio)
+			if(triangle.areaVsCircle < prunningRatio)
 			{
-				addEdge(triangle.v1, triangle.v3, nascent.prunedLanes);
-				addEdge(triangle.v2, triangle.v3, nascent.prunedLanes);
-				addEdge(triangle.v1, triangle.v2, nascent.prunedLanes);
+				addEdge(triangle.v1, triangle.v3, toBeRemoved);
+				addEdge(triangle.v2, triangle.v3, toBeRemoved);
+				addEdge(triangle.v1, triangle.v2, toBeRemoved);
 			}
 		}
+		
+		nascent.prunedLanes = new HashSet<Edge>(nascent.initialLanes);
+		for(Edge e: toBeRemoved)
+			nascent.prunedLanes.remove(e);
 		
 		System.out.println("Created " + nascent.initialLanes.size() + " initial lanes.");
 		System.out.println("Prunend down to " + nascent.prunedLanes.size() + " lanes.");
