@@ -197,15 +197,15 @@ public class DelaunayLaneGenerator implements ForceOfNature
 
 			if (t.isInCircumcircle(nascent.points.get(point)))
 			{
-				Edge l1 = nascent.new Edge(t.v1, t.v2);
+				Edge l1 = new Edge(t.v1, t.v2);
 				Integer val1 = edges.get(l1);
 				edges.put(l1, val1 == null ? 1 : val1+1);
 				
-				Edge l2 = nascent.new Edge(t.v1, t.v3);
+				Edge l2 = new Edge(t.v1, t.v3);
 				Integer val2 = edges.get(l2);
 				edges.put(l2, val2 == null ? 1 : val2+1);
 
-				Edge l3 = nascent.new Edge(t.v2, t.v3);
+				Edge l3 = new Edge(t.v2, t.v3);
 				Integer val3 = edges.get(l3);
 				edges.put(l3, val3 == null ? 1 : val3+1);
 
@@ -248,14 +248,14 @@ public class DelaunayLaneGenerator implements ForceOfNature
 	 */
 	void generateAllEdges()
 	{
-		nascent.initialLanes = new HashSet<Edge>();
+		nascent.initialEdges = new HashSet<Edge>();
 		
 		HashSet<Edge> toBeRemoved = new HashSet<Edge>();
 		for(Triangle triangle : triangles)
 		{
-			addEdge(triangle.v1, triangle.v3, nascent.initialLanes);
-			addEdge(triangle.v2, triangle.v3, nascent.initialLanes);
-			addEdge(triangle.v1, triangle.v2, nascent.initialLanes);
+			addEdge(triangle.v1, triangle.v3, nascent.initialEdges);
+			addEdge(triangle.v2, triangle.v3, nascent.initialEdges);
+			addEdge(triangle.v1, triangle.v2, nascent.initialEdges);
 
 			if(triangle.areaVsCircle < prunningRatio)
 			{
@@ -265,17 +265,17 @@ public class DelaunayLaneGenerator implements ForceOfNature
 			}
 		}
 		
-		nascent.prunedLanes = new HashSet<Edge>(nascent.initialLanes);
+		nascent.prunedEdges = new HashSet<Edge>(nascent.initialEdges);
 		for(Edge e: toBeRemoved)
-			nascent.prunedLanes.remove(e);
+			nascent.prunedEdges.remove(e);
 		
-		System.out.println("Created " + nascent.initialLanes.size() + " initial lanes.");
-		System.out.println("Prunend down to " + nascent.prunedLanes.size() + " lanes.");
+		System.out.println("Created " + nascent.initialEdges.size() + " initial lanes.");
+		System.out.println("Prunend down to " + nascent.prunedEdges.size() + " lanes.");
 	}
 	
 	private void addEdge(int v1, int v2, Set<Edge> set)
 	{
 		if(v1 < nascent.points.size() && v2 < nascent.points.size())
-			set.add(nascent.new Edge(v1, v2));
+			set.add(new Edge(v1, v2));
 	}
 }

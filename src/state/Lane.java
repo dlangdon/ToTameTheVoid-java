@@ -61,7 +61,7 @@ public class Lane
 	{
 		int a = from.index();
 		int b = to.index();
-		return ( a > b ? (a << 8) + b : (b << 8) + a );
+		return ( a > b ? (a << 15) + b : (b << 15) + a );
 	}
 
 }

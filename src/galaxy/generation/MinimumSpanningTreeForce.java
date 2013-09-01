@@ -45,7 +45,7 @@ public class MinimumSpanningTreeForce implements ForceOfNature
 
 	private float squaredDistance(Edge edge)
 	{
-		if(!nascent.initialLanes.contains(edge))
+		if(!nascent.initialEdges.contains(edge))
 			return -1.0f;
 		
 		Vector2f v1 = nascent.points.get(edge.v1);
@@ -54,14 +54,13 @@ public class MinimumSpanningTreeForce implements ForceOfNature
 		return (v1.x - v2.x)*(v1.x - v2.x) + (v1.y - v2.y)*(v1.y - v2.y);
 	}
 	
-	
 	/* (non-Javadoc)
 	 * @see galaxy.generation.ForceOfNature#apply(galaxy.generation.NascentGalaxy)
 	 */
 	@Override
 	public boolean unleash(NascentGalaxy nascent)
 	{
-		if(nascent.initialLanes == null || nascent.prunedLanes == null)
+		if(nascent.initialEdges == null || nascent.prunedEdges == null)
 			return false;
 		this.nascent = nascent;
 		
@@ -89,7 +88,7 @@ public class MinimumSpanningTreeForce implements ForceOfNature
 			{
 				if(!visited.contains(j))
 				{
-					Edge edge = nascent.new Edge(lastSelected, j);
+					Edge edge = new Edge(lastSelected, j);
 					float distance = squaredDistance(edge);
 					if(distance > 0)
 						frontier.add(new QueuedEdge(distance, edge.v1, edge.v2));
@@ -101,12 +100,12 @@ public class MinimumSpanningTreeForce implements ForceOfNature
 			{
 				QueuedEdge jump = frontier.first();
 				lastSelected = visited.contains(jump.v1) ? jump.v2 : jump.v1;
-				mst.add(nascent.new Edge(jump.v1, jump.v2));
+				mst.add(new Edge(jump.v1, jump.v2));
 			}
 		}
 		
 		// Place all edges on the MST back into the prunned set.
-		nascent.prunedLanes.addAll(mst);
+		nascent.prunedEdges.addAll(mst);
 		return true;
 	}
 }

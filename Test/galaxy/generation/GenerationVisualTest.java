@@ -103,8 +103,8 @@ public class GenerationVisualTest extends BasicGame
 				// Re-creating points has serious consequences on existing lanes.
 				if(f == 1)
 				{
-					nascent.initialLanes = null;
-					nascent.prunedLanes = null;
+					nascent.initialEdges = null;
+					nascent.prunedEdges = null;
 					laneGenerator.triangles = null;
 					mstForce.mst = null;
 				}
@@ -190,10 +190,10 @@ public class GenerationVisualTest extends BasicGame
 			}
 		}
 		
-		if(nascent.initialLanes != null && showInitialEdges)
+		if(nascent.initialEdges != null && showInitialEdges)
 		{
 			g.setColor(Color.cyan);
-			for(Edge l : nascent.initialLanes)
+			for(Edge l : nascent.initialEdges)
 			{
 				Vector2f from = nascent.points.get(l.v1);
 				Vector2f to = nascent.points.get(l.v2);
@@ -201,10 +201,10 @@ public class GenerationVisualTest extends BasicGame
 			}
 		}
 		
-		if(nascent.prunedLanes != null && showPrunnedEdges)
+		if(nascent.prunedEdges != null && showPrunnedEdges)
 		{
 			g.setColor(Color.blue);
-			for(Edge l : nascent.prunedLanes)
+			for(Edge l : nascent.prunedEdges)
 			{
 				Vector2f from = nascent.points.get(l.v1);
 				Vector2f to = nascent.points.get(l.v2);

@@ -17,7 +17,7 @@ public class Star implements UIListener
 {
 // Internals ==========================================================================================================
 	// Core star internals
-	private int index_;
+	private int index_;					// Mainly needed for persistence && communications, also used to reduce memory footprint for lanes.
 	private String name_;
 	private Vector2f pos;
 	private float size_;
