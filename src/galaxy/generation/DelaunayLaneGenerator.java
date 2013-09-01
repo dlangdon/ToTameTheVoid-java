@@ -3,7 +3,7 @@
  */
 package galaxy.generation;
 
-import galaxy.generation.NascentGalaxy.Lane;
+import galaxy.generation.NascentGalaxy.Edge;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +79,8 @@ public class DelaunayLaneGenerator implements ForceOfNature
 					float mx1 = (x1 + x2) * .5F;
 					float my1 = (y1 + y2) * .5F;
 
-					center.set((x0 + x1) * .5F, m1 * (center.getX() - mx1) + my1);
+					center.x = (x0 + x1) * .5F;
+					center.y = m1 * (center.x - mx1) + my1;
 				}
 			}
 			else if (b21zero)	// m_Vertices[1] and m_Vertices[2] are on one horizontal line.
@@ -89,7 +90,8 @@ public class DelaunayLaneGenerator implements ForceOfNature
 				float mx0 = (x0 + x1) * .5F;
 				float my0 = (y0 + y1) * .5F;
 
-				center.set((x1 + x2) * .5F, m0 * (center.getX() - mx0) + my0);
+				center.x = (x1 + x2) * .5F;
+				center.y = m0 * (center.x - mx0) + my0;
 			}
 			else	// 'Common' cases, no multiple vertices are on one horizontal line.
 			{
@@ -102,7 +104,8 @@ public class DelaunayLaneGenerator implements ForceOfNature
 				float mx1 = (x1 + x2) * .5F;
 				float my1 = (y1 + y2) * .5F;
 
-				center.set((m0 * mx0 - m1 * mx1 + my1 - my0) / (m0 - m1), m0 * (center.getX() - mx0) + my0);
+				center.x = (m0 * mx0 - m1 * mx1 + my1 - my0) / (m0 - m1);
+				center.y = m0 * (center.x - mx0) + my0;
 			}
 
 			float dx = x0 - center.getX();
@@ -126,6 +129,11 @@ public class DelaunayLaneGenerator implements ForceOfNature
 			return (dif.getX()*dif.getX() + dif.getY()*dif.getY() <= sqrRadius);
 		}
 
+		@Override
+		public String toString()
+		{
+			return String.format("(%d,%d,%d)", v1, v2, v3);
+		}
 	};
 
 	List<Triangle> triangles;
@@ -151,16 +159,20 @@ public class DelaunayLaneGenerator implements ForceOfNature
 	{
 		if(nascent.points == null)
 			return false;
-		this.nascent = nascent;
 		
-		generateTriangles();
+		init(nascent);
+		for (int p = 0; p < nascent.points.size()-3 ; p++)
+			step(p);
+		end();
+		
 		generateAllEdges();
-		
 		return true;
 	}
-
-	void generateTriangles()
+	
+	void init(NascentGalaxy nascent)
 	{
+		this.nascent = nascent;
+
 		// Creamos el mega triangulo!
 		// Este siempre tiene que abarcar cuaulquier punto que pudieramos querer colocar, pero en la practica no esperamos crear algo mayor a 100 o 1000 de lado.
 		int size = nascent.points.size();
@@ -170,65 +182,70 @@ public class DelaunayLaneGenerator implements ForceOfNature
 		
 		triangles = new ArrayList<Triangle>();
 		Triangle megaTriangle = new Triangle(size, size+1, size+2, nascent.points);
-		triangles.add(megaTriangle);
-
-		// Vamos agragando los vertices uno a uno. (Excluimos los 3 ultimos, que corresponden al megaTriangle)
-		for (int p = 0; p < nascent.points.size()-3 ; p++)
+		triangles.add(megaTriangle);		
+	}
+	
+	void step(int point)
+	{
+		// Encontramos los triangulos cuyos circumcirculos incluyen al punto.
+		// Aquellos almacenamos sus vertices pero los eliminamos.
+		Iterator<Triangle> i = triangles.iterator();
+		HashMap<Edge, Integer> edges = new HashMap<Edge, Integer>();
+		while (i.hasNext())
 		{
-			// Encontramos los triangulos cuyos circumcirculos incluyen al punto.
-			// Aquellos almacenamos sus vertices pero los eliminamos.
-			Iterator<Triangle> i = triangles.iterator();
-			HashMap<Lane, Integer> edges = new HashMap<Lane, Integer>();
-			while (i.hasNext())
+			Triangle t = i.next();
+
+			if (t.isInCircumcircle(nascent.points.get(point)))
 			{
-				Triangle t = i.next();
+				Edge l1 = nascent.new Edge(t.v1, t.v2);
+				Integer val1 = edges.get(l1);
+				edges.put(l1, val1 == null ? 1 : val1+1);
+				
+				Edge l2 = nascent.new Edge(t.v1, t.v3);
+				Integer val2 = edges.get(l2);
+				edges.put(l2, val2 == null ? 1 : val2+1);
 
-				if (t.isInCircumcircle(nascent.points.get(p)))
-				{
-					Lane l1 = nascent.new Lane(t.v1, t.v2);
-					Integer val1 = edges.get(l1);
-					edges.put(l1, val1 == null ? 1 : val1+1);
-					
-					Lane l2 = nascent.new Lane(t.v1, t.v3);
-					Integer val2 = edges.get(l2);
-					edges.put(l2, val2 == null ? 1 : val2+1);
+				Edge l3 = nascent.new Edge(t.v2, t.v3);
+				Integer val3 = edges.get(l3);
+				edges.put(l3, val3 == null ? 1 : val3+1);
 
-					Lane l3 = nascent.new Lane(t.v2, t.v3);
-					Integer val3 = edges.get(l3);
-					edges.put(l3, val3 == null ? 1 : val3+1);
-
-					i.remove();
-				}
-			}
-
-			// Creamos nuevos triangulos para las aristas no repetidas.
-			for (Entry<Lane, Integer> j : edges.entrySet())
-			{
-				if(j.getValue() < 2)
-				{
-					// Ojo que por contrato los vertices deben ir en orden ascendente. (pero ya sabemos el orden de 2 vertices)
-					if(p < j.getKey().v1)
-						triangles.add(new Triangle(p, j.getKey().v1, j.getKey().v2, nascent.points));
-					else if(p < j.getKey().v2)
-						triangles.add(new Triangle(j.getKey().v1, p, j.getKey().v2, nascent.points));
-					else
-						triangles.add(new Triangle(j.getKey().v1, j.getKey().v2, p, nascent.points));
-				}
+				i.remove();
 			}
 		}
 
+		// Creamos nuevos triangulos para las aristas no repetidas.
+		for (Entry<Edge, Integer> j : edges.entrySet())
+		{
+			if(j.getValue() < 2)
+			{
+				// Ojo que por contrato los vertices deben ir en orden ascendente. (pero ya sabemos el orden de 2 vertices)
+				if(point < j.getKey().v1)
+					triangles.add(new Triangle(point, j.getKey().v1, j.getKey().v2, nascent.points));
+				else if(point < j.getKey().v2)
+					triangles.add(new Triangle(j.getKey().v1, point, j.getKey().v2, nascent.points));
+				else
+					triangles.add(new Triangle(j.getKey().v1, j.getKey().v2, point, nascent.points));
+			}
+		}
+		
+		System.out.println("\ntriangles: " + triangles.toString());
+	}
+	
+	void end()
+	{
 		// Eliminamos el megaTriangle y creamos la lista de adjacencias.
-		nascent.points.remove(size+2);
-		nascent.points.remove(size+1);
-		nascent.points.remove(size);
+		int size = nascent.points.size();
+		nascent.points.remove(size-1);
+		nascent.points.remove(size-2);
+		nascent.points.remove(size-3);
 		
 		System.out.println("Created " + triangles.size() + " triangles.");
 	}
 
 	void generateAllEdges()
 	{
-		nascent.initialLanes = new HashSet<Lane>();
-		nascent.prunedLanes = new HashSet<Lane>();
+		nascent.initialLanes = new HashSet<Edge>();
+		nascent.prunedLanes = new HashSet<Edge>();
 		
 		for(Triangle triangle : triangles)
 		{
@@ -248,9 +265,9 @@ public class DelaunayLaneGenerator implements ForceOfNature
 		System.out.println("Prunend down to " + nascent.prunedLanes.size() + " lanes.");
 	}
 	
-	private void addEdge(int v1, int v2, Set<Lane> set)
+	private void addEdge(int v1, int v2, Set<Edge> set)
 	{
 		if(v1 < nascent.points.size() && v2 < nascent.points.size())
-			set.add(nascent.new Lane(v1, v2));
+			set.add(nascent.new Edge(v1, v2));
 	}
 }

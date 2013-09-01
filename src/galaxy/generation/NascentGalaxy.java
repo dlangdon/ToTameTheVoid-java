@@ -19,7 +19,7 @@ import state.Star;
  */
 public class NascentGalaxy
 {
-	class Lane
+	class Edge
 	{
 		public int v1;
 		public int v2;
@@ -28,23 +28,42 @@ public class NascentGalaxy
 		 * @param v12
 		 * @param v22
 		 */
-		public Lane(int v1, int v2)
+		public Edge(int v1, int v2)
 		{
 			this.v1 = v1;
 			this.v2 = v2;
 		}
 
 		@Override
+		public boolean equals(Object other)
+		{
+			if(other == null || !(other instanceof Edge))
+				return false;
+			
+			Edge o = (Edge)other;
+			if((v1 == o.v1 && v2 == o.v2) || (v1 == o.v2 && v2 == o.v1)) 
+				return true;
+			return false;
+		}
+		
+		@Override
 		public int hashCode()
 		{
 			return v1 < v2 ? v1 * points.size() + v2 : v2 * points.size() + v1;
 		}
+		
+		@Override
+		public String toString()
+		{
+			return String.format("%d-%d", v1, v2);
+		}
+
 	}
 	
 	float[][] heatmap;
 	List<Vector2f> points;
-	Set<Lane> initialLanes;
-	Set<Lane> prunedLanes;
+	Set<Edge> initialLanes;
+	Set<Edge> prunedLanes;
 	List<Star> bornStars;
 	List<ForceOfNature> forces;
 	
