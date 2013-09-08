@@ -34,7 +34,6 @@ public class Universe
 // Internals ==========================================================================================================	
 	private List<Star> stars;
 	private List<Empire> empires;
-	private HashSet<HQ> hqs;
 	private HashSet<Fleet> fleets;
 	private Empire playerEmpire;
 
@@ -45,8 +44,6 @@ public class Universe
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		this.fleets = new HashSet<Fleet>();
-		this.hqs = new HashSet<HQ>();
-		
 		NascentGalaxy ng = new NascentGalaxy();
 
 //		ng.addForce(new StaticGalaxyCreator());
@@ -125,14 +122,6 @@ public class Universe
 		return fleets;
 	}
 	
-	/**
-	 * @return A set of all HQs in the galaxy.
-	 */
-	public HashSet<HQ> getHQs()
-	{
-		return hqs;
-	}
-
 	/**
 	 * @return the empire corresponding to the local player
 	 */

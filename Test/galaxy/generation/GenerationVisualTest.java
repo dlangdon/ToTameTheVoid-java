@@ -52,8 +52,8 @@ public class GenerationVisualTest extends BasicGame
 		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
 		forces = new ForceOfNature[] {
-				new SimpleBlobCreator(100, 100, 30, 4, 15),
-				new SimplePointCreator(5, 50, 1.0f),
+				new SimpleBlobCreator(100, 100, 2, 14, 30),
+				new SimplePointCreator(5, 150, 1.0f),
 				this.laneGenerator,
 				this.mstForce
 		};

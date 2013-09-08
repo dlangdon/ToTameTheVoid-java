@@ -15,10 +15,10 @@ public class Render
 	public static final int SMALL 	= 0x02;
 	public static final int BIG 		= 0x04;
 	
-	static TrueTypeFont titles;
-	static TrueTypeFont normal;
+	public static TrueTypeFont titles;
+	public static TrueTypeFont normal;
 
-	public static void initialize()
+	public static void init()
 	{
 		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
 		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);

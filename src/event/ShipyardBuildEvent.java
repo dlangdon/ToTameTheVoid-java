@@ -9,7 +9,6 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 import state.Star;
-import state.Universe;
 
 /**
  * Stores information when a star system can be colonized by an empire, allowing such an action.
@@ -68,9 +67,6 @@ public class ShipyardBuildEvent extends GameEvent
 		// Check if an IHQ exist in this colony.
 		Shipyard sy = location().getOrbiter(Shipyard.class);
 		if(sy == null)
-		{
 			sy = new Shipyard(location());
-			Universe.instance().getHQs().add(sy);
-		}
 	}
 }

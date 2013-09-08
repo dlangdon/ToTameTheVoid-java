@@ -4,13 +4,14 @@
 package state;
 
 import graphic.Camera;
-import graphic.UIListener;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
+
+import ui.UIListener;
 
 /**
  * Interface for all objects that will be orbiting a star.
@@ -48,7 +49,7 @@ public abstract class Orbiter implements UIListener
 	{
 		Vector2f screen = new Vector2f(20.0f, 0.0f);
 
-		// Force orbiting the star. In this case, each fleet is separated by a 30 degree angle.
+		// Orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 		screen.setTheta(-30 * location_.getDock(this) - 30);
 		screen.add(Camera.instance().worldToScreen(location_.getPos()));
 			

@@ -20,6 +20,10 @@ import state.HQ;
 import state.Lane;
 import state.Star;
 import state.Universe;
+import ui.EconomyDialog;
+import ui.FleetWidget;
+import ui.HQWidget;
+import ui.StarWidget;
 import event.GameEventQueue;
 
 public class Game extends BasicGameState
@@ -55,7 +59,7 @@ public class Game extends BasicGameState
 		showWorldMode = false;
 		
 		// TODO load resources in a more intelligent way...
-		Render.initialize();
+		Render.init();
 		background = new Image("resources/bck1.jpg");
 		Star.img = new Image("resources/star.png");
 		
@@ -95,7 +99,7 @@ public class Game extends BasicGameState
 		}
 
 		// Draw HQ
-		for(HQ hq : Universe.instance().getHQs())
+		for(HQ hq : HQ.all())
 		{
 			hq.render(gc, g, (hq == selected) ? Render.SELECTED : 0);
 		}
@@ -243,7 +247,7 @@ public class Game extends BasicGameState
 				break;
 			}
 		}
-		for(HQ hq : Universe.instance().getHQs())
+		for(HQ hq : HQ.all())
 		{
 			if(hq.screenCLick((float)x, (float)y, button))
 			{

@@ -1,4 +1,7 @@
-package graphic;
+package ui;
+
+import graphic.Camera;
+import graphic.Render;
 
 import java.util.List;
 
@@ -6,7 +9,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -22,16 +24,17 @@ public class HQWidget implements UIListener
 	private int hoverIndex;
 
 // Public Methods =====================================================================================================
-	HQWidget() throws SlickException
+	public HQWidget() throws SlickException
 	{
 		this.hq = null;
 		this.hoverIndex = -1;
 		backgrounds = new Image[] 
 			{
-				new Image("resources/fleetBase.png"),
+				new Image("resources/ui_base.png"),
 				new Image("resources/fleetExt1.png"),
 				new Image("resources/fleetExt2.png"),
 				new Image("resources/fleetExt3.png"),
+				new Image("resources/ui_hover.png"),
 			};
 	}
 
@@ -39,7 +42,7 @@ public class HQWidget implements UIListener
 	 * Sets the task fleet to be displayed by this
 	 * @param hq
 	 */
-	void showHQ(HQ hq)
+	public void showHQ(HQ hq)
 	{
 		this.hq = hq;
 	}
@@ -70,7 +73,10 @@ public class HQWidget implements UIListener
 			// Check if we also display the local information.
 
 			if(hoverIndex == i)
+			{
+				backgrounds[4].draw(62, -119);
 				Render.titles.drawString(120, -100, options.get(i).name());
+			}
 		}
 		
 		// Display current queue (with numbers)

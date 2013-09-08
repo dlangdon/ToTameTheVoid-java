@@ -1,4 +1,6 @@
-package graphic;
+package ui;
+
+import graphic.Render;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;

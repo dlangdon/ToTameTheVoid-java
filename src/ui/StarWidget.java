@@ -1,4 +1,4 @@
-package graphic;
+package ui;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +14,8 @@ import state.Colony;
 import state.Star;
 import event.GameEvent;
 import event.GameEventQueue;
+import graphic.Camera;
+import graphic.Render;
 
 public class StarWidget implements UIListener
 {
@@ -24,14 +26,14 @@ public class StarWidget implements UIListener
 	private int hoverIndex;
 
 // Public Methods =====================================================================================================
-	StarWidget() throws SlickException
+	public StarWidget() throws SlickException
 	{
 		background = new Image("resources/starWidgetBck.png");
 		meter = new Image("resources/meter.png");
 		star = null;
 	}
 
-	void showStar(Star star)
+	public void showStar(Star star)
 	{
 		this.star = star;
 	}

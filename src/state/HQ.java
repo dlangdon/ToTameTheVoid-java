@@ -4,6 +4,7 @@
 package state;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,13 @@ public abstract class HQ extends Orbiter
 		public Unit design;
 	}
 
+	private static HashSet<HQ> all_ = new HashSet<HQ>();
+
+	public static HashSet<HQ> all()
+	{
+		return all_;
+	}
+	
 // Internals ==========================================================================================================
 	private LinkedList<Star> relocation_;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
 	private List<QueuedUnit> queue_;
@@ -45,7 +53,7 @@ public abstract class HQ extends Orbiter
 		level_ = 1;
 		location.arrive(this);
 		outputConfig = 1.0;
-		Universe.instance().getHQs().add(this);
+		all().add(this);
 	}
 	
 	/**

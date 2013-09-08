@@ -1,4 +1,7 @@
-package graphic;
+package ui;
+
+import graphic.Camera;
+import graphic.Render;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -7,7 +10,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -36,7 +38,7 @@ public class FleetWidget implements UIListener
 	private int numSteps;
 
 // Public Methods =====================================================================================================
-	FleetWidget() throws SlickException
+	public FleetWidget() throws SlickException
 	{
 		this.fleet = null;
 		this.hoverIndex = -1;
@@ -61,7 +63,7 @@ public class FleetWidget implements UIListener
 	 * Sets the task fleet to be displayed by this
 	 * @param fleet
 	 */
-	void showFleet(Fleet fleet)
+	public void showFleet(Fleet fleet)
 	{
 		this.fleet = fleet;
 		
@@ -81,7 +83,7 @@ public class FleetWidget implements UIListener
 		}
 	}
 	
-	Fleet selectedfleet()
+	public Fleet selectedfleet()
 	{
 		return fleet;
 	}

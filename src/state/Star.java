@@ -2,7 +2,6 @@ package state;
 
 import event.GameEventQueue;
 import graphic.Camera;
-import graphic.UIListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,8 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
+
+import ui.UIListener;
 
 public class Star implements UIListener
 {

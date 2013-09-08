@@ -140,7 +140,7 @@ public class GameEventQueue
 
 		// Produce new units
 		checkLocations.clear();
-		for (HQ hq : Universe.instance().getHQs())
+		for (HQ hq : HQ.all())
 			hq.turn();
 
 		// Update all fleets
