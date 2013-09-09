@@ -105,7 +105,12 @@ public class HQWidget
 							pos.x - Render.normal.getWidth(number)/2,
 							pos.y - Render.normal.getHeight()/2,
 							number, Color.black);
-
+				
+				if(hoverIndex == i+12)
+				{
+					backgrounds[4].draw(62, -119);
+					Render.titles.drawString(120, -100, qu.design.name());
+				}
 			}
 			else if(!queue.isEmpty())
 			{
@@ -128,9 +133,9 @@ public class HQWidget
 
 		pos = indexToCenterCoord(-2);
 		Render.normal.drawString(
-				pos.x - Render.normal.getWidth("o")/2,
+				pos.x - Render.normal.getWidth("c")/2,
 				pos.y - Render.normal.getHeight()/2,
-				"o", Color.white);
+				"c", Color.white);
 		
 		
 		g.popTransform();
@@ -193,9 +198,9 @@ public class HQWidget
 			else
 				return 23 - aux*2; 
 		}
-		else if(123 < radius && radius < 168 )
+		else if(123 < radius && radius < 168 && angle >= 130 && angle < 230)
 		{
-			return (int) (-(angle + 140)/20.0f - 12);
+			return (int) ((130 - angle)/20.0f + 17);
 		}
 
 		return -10;
@@ -212,7 +217,9 @@ public class HQWidget
 		{
 			if(hoverIndex == -1)
 				hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
-
+			else if(hoverIndex == -2)
+				hq.queue().clear();
+			
 			// TODO Other Buttons
 			return true;
 		}
