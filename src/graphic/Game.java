@@ -198,7 +198,7 @@ public class Game extends BasicGameState
 			// Check if any of the interfaces consumes this click.
 			if(fleetWidget.screenCLick(x, y, button))
 				return;
-			if(hqWidget.screenCLick(x, y, button))
+			if(hqWidget.screenCLick(button))
 				return;
 			if(starWidget.screenCLick(x, y, button))
 				return;
@@ -273,7 +273,7 @@ public class Game extends BasicGameState
 	{
 		// Notify widgets.
 		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
-		hqWidget.mouseMoved(oldx, oldy, newx, newy);
+		hqWidget.hoverMove(oldx, oldy, newx, newy);
 		starWidget.mouseMoved(oldx, oldy, newx, newy);
 	}
 	

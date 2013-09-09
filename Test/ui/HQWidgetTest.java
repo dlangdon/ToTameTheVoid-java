@@ -41,13 +41,19 @@ public class HQWidgetTest extends BasicGame
 	public void mousePressed(int button, int x, int y)
 	{
 		// Check if any of the interfaces consumes this click.
-		if(widget.screenCLick(x, y, button))
+		if(widget.screenCLick(button))
 			return;
 
 		if(hq.screenCLick((float)x, (float)y, button))
 			widget.showHQ(hq);
 		else
 			widget.showHQ(null);
+	}
+
+	@Override
+	public void	mouseReleased(int button, int x, int y)
+	{
+		
 	}
 	
 	@Override
@@ -59,7 +65,7 @@ public class HQWidgetTest extends BasicGame
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
-		widget.mouseMoved(oldx, oldy, newx, newy);
+		widget.hoverMove(oldx, oldy, newx, newy);
 	}
 	
 	/* (non-Javadoc)

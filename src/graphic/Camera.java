@@ -45,6 +45,7 @@ public class Camera
 	/**
 	 * Moves the camera around a certain number of pixels.
 	 * The movement should be equally fast independently of the current scale (this may change)
+	 * TODO Feels slughish on bigger resolutions, may be modified to depend on window resolution.
 	 * @param x
 	 * @param y
 	 */

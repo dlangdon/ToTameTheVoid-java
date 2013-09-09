@@ -28,6 +28,20 @@ public abstract class HQ extends Orbiter
 		public Unit design;
 	}
 
+	public enum OutputLevel
+	{
+		NONE(0.0),
+		HALF(0.5),
+		FULL(1.0);
+		
+		double output;
+		
+		OutputLevel(double o)
+		{
+			output = o;
+		}
+	}
+	
 	private static HashSet<HQ> all_ = new HashSet<HQ>();
 
 	public static HashSet<HQ> all()
@@ -39,7 +53,7 @@ public abstract class HQ extends Orbiter
 	private LinkedList<Star> relocation_;		// Route to be followed by fleets created by this IHQ. The first star corresponds to the location of the IHQ.
 	private List<QueuedUnit> queue_;
 	private int level_;
-	private double outputConfig;
+	private OutputLevel outputConfig;
 	
 // Public Methods =====================================================================================================
 	/**
@@ -52,7 +66,7 @@ public abstract class HQ extends Orbiter
 		relocation_ = new LinkedList<Star>();
 		level_ = 1;
 		location.arrive(this);
-		outputConfig = 1.0;
+		outputConfig = OutputLevel.FULL;
 		all().add(this);
 	}
 	
@@ -80,7 +94,7 @@ public abstract class HQ extends Orbiter
 	{
 		// Produce new units.
 		Fleet newUnits = new Fleet(location_, location_.colony().owner());
-		double toSpend = maxOutput()*outputConfig;
+		double toSpend = maxOutput()*outputConfig.output;
 		while(!queue_.isEmpty() && toSpend > 0.0)
 		{
 			QueuedUnit qu = queue_.get(0);
@@ -99,7 +113,7 @@ public abstract class HQ extends Orbiter
 				toSpend = 0.0;
 			}
 		}
-		location_.colony().owner().getEconomy().addMovement(toSpend - maxOutput()*outputConfig, outputExpense());
+		location_.colony().owner().getEconomy().addMovement(toSpend - maxOutput()*outputConfig.output, outputExpense());
 
 		// Set the fleet just created.
 		if(!newUnits.isEmpty())
@@ -135,12 +149,12 @@ public abstract class HQ extends Orbiter
 		return Math.pow(2, level_);
 	}
 	
-	void setOutputConfig(double percentage)
+	public void setOutputConfig(OutputLevel percentage)
 	{
 		this.outputConfig = percentage;
 	}
 	
-	double outputConfig()
+	public OutputLevel outputConfig()
 	{
 		return outputConfig;
 	}

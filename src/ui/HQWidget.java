@@ -16,18 +16,21 @@ import state.HQ;
 import state.HQ.QueuedUnit;
 import state.Unit;
 
-public class HQWidget implements UIListener
+public class HQWidget
 {
 // Internals ==========================================================================================================	
 	private HQ hq;
 	private Image[] backgrounds;
 	private int hoverIndex;
+	private float delta;
 
 // Public Methods =====================================================================================================
 	public HQWidget() throws SlickException
 	{
 		this.hq = null;
 		this.hoverIndex = -1;
+		this.delta = 1.0f;
+		
 		backgrounds = new Image[] 
 			{
 				new Image("resources/ui_base.png"),
@@ -113,6 +116,23 @@ public class HQWidget implements UIListener
 						number, Color.white);
 			}
 		}
+		
+		// Buttons
+		Vector2f pos = indexToCenterCoord(-1);
+		String[] configs = {"n", "h", "f"};
+		String conf = configs[hq.outputConfig().ordinal()];
+		Render.normal.drawString(
+				pos.x - Render.normal.getWidth(conf)/2,
+				pos.y - Render.normal.getHeight()/2,
+				conf, Color.white);
+
+		pos = indexToCenterCoord(-2);
+		Render.normal.drawString(
+				pos.x - Render.normal.getWidth("o")/2,
+				pos.y - Render.normal.getHeight()/2,
+				"o", Color.white);
+		
+		
 		g.popTransform();
 	}
 	
@@ -124,7 +144,12 @@ public class HQWidget implements UIListener
 	private Vector2f indexToCenterCoord(int index)
 	{
 		// Determine first 12 segments.
-		if(index < 12)
+		if(index < 0)
+		{
+			float angle = -(1 + index)*20.0f -40.0f;
+			return new Vector2f(angle).scale(64.0f);
+		}
+		else if(index < 12)
 		{
 			float angle = index*15.0f;
 			if(index%2 == 0)
@@ -170,94 +195,91 @@ public class HQWidget implements UIListener
 		}
 		else if(123 < radius && radius < 168 )
 		{
-			// Second circle
-			int aux = (int)(angle - 10) / 20;
-			if(aux > 2)
-			{
-				if(aux < 9)
-					return 28 - aux*2;
-				else if(aux < 14)
-					return aux*2 - 5;
-			}
+			return (int) (-(angle + 140)/20.0f - 12);
 		}
 
 		return -10;
 	}
 
-	@Override
-	public boolean screenCLick(float x, float y, int button)
+	public boolean screenCLick(int button)
 	{
-		// Check if visible.
-		if(hq == null)
+		// Not a valid action.
+		if(hoverIndex <= -10)
 			return false;
+
+		// Buttons
+		if(hoverIndex < 0)
+		{
+			if(hoverIndex == -1)
+				hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
+
+			// TODO Other Buttons
+			return true;
+		}
 
 		List<QueuedUnit> queue = hq.queue();
 		List<Unit> options = hq.availableUnits();
+		QueuedUnit unit = null;
 		
-		// Get the index.
-		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(hq.location().getPos()));
-		int index = coordToIndex(local);
-		if(index >= 12)		// Queue
+		if(hoverIndex >= 12)
 		{
-			// TODO Not sure what should happen here...if anything
-			if(index > queue.size())
-				return true;
+			// Already existing item in the queue.
+			if(hoverIndex - 12 < queue.size())
+				unit = queue.get(hoverIndex - 12);
 		}
-		else if(index >= 0) 	// Slot
+		else if(hoverIndex < options.size())
 		{
-			if(index > options.size())
-				return false;
-			
-			int i = 0;
-			while(i < queue.size() && queue.get(i).design != options.get(index))
-				i++;
-
-			QueuedUnit unit = null;
-			if(i > 4)
-			{
-				System.out.println("Can put more than 5 units in the queue");
-				return true;
-			}
-			else if(i >= queue.size())
+			// A valid design was clicked. If it is the same as last, no need to create a new one.
+			// Check if I need to add a new unit in the queue (if selected is not equal to last one)
+			if(!queue.isEmpty() && (options.get(hoverIndex) == queue.get(queue.size()-1).design))
+				unit = queue.get(queue.size()-1);
+			else if(queue.size() < 5)
 			{
 				unit = new QueuedUnit();
-				unit.design = options.get(index);
+				unit.design = options.get(hoverIndex);
 				unit.queued = 0;
 				queue.add(unit);
 			}
-			else
-				unit = queue.get(i);
-
-			// Add or remove from this queued unit.
+		}
+		
+		// Add or remove from this queued unit.
+		if(unit != null)
+		{
 			if(button == 0)
 				unit.queued++;
 			else if(button == 1)
 			{
 				if(unit.queued < 2)
-					queue.remove(i);
+					queue.remove(unit);
 				else
 					unit.queued--;
 			}
 		}
-		else if(index >= -5)	// Button
-		{
-			// TODO
-		}
-		else
-			return false;
 
 		return true;
 	}
 	
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
+	public void resetIncrement()
+	{
+		delta = 1.0f;
+	}
+	
+	public void hoverMove(int oldx, int oldy, int newx, int newy) 
 	{
 		// Check if we are active.
-		if(hq == null)
-			return;
-		
-		// Get the index to display.
-		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(hq.location().getPos()));
-		hoverIndex = coordToIndex(local);
+		int newHover = -10;
+		if(hq != null)
+		{
+			// Get the index to display.
+			Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(hq.location().getPos()));
+			newHover = coordToIndex(local);
+		}
+
+		if(newHover != hoverIndex)
+		{
+			hoverIndex = newHover;
+			delta = 1.0f;
+		}
 	}
 
 }
