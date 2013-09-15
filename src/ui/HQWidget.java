@@ -5,6 +5,7 @@ import graphic.Render;
 
 import java.util.List;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -16,20 +17,19 @@ import state.HQ;
 import state.HQ.QueuedUnit;
 import state.Unit;
 
-public class HQWidget
+public class HQWidget 
 {
 // Internals ==========================================================================================================	
 	private HQ hq;
 	private Image[] backgrounds;
 	private int hoverIndex;
-	private float delta;
+	private int accumulated = 0;
 
 // Public Methods =====================================================================================================
 	public HQWidget() throws SlickException
 	{
 		this.hq = null;
 		this.hoverIndex = -1;
-		this.delta = 1.0f;
 		
 		backgrounds = new Image[] 
 			{
@@ -140,6 +140,80 @@ public class HQWidget
 		
 		g.popTransform();
 	}
+
+	/**
+	 * Updates this widget by looking for new input.
+	 */
+	public void update(GameContainer container, int delta) throws SlickException
+	{
+		// Not a valid action.
+		if(hoverIndex <= -10)
+			return;
+		
+		// Buttons
+		if(hoverIndex < 0)
+		{
+			if(delta == 0)
+			{
+				if(hoverIndex == -1)
+					hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
+				else if(hoverIndex == -2)
+					hq.queue().clear();
+				// TODO Other Buttons
+			}
+			return;
+		}
+
+		List<QueuedUnit> queue = hq.queue();
+		List<Unit> options = hq.availableUnits();
+		QueuedUnit unit = null;
+		
+		if(hoverIndex >= 12)
+		{
+			// Already existing item in the queue.
+			if(hoverIndex - 12 < queue.size())
+				unit = queue.get(hoverIndex - 12);
+		}
+		else if(hoverIndex < options.size())
+		{
+			// A valid design was clicked. If it is the same as last, no need to create a new one.
+			// Check if I need to add a new unit in the queue (if selected is not equal to last one)
+			if(!queue.isEmpty() && (options.get(hoverIndex) == queue.get(queue.size()-1).design))
+				unit = queue.get(queue.size()-1);
+			else if(queue.size() < 5)
+			{
+				unit = new QueuedUnit();
+				unit.design = options.get(hoverIndex);
+				unit.queued = 0;
+				queue.add(unit);
+			}
+		}
+		
+		// Add or remove from this queued unit.
+		if(unit != null)
+		{
+			// This is fairly complicated:
+			// - We don't want to add a fraction of a unit, since that would result in a unit being produced at fractional cost :-S
+			// - Also, we don't want to add depending on the number of times this method gets called.
+			// Result: calculate how many ships should I have added by now, and update.
+			if(delta == 0)
+				accumulated = 0;
+			int target = 1 + (int) Math.floor(delta*delta/1e5);
+
+			int button = Mouse.getEventButton();
+			if(button == 0)
+				unit.queued += target - accumulated;
+			else if(button == 1)
+			{
+				unit.queued -= target - accumulated;
+				if(unit.queued < 1)
+					queue.remove(unit);
+			}
+			accumulated = target;
+
+			System.out.format("delta: %d, numShips:%d, queue:%.4f\n", delta, target, unit.queued);
+		}
+	}
 	
 	/**
 	 * Translates a placeholder index for a stack in this widget to a local coordinates (around widget's center).
@@ -205,73 +279,8 @@ public class HQWidget
 
 		return -10;
 	}
-
-	public boolean screenCLick(int button)
-	{
-		// Not a valid action.
-		if(hoverIndex <= -10)
-			return false;
-
-		// Buttons
-		if(hoverIndex < 0)
-		{
-			if(hoverIndex == -1)
-				hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
-			else if(hoverIndex == -2)
-				hq.queue().clear();
-			
-			// TODO Other Buttons
-			return true;
-		}
-
-		List<QueuedUnit> queue = hq.queue();
-		List<Unit> options = hq.availableUnits();
-		QueuedUnit unit = null;
-		
-		if(hoverIndex >= 12)
-		{
-			// Already existing item in the queue.
-			if(hoverIndex - 12 < queue.size())
-				unit = queue.get(hoverIndex - 12);
-		}
-		else if(hoverIndex < options.size())
-		{
-			// A valid design was clicked. If it is the same as last, no need to create a new one.
-			// Check if I need to add a new unit in the queue (if selected is not equal to last one)
-			if(!queue.isEmpty() && (options.get(hoverIndex) == queue.get(queue.size()-1).design))
-				unit = queue.get(queue.size()-1);
-			else if(queue.size() < 5)
-			{
-				unit = new QueuedUnit();
-				unit.design = options.get(hoverIndex);
-				unit.queued = 0;
-				queue.add(unit);
-			}
-		}
-		
-		// Add or remove from this queued unit.
-		if(unit != null)
-		{
-			if(button == 0)
-				unit.queued++;
-			else if(button == 1)
-			{
-				if(unit.queued < 2)
-					queue.remove(unit);
-				else
-					unit.queued--;
-			}
-		}
-
-		return true;
-	}
 	
-	public void resetIncrement()
-	{
-		delta = 1.0f;
-	}
-	
-	public void hoverMove(int oldx, int oldy, int newx, int newy) 
+	public boolean hoverMove(int oldx, int oldy, int newx, int newy) 
 	{
 		// Check if we are active.
 		int newHover = -10;
@@ -285,8 +294,16 @@ public class HQWidget
 		if(newHover != hoverIndex)
 		{
 			hoverIndex = newHover;
-			delta = 1.0f;
+			return true;
 		}
+		return false;
 	}
 
+	/**
+	 * @return True if the widget is visible and the cursor is inside it, as previously determined by {@link hove()}
+	 */
+	boolean isCursorInside()
+	{
+		return hoverIndex > -10;
+	}
 }

@@ -26,34 +26,52 @@ public class HQWidgetTest extends BasicGame
 {
 	HQWidget widget;
 	Shipyard hq;
+
+	private int mouseDownButton;
+	private int mouseDownTime;
 	
 	public HQWidgetTest() throws SlickException
 	{
 		super("Generation Test");
-	}
-	
-	@Override
-	public void keyPressed(int key, char c)
-	{
+		mouseDownButton = -1;
+		mouseDownTime = 0;
 	}
 
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		// Check if any of the interfaces consumes this click.
-		if(widget.screenCLick(button))
-			return;
+		mouseDownButton = button;
+		mouseDownTime = 0;
 
+		if(widget.isCursorInside())
+			return;
+		
 		if(hq.screenCLick((float)x, (float)y, button))
 			widget.showHQ(hq);
 		else
 			widget.showHQ(null);
+
+		// Update the 
 	}
 
 	@Override
 	public void	mouseReleased(int button, int x, int y)
 	{
-		
+		mouseDownButton = -1;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.newdawn.slick.Game#update(org.newdawn.slick.GameContainer, int)
+	 */
+	@Override
+	public void update(GameContainer container, int delta) throws SlickException
+	{
+		if(mouseDownButton >= 0)
+		{
+			widget.update(container, mouseDownTime);
+			mouseDownTime += delta;
+			System.out.println("mouseDownTime: " + mouseDownTime);
+		}
 	}
 	
 	@Override
@@ -65,7 +83,12 @@ public class HQWidgetTest extends BasicGame
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
-		widget.hoverMove(oldx, oldy, newx, newy);
+		// Notify widgets.
+		if(widget.hoverMove(oldx, oldy, newx, newy))
+		{
+			System.out.println("Mouse reset");
+			mouseDownButton = -1;
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -86,14 +109,6 @@ public class HQWidgetTest extends BasicGame
 		
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500));
 
-	}
-
-	/* (non-Javadoc)
-	 * @see org.newdawn.slick.Game#update(org.newdawn.slick.GameContainer, int)
-	 */
-	@Override
-	public void update(GameContainer container, int delta) throws SlickException
-	{
 	}
 
 	/* (non-Javadoc)

@@ -36,6 +36,7 @@ public class Game extends BasicGameState
 	private Object selected;
 	private GameEventQueue eventQueue;
 	
+	private int mouseUpdateCount;
 	private boolean showWorldMode;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
@@ -57,6 +58,7 @@ public class Game extends BasicGameState
 		new Universe();
 		
 		showWorldMode = false;
+		mouseUpdateCount = -1;
 		
 		// TODO load resources in a more intelligent way...
 		Render.init();
@@ -128,10 +130,23 @@ public class Game extends BasicGameState
 		// Process events and stop processing if modal.
 		if(eventQueue.update(gc, delta))
 			return;
-		
+
 		// Check for input
 		Input input = gc.getInput();
-		  
+
+		// Some interfaces 
+		if(!showWorldMode && mouseUpdateCount >= 0)
+		{
+			System.out.println("Mouse update: " + mouseUpdateCount);
+			// Check if any of the interfaces consumes this click.
+//			if(fleetWidget.screenCLick(Mouse.getX(), Mouse.getY(), button))
+//				return;
+//			if(hqWidget.screenCLick(mouseUpdateCount++))
+//				return;
+//			if(starWidget.screenCLick(Mouse.getX(), Mouse.getY(), button))
+//				return;
+		}
+		
       // Window displacement
 		Vector2f displacement = new Vector2f(0.0f, 0.0f);
 		if(input.isKeyDown(Input.KEY_RIGHT) || Mouse.getX() > Display.getWidth() - 5)
@@ -193,16 +208,7 @@ public class Game extends BasicGameState
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		if(!showWorldMode)
-		{
-			// Check if any of the interfaces consumes this click.
-			if(fleetWidget.screenCLick(x, y, button))
-				return;
-			if(hqWidget.screenCLick(button))
-				return;
-			if(starWidget.screenCLick(x, y, button))
-				return;
-		}
+		mouseUpdateCount = 0;
 
 		// Check if the click corresponds to a star.
 		Star selectedStar = null;
@@ -263,6 +269,13 @@ public class Game extends BasicGameState
 	}
 	
 	@Override
+	public void mouseReleased(int button, int x, int y)
+	{
+		mouseUpdateCount = -1;
+		System.out.println("Mouse released: " + mouseUpdateCount);
+	}
+	
+	@Override
 	public void mouseWheelMoved(int change)
 	{
 		Camera.instance().zoom(change >= 0, new Vector2f(Mouse.getX(), Display.getHeight() - Mouse.getY()));
@@ -272,9 +285,16 @@ public class Game extends BasicGameState
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
 		// Notify widgets.
+		boolean reset = false;
 		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
-		hqWidget.hoverMove(oldx, oldy, newx, newy);
+		reset = reset || hqWidget.hoverMove(oldx, oldy, newx, newy);
 		starWidget.mouseMoved(oldx, oldy, newx, newy);
+		
+		if(reset)
+		{
+			System.out.println("Mouse reset");
+			mouseUpdateCount = 0;
+		}
 	}
 	
 	@Override
