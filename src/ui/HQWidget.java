@@ -5,11 +5,11 @@ import graphic.Render;
 
 import java.util.List;
 
-import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -144,7 +144,7 @@ public class HQWidget
 	/**
 	 * Updates this widget by looking for new input.
 	 */
-	public void update(GameContainer container, int delta) throws SlickException
+	public void mouseMaintained(GameContainer container, int delta) throws SlickException
 	{
 		// Not a valid action.
 		if(hoverIndex <= -10)
@@ -198,20 +198,18 @@ public class HQWidget
 			// Result: calculate how many ships should I have added by now, and update.
 			if(delta == 0)
 				accumulated = 0;
-			int target = 1 + (int) Math.floor(delta*delta/1e5);
+			int target = 1 + (int) Math.floor((double)delta * delta * delta / 1e9);
 
-			int button = Mouse.getEventButton();
-			if(button == 0)
+			Input input = container.getInput();
+			if(input.isMouseButtonDown(0))
 				unit.queued += target - accumulated;
-			else if(button == 1)
+			else if(input.isMouseButtonDown(1))
 			{
 				unit.queued -= target - accumulated;
 				if(unit.queued < 1)
 					queue.remove(unit);
 			}
 			accumulated = target;
-
-			System.out.format("delta: %d, numShips:%d, queue:%.4f\n", delta, target, unit.queued);
 		}
 	}
 	

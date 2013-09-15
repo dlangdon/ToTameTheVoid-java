@@ -9,8 +9,6 @@ import graphic.Camera;
 import graphic.Render;
 import military.Shipyard;
 
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -68,16 +66,10 @@ public class HQWidgetTest extends BasicGame
 	{
 		if(mouseDownButton >= 0)
 		{
-			widget.update(container, mouseDownTime);
+			widget.mouseMaintained(container, mouseDownTime);
 			mouseDownTime += delta;
 			System.out.println("mouseDownTime: " + mouseDownTime);
 		}
-	}
-	
-	@Override
-	public void mouseWheelMoved(int change)
-	{
-		Camera.instance().zoom(change >= 0, new Vector2f(Mouse.getX(), Display.getHeight() - Mouse.getY()));
 	}
 
 	@Override
