@@ -145,7 +145,7 @@ public class HQWidget extends IndexedDialog
 	public void mouseClick(int button, int delta)
 	{
 		// Not a valid action.
-		if(hoverIndex <= -10)
+		if(hq == null || hoverIndex <= NO_INDEX)
 			return;
 		
 		// Buttons

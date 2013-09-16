@@ -135,7 +135,10 @@ public class Game extends BasicGameState
 
 		// Some interfaces 
 		if(!showWorldMode && mouseDownTime >= 0 && currentDialog != null)
+		{
 			currentDialog.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
+			mouseDownTime += delta;
+		}
 		
       // Window displacement
 		Vector2f displacement = new Vector2f(0.0f, 0.0f);
