@@ -228,7 +228,6 @@ public class FleetWidget extends IndexedDialog
 					return aux*2 - 5;
 			}
 		}
-
 		return NO_INDEX;
 	}
 
@@ -240,7 +239,7 @@ public class FleetWidget extends IndexedDialog
 	public void mouseClick(int button, int delta)
 	{
 		// Check if visible.
-		if(fleet == null || hoverIndex <= NO_INDEX || delta != 0)
+		if(fleet == null || hoverIndex <= NO_INDEX || delta != 0 || hoverIndex >= cache.length)
 			return;
 		
 		// Process if it's a button.
