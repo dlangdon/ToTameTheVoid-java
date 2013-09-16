@@ -23,6 +23,7 @@ import state.Universe;
 import ui.EconomyDialog;
 import ui.FleetWidget;
 import ui.HQWidget;
+import ui.IndexedDialog;
 import ui.StarWidget;
 import event.GameEventQueue;
 
@@ -35,8 +36,9 @@ public class Game extends BasicGameState
 	private EconomyDialog econDialog;
 	private Object selected;
 	private GameEventQueue eventQueue;
+	private IndexedDialog currentDialog;
 	
-	private int mouseUpdateCount;
+	private int mouseDownTime;
 	private boolean showWorldMode;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
@@ -58,7 +60,8 @@ public class Game extends BasicGameState
 		new Universe();
 		
 		showWorldMode = false;
-		mouseUpdateCount = -1;
+		mouseDownTime = -1;
+		currentDialog = null;
 		
 		// TODO load resources in a more intelligent way...
 		Render.init();
@@ -107,12 +110,8 @@ public class Game extends BasicGameState
 		}
 		
 		// Draw in world widgets
-		if(!showWorldMode)
-		{
-			starWidget.render(gc, g);
-			fleetWidget.render(gc, g);
-			hqWidget.render(gc, g);
-		}
+		if(!showWorldMode && currentDialog != null)
+			currentDialog.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -135,17 +134,8 @@ public class Game extends BasicGameState
 		Input input = gc.getInput();
 
 		// Some interfaces 
-		if(!showWorldMode && mouseUpdateCount >= 0)
-		{
-			System.out.println("Mouse update: " + mouseUpdateCount);
-			// Check if any of the interfaces consumes this click.
-//			if(fleetWidget.screenCLick(Mouse.getX(), Mouse.getY(), button))
-//				return;
-//			if(hqWidget.screenCLick(mouseUpdateCount++))
-//				return;
-//			if(starWidget.screenCLick(Mouse.getX(), Mouse.getY(), button))
-//				return;
-		}
+		if(!showWorldMode && mouseDownTime >= 0 && currentDialog != null)
+			currentDialog.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
 		
       // Window displacement
 		Vector2f displacement = new Vector2f(0.0f, 0.0f);
@@ -202,13 +192,14 @@ public class Game extends BasicGameState
 	{
 		if(key == Input.KEY_SPACE)
 			this.showWorldMode = false;
-		
 	}
 	
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		mouseUpdateCount = 0;
+		mouseDownTime = 0;
+		if(currentDialog != null && currentDialog.isCursorInside())
+			return;
 
 		// Check if the click corresponds to a star.
 		Star selectedStar = null;
@@ -225,7 +216,7 @@ public class Game extends BasicGameState
 		if(selectedStar != null)
 		{
 			Fleet fleet = fleetWidget.selectedfleet(); 
-			if(fleet != null)
+			if(fleet != null && currentDialog == fleetWidget)
 			{
 				// If a fleet was selected and a star was clicked, we might be adding a route point.
 				if(button == 0)
@@ -263,16 +254,30 @@ public class Game extends BasicGameState
 		}
 		
 		// Toggle modal interfaces according to the new selection.
-		fleetWidget.showFleet((selected instanceof Fleet) ? (Fleet)selected : null);
-		starWidget.showStar((selected instanceof Star) ? (Star)selected : null);
-		hqWidget.showHQ((selected instanceof HQ) ? (HQ)selected : null);
+		if(selected instanceof Fleet)
+		{
+			fleetWidget.showFleet((Fleet)selected);
+			currentDialog = fleetWidget;
+		}
+		else if(selected instanceof Star)
+		{
+			starWidget.showStar((Star)selected);
+			currentDialog = starWidget;
+		}
+		else if(selected instanceof HQ)
+		{
+			hqWidget.showHQ((HQ)selected);
+			currentDialog = hqWidget;
+		}
+		else
+			currentDialog = null;
+		System.out.println(currentDialog == null ? "null" : currentDialog.toString());
 	}
 	
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
-		mouseUpdateCount = -1;
-		System.out.println("Mouse released: " + mouseUpdateCount);
+		mouseDownTime = -1;
 	}
 	
 	@Override
@@ -284,17 +289,8 @@ public class Game extends BasicGameState
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
-		// Notify widgets.
-		boolean reset = false;
-		fleetWidget.mouseMoved(oldx, oldy, newx, newy);
-		reset = reset || hqWidget.hoverMove(oldx, oldy, newx, newy);
-		starWidget.mouseMoved(oldx, oldy, newx, newy);
-		
-		if(reset)
-		{
-			System.out.println("Mouse reset");
-			mouseUpdateCount = 0;
-		}
+		if(currentDialog != null && currentDialog.moveCursor(oldx, oldy, newx, newy))
+			mouseDownTime = -1;
 	}
 	
 	@Override

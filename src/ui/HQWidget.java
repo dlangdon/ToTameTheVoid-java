@@ -5,11 +5,11 @@ import graphic.Render;
 
 import java.util.List;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -17,19 +17,17 @@ import state.HQ;
 import state.HQ.QueuedUnit;
 import state.Unit;
 
-public class HQWidget 
+public class HQWidget extends IndexedDialog
 {
 // Internals ==========================================================================================================	
 	private HQ hq;
 	private Image[] backgrounds;
-	private int hoverIndex;
 	private int accumulated = 0;
 
 // Public Methods =====================================================================================================
 	public HQWidget() throws SlickException
 	{
 		this.hq = null;
-		this.hoverIndex = -1;
 		
 		backgrounds = new Image[] 
 			{
@@ -71,7 +69,7 @@ public class HQWidget
 		List<Unit> options = hq.availableUnits();
 		for(int i=0; i<options.size(); i++)
 		{
-			Vector2f pos = indexToCenterCoord(i);
+			Vector2f pos = indexToCoord(i);
 			options.get(i).image().draw(pos.x-15, pos.y-15);
 			// Check if we also display the local information.
 
@@ -85,7 +83,7 @@ public class HQWidget
 		// Display current queue (with numbers)
 		for(int i=0; i<5; i++)
 		{
-			Vector2f pos = indexToCenterCoord(i+12);
+			Vector2f pos = indexToCoord(i+12);
 			if(i<queue.size())
 			{
 				QueuedUnit qu = queue.get(i);
@@ -123,7 +121,7 @@ public class HQWidget
 		}
 		
 		// Buttons
-		Vector2f pos = indexToCenterCoord(-1);
+		Vector2f pos = indexToCoord(-1);
 		String[] configs = {"n", "h", "f"};
 		String conf = configs[hq.outputConfig().ordinal()];
 		Render.normal.drawString(
@@ -131,7 +129,7 @@ public class HQWidget
 				pos.y - Render.normal.getHeight()/2,
 				conf, Color.white);
 
-		pos = indexToCenterCoord(-2);
+		pos = indexToCoord(-2);
 		Render.normal.drawString(
 				pos.x - Render.normal.getWidth("c")/2,
 				pos.y - Render.normal.getHeight()/2,
@@ -144,7 +142,7 @@ public class HQWidget
 	/**
 	 * Updates this widget by looking for new input.
 	 */
-	public void mouseMaintained(GameContainer container, int delta) throws SlickException
+	public void mouseClick(int button, int delta)
 	{
 		// Not a valid action.
 		if(hoverIndex <= -10)
@@ -200,10 +198,9 @@ public class HQWidget
 				accumulated = 0;
 			int target = 1 + (int) Math.floor((double)delta * delta * delta / 1e9);
 
-			Input input = container.getInput();
-			if(input.isMouseButtonDown(0))
+			if(Mouse.isButtonDown(0))
 				unit.queued += target - accumulated;
-			else if(input.isMouseButtonDown(1))
+			else if(Mouse.isButtonDown(1))
 			{
 				unit.queued -= target - accumulated;
 				if(unit.queued < 1)
@@ -212,13 +209,12 @@ public class HQWidget
 			accumulated = target;
 		}
 	}
-	
-	/**
-	 * Translates a placeholder index for a stack in this widget to a local coordinates (around widget's center).
-	 * @param index Index to translate, must be in the range 0-22.
-	 * @return A vector with the local coordinates, or null if not
+
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#indexToCoord(int)
 	 */
-	private Vector2f indexToCenterCoord(int index)
+	@Override
+	protected Vector2f indexToCoord(int index)
 	{
 		// Determine first 12 segments.
 		if(index < 0)
@@ -240,14 +236,21 @@ public class HQWidget
 			return new Vector2f(angle).scale(145.5f);
 		}
 	}
-	
-	/**
-	 * Finds the potential element in the UI that corresponds to a particular coordinate.
-	 * This method does not consider what parts of the widget are current being displayed or their content, just placejolder locations.
-	 * @param vector A 2-dimensional vector of screen coordinates centered on the current position.
-	 * @return An index between 0 and 22 that corresponds to the slot in the widget that matches that point. OR a code between -1 to -5 to indicate one of the available buttons (top to bottom) OR -10 if there is no match whatsoever.
+
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#location()
 	 */
-	private int coordToIndex(Vector2f vector)
+	@Override
+	public Vector2f location()
+	{
+		return hq == null ? null : hq.location().getPos();
+	}
+
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#coordToIndex(org.newdawn.slick.geom.Vector2f)
+	 */
+	@Override
+	protected int coordToIndex(Vector2f vector)
 	{
 		double angle = vector.getTheta();
 		double radius = vector.length();
@@ -277,31 +280,6 @@ public class HQWidget
 
 		return -10;
 	}
-	
-	public boolean hoverMove(int oldx, int oldy, int newx, int newy) 
-	{
-		// Check if we are active.
-		int newHover = -10;
-		if(hq != null)
-		{
-			// Get the index to display.
-			Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(hq.location().getPos()));
-			newHover = coordToIndex(local);
-		}
 
-		if(newHover != hoverIndex)
-		{
-			hoverIndex = newHover;
-			return true;
-		}
-		return false;
-	}
 
-	/**
-	 * @return True if the widget is visible and the cursor is inside it, as previously determined by {@link hove()}
-	 */
-	boolean isCursorInside()
-	{
-		return hoverIndex > -10;
-	}
 }

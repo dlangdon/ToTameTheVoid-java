@@ -9,6 +9,7 @@ import graphic.Camera;
 import graphic.Render;
 import military.Shipyard;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -24,21 +25,17 @@ public class HQWidgetTest extends BasicGame
 {
 	HQWidget widget;
 	Shipyard hq;
-
-	private int mouseDownButton;
 	private int mouseDownTime;
 	
 	public HQWidgetTest() throws SlickException
 	{
 		super("Generation Test");
-		mouseDownButton = -1;
-		mouseDownTime = 0;
+		mouseDownTime = -1;
 	}
 
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		mouseDownButton = button;
 		mouseDownTime = 0;
 
 		if(widget.isCursorInside())
@@ -55,7 +52,7 @@ public class HQWidgetTest extends BasicGame
 	@Override
 	public void	mouseReleased(int button, int x, int y)
 	{
-		mouseDownButton = -1;
+		mouseDownTime = -1;
 	}
 
 	/* (non-Javadoc)
@@ -64,9 +61,9 @@ public class HQWidgetTest extends BasicGame
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
-		if(mouseDownButton >= 0)
+		if(mouseDownTime >= 0)
 		{
-			widget.mouseMaintained(container, mouseDownTime);
+			widget.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
 			mouseDownTime += delta;
 			System.out.println("mouseDownTime: " + mouseDownTime);
 		}
@@ -76,10 +73,10 @@ public class HQWidgetTest extends BasicGame
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
 		// Notify widgets.
-		if(widget.hoverMove(oldx, oldy, newx, newy))
+		if(widget.moveCursor(oldx, oldy, newx, newy))
 		{
 			System.out.println("Mouse reset");
-			mouseDownButton = -1;
+			mouseDownTime = -1;
 		}
 	}
 	

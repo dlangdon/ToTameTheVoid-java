@@ -17,7 +17,7 @@ import state.Fleet;
 import state.Unit;
 import state.UnitStack;
 
-public class FleetWidget implements UIListener
+public class FleetWidget extends IndexedDialog
 {
 	/**
 	 * An internal class in order to keep count of unit selections inside a fleet.
@@ -34,14 +34,12 @@ public class FleetWidget implements UIListener
 	private Image[] backgrounds;
 	private int[][] bckDeltas;
 	private StackSelection[] cache;
-	private int hoverIndex;
 	private int numSteps;
 
 // Public Methods =====================================================================================================
 	public FleetWidget() throws SlickException
 	{
 		this.fleet = null;
-		this.hoverIndex = -1;
 		this.numSteps = 6;
 		backgrounds = new Image[] 
 			{
@@ -106,7 +104,7 @@ public class FleetWidget implements UIListener
 		for(int i=0; i<cache.length; i++)
 		{
 			// Draw the icon.
-			Vector2f pos = indexToCenterCoord(i);
+			Vector2f pos = indexToCoord(i);
 			cache[i].design.image().draw(pos.x-15, pos.y-15);
 			
 			// Calculate location and draw the count for the stack.
@@ -155,12 +153,11 @@ public class FleetWidget implements UIListener
 		return everything ? fleet : fleet.split(split);
 	}
 	
-	/**
-	 * Translates a placeholder index for a stack in this widget to a local coordinates (around widget's center).
-	 * @param index Index to translate, must be in the range 0-22.
-	 * @return A vector with the local coordinates, or null if not
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#indexToCoord(int)
 	 */
-	private Vector2f indexToCenterCoord(int index)
+	@Override
+	protected Vector2f indexToCoord(int index)
 	{
 		// Determine first 12 segments.
 		if(index < 12)
@@ -181,13 +178,22 @@ public class FleetWidget implements UIListener
 		}
 	}
 	
-	/**
-	 * Finds the potential element in the UI that corresponds to a particular coordinate.
-	 * This method does not consider what parts of the widget are current being displayed or their content, just placejolder locations.
-	 * @param vector A 2-dimensional vector of screen coordinates centered on the current position.
-	 * @return An index between 0 and 22 that corresponds to the slot in the widget that matches that point. OR a code between -1 to -5 to indicate one of the available buttons (top to bottom) OR -10 if there is no match whatsoever.
+
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#location()
 	 */
-	private int coordToIndex(Vector2f vector)
+	@Override
+	public Vector2f location()
+	{
+		return fleet == null ? null : fleet.location().getPos();
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see ui.IndexedDialog#coordToIndex(org.newdawn.slick.geom.Vector2f)
+	 */
+	@Override
+	protected int coordToIndex(Vector2f vector)
 	{
 		double angle = vector.getTheta();
 		double radius = vector.length();
@@ -223,24 +229,22 @@ public class FleetWidget implements UIListener
 			}
 		}
 
-		return -10;
+		return NO_INDEX;
 	}
 
-	@Override
-	public boolean screenCLick(float x, float y, int button)
+	/*
+	 * (non-Javadoc)
+	 * @see ui.IndexedDialog#mouseClick(int, int)
+	 */
+	@Override 
+	public void mouseClick(int button, int delta)
 	{
 		// Check if visible.
-		if(fleet == null)
-			return false;
-		
-		// Get the index.
-		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(fleet.position()));
-		int index = coordToIndex(local);
-		if(index == -10 || index >= cache.length)
-			return false;
+		if(fleet == null || hoverIndex <= NO_INDEX || delta != 0)
+			return;
 		
 		// Process if it's a button.
-		if(index < 0)
+		if(hoverIndex < 0)
 		{
 			// TODO
 		}
@@ -250,36 +254,25 @@ public class FleetWidget implements UIListener
 		{
 			// This calculation may seem rather convoluted and the % operator may sound like a better idea, but this behavior is rather rare. 
 			// If we are close to the maximum, we want to go to 12 before going pass 12. Example to avoid: 0, 3, 6, 9, 12, 2, 5, 8, 11...
-			float step = Math.max(1.0f * cache[index].max / numSteps, 1.0f);
+			float step = Math.max(1.0f * cache[hoverIndex].max / numSteps, 1.0f);
 			if(button == 0)
 			{
-				if(cache[index].selected == cache[index].max)
-					cache[index].selected = 0;
+				if(cache[hoverIndex].selected == cache[hoverIndex].max)
+					cache[hoverIndex].selected = 0;
 				else
-					cache[index].selected = Math.min(cache[index].selected + step, cache[index].max);
+					cache[hoverIndex].selected = Math.min(cache[hoverIndex].selected + step, cache[hoverIndex].max);
 			}
 			else if(button == 1)
 			{
-				if(cache[index].selected < 1.0f)
-					cache[index].selected = cache[index].max;
+				if(cache[hoverIndex].selected < 1.0f)
+					cache[hoverIndex].selected = cache[hoverIndex].max;
 				else
-					cache[index].selected = Math.max(cache[index].selected - step, 0.0f);
+					cache[hoverIndex].selected = Math.max(cache[hoverIndex].selected - step, 0.0f);
 			}
-			System.out.println(cache[index].selected);
+			System.out.println(cache[hoverIndex].selected);
 		}
 		
-		return true;
-	}
-	
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
-	{
-		// Check if we are active.
-		if(fleet == null)
-			return;
-		
-		// Get the index to display.
-		Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(fleet.position()));
-		hoverIndex = coordToIndex(local);
+		return;
 	}
 
 }
