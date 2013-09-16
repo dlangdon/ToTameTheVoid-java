@@ -37,9 +37,7 @@ public class Game extends BasicGameState
 	private Object selected;
 	private GameEventQueue eventQueue;
 	private IndexedDialog currentDialog;
-	
 	private int mouseDownTime;
-	private boolean showWorldMode;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
@@ -59,7 +57,6 @@ public class Game extends BasicGameState
 		eventQueue = new GameEventQueue();
 		new Universe();
 		
-		showWorldMode = false;
 		mouseDownTime = -1;
 		currentDialog = null;
 		
@@ -110,7 +107,7 @@ public class Game extends BasicGameState
 		}
 		
 		// Draw in world widgets
-		if(!showWorldMode && currentDialog != null)
+		if(currentDialog != null)
 			currentDialog.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
@@ -134,7 +131,7 @@ public class Game extends BasicGameState
 		Input input = gc.getInput();
 
 		// Some interfaces 
-		if(!showWorldMode && mouseDownTime >= 0 && currentDialog != null)
+		if(mouseDownTime >= 0 && currentDialog != null)
 		{
 			currentDialog.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
 			mouseDownTime += delta;
@@ -187,14 +184,14 @@ public class Game extends BasicGameState
 		else if(key == Input.KEY_E)
 			econDialog.setVisible(!econDialog.isVisible());
 		else if(key == Input.KEY_SPACE)
-			this.showWorldMode = true;
+			currentDialog = null;
 	}
 
 	@Override
 	public void keyReleased(int key, char c)
 	{
 		if(key == Input.KEY_SPACE)
-			this.showWorldMode = false;
+			showDialogForSelection();
 	}
 	
 	@Override
@@ -218,9 +215,10 @@ public class Game extends BasicGameState
 		// If a star, check if we add routepoints.
 		if(selectedStar != null)
 		{
-			Fleet fleet = fleetWidget.selectedfleet(); 
-			if(fleet != null && currentDialog == fleetWidget)
+			if(selected instanceof Fleet)
 			{
+				Fleet fleet = (Fleet)selected; 
+
 				// If a fleet was selected and a star was clicked, we might be adding a route point.
 				if(button == 0)
 				{
@@ -229,6 +227,7 @@ public class Game extends BasicGameState
 				}
 				else
 					fleet.removeFromRoute(selectedStar);
+				return;
 			}
 			else
 				selected = selectedStar;
@@ -237,7 +236,7 @@ public class Game extends BasicGameState
 		}
 		else
 			selected = null;
-		
+
 		// Check which objects may have received the click signal.
 		for(Fleet tf : Universe.instance().getFleets())
 		{
@@ -256,6 +255,11 @@ public class Game extends BasicGameState
 			}
 		}
 		
+		showDialogForSelection();
+	}
+	
+	private void showDialogForSelection()
+	{
 		// Toggle modal interfaces according to the new selection.
 		if(selected instanceof Fleet)
 		{
@@ -274,7 +278,8 @@ public class Game extends BasicGameState
 		}
 		else
 			currentDialog = null;
-		System.out.println(currentDialog == null ? "null" : currentDialog.toString());
+		
+		System.out.format("selected: %s, dialog: %s\n", (selected == null ? "null" : selected.toString()), (currentDialog == null ? "null" : currentDialog.toString()));
 	}
 	
 	@Override

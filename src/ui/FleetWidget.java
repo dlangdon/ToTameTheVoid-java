@@ -185,9 +185,8 @@ public class FleetWidget extends IndexedDialog
 	@Override
 	public Vector2f location()
 	{
-		return fleet == null ? null : fleet.location().getPos();
+		return fleet == null ? null : fleet.position();
 	}
-	
 
 	/* (non-Javadoc)
 	 * @see ui.IndexedDialog#coordToIndex(org.newdawn.slick.geom.Vector2f)

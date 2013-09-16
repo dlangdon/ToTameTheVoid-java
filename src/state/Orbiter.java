@@ -78,7 +78,7 @@ public abstract class Orbiter implements UIListener
 		g.popTransform();
 	}
 	
-	public Star location()
+	public Star orbiting()
 	{
 		return location_;
 	}

@@ -54,7 +54,7 @@ public class HQWidget extends IndexedDialog
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
-		Camera.instance().pushLocalTransformation(g, hq.location().getPos());
+		Camera.instance().pushLocalTransformation(g, hq.orbiting().getPos());
 		
 		// Paint all backgrounds. TODO mix with single resource set or create single static background.
 		backgrounds[0].draw(-74, -119);
@@ -243,7 +243,7 @@ public class HQWidget extends IndexedDialog
 	@Override
 	public Vector2f location()
 	{
-		return hq == null ? null : hq.location().getPos();
+		return hq == null ? null : hq.orbiting().getPos();
 	}
 
 	/* (non-Javadoc)

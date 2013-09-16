@@ -118,14 +118,6 @@ public class Fleet extends Orbiter
 	}
 
 	/**
-	 * @return The star this fleet is orbiting, null if in transit.
-	 */
-	public Star orbiting()
-	{
-		return turnsTraveled == 0 ? destinations.getFirst() : null;
-	}
-
-	/**
 	 * @return True if this fleet has orders to go somewhere, else false.
 	 */
 	public boolean hasOrders()
@@ -397,7 +389,6 @@ public class Fleet extends Orbiter
 		return sb.toString();
 		
 	}
-
 	
 	/* (non-Javadoc)
 	 * @see state.Orbiter#icon()
@@ -408,7 +399,6 @@ public class Fleet extends Orbiter
 		return fleet;
 	}
 
-	
 	/* (non-Javadoc)
 	 * @see state.Orbiter#priority()
 	 */

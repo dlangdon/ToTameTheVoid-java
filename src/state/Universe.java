@@ -136,7 +136,7 @@ public class Universe
 	 */
 	public void removeFleet(Fleet f)
 	{
-		f.location().leave(f);
+		f.orbiting().leave(f);
 		fleets.remove(f);
 	}
 
