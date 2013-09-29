@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.newdawn.slick.geom.Vector2f;
 
@@ -25,6 +25,7 @@ public class EmpirePlacer implements ForceOfNature
 {
 	class Node implements Comparable<Node>
 	{
+		int id;
 		Medoid medoid;
 		double distance;
 		int lastModified;
@@ -33,9 +34,7 @@ public class EmpirePlacer implements ForceOfNature
 		@Override
 		public int compareTo(Node other)
 		{
-			if(this == other)
-				return 0;
-			return distance > other.distance ? 1 : -1;
+			return Double.compare(this.distance, other.distance);
 		}
 	}
 	
@@ -83,7 +82,8 @@ public class EmpirePlacer implements ForceOfNature
 			return false;
 		}
 
-		while(!step()){}
+		while(step()){}
+		updateGalaxy();
 		return true;
 	}
 	
@@ -171,8 +171,8 @@ public class EmpirePlacer implements ForceOfNature
 				boolean tooClose = false;
 				for(Medoid n : sortedMedoids)
 				{
-					Edge edge = new Edge(m.location, n.location);
-					if(nascent.prunedEdges.contains(edge))
+					Edge edge = new Edge(option, n.location);
+					if(n != m && nascent.prunedEdges.contains(edge))
 					{
 						tooClose = true;
 						break;
@@ -182,10 +182,11 @@ public class EmpirePlacer implements ForceOfNature
 					continue;
 				
 				// Do the jump, update the distribution of nodes and see what happens.
-				System.out.format("Moving cluster %d --> %d\n", m.location, option);
+				System.out.format("Moving cluster %d --> %d", m.location, option);
 				int oldLocation = m.location;
 				m.location = option;
 				UpdateBoundary(m);
+				System.out.format("done.\n");
 
 				List<Medoid> newSortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
 				Collections.sort(newSortedMedoids);
@@ -194,8 +195,10 @@ public class EmpirePlacer implements ForceOfNature
 				if(newScore >= score)	// Can't be greater only or it might fall into an infinite loop.
 				{
 					// Revert and keep trying
+					System.out.format("Score %d >= %d, reverting", newScore, score);
 					m.location = oldLocation;
 					UpdateBoundary(m);
+					System.out.format("done.\n");
 				}
 				else
 					return true;
@@ -215,8 +218,8 @@ public class EmpirePlacer implements ForceOfNature
 	 */
 	void UpdateBoundary(Medoid m)
 	{
-		TreeSet<Node> expansionQueue = new TreeSet<Node>();
-		TreeSet<Node> contractionQueue = new TreeSet<Node>();
+		PriorityQueue<Node> expansionQueue = new PriorityQueue<Node>();
+		PriorityQueue<Node> contractionQueue = new PriorityQueue<Node>();
 
 		// Phase 1, expansion.
 		updateCount++;
@@ -227,19 +230,19 @@ public class EmpirePlacer implements ForceOfNature
 
 		while(!expansionQueue.isEmpty())
 		{
-			Node next = expansionQueue.first();
-			expansionQueue.remove(next);
-
+			System.out.format(".");
+			Node next = expansionQueue.poll();
+			
 			for (Entry<Double, Integer> entry : next.outwardConnections.entrySet()) 
 			{
 				Node destination = nodes.get(entry.getValue());
 			
 				// Case 0: if destination was already updated this round, stop right here.
-				if(next.lastModified == updateCount)
+				if(destination.lastModified == updateCount)
 					continue;
 				
 				// Case 1: same cluster node, needs distance update (can increase or decrease) and continue.
-				if(destination.medoid == next.medoid)
+				if(destination.medoid == m)
 				{
 					destination.distance = next.distance + entry.getKey();
 					destination.lastModified = updateCount;
@@ -253,7 +256,6 @@ public class EmpirePlacer implements ForceOfNature
 					if(entry.getKey() + next.distance < destination.distance)
 					{
 						reassignCluster(destination, next.medoid);
-						destination.lastModified = updateCount;
 						destination.distance = entry.getKey() + next.distance; 
 						expansionQueue.add(destination);
 					}
@@ -275,24 +277,18 @@ public class EmpirePlacer implements ForceOfNature
 		updateCount++;
 		while(!contractionQueue.isEmpty())
 		{
-			Node next = contractionQueue.first();
-			contractionQueue.remove(next);
+			Node next = contractionQueue.poll();
+			System.out.format("Picked %d for contraction, queue size: %d\n", nodes.indexOf(next), contractionQueue.size());
 
 			for (Entry<Double, Integer> entry : next.outwardConnections.entrySet()) 
 			{
 				Node destination = nodes.get(entry.getValue());
-			
-				// If destination was not just updated on the recent expansion cycle, stop right here.
-				if(next.lastModified != updateCount -1)
-					continue;
 				
 				// Else we are guaranteed that the cluster is of a different color than us. See if we can keep growing.
 				if(entry.getKey() + next.distance < destination.distance)
 				{
-					destination.medoid.clusterSize--;
-					next.medoid.clusterSize++;
-					destination.medoid = next.medoid;
-					destination.lastModified = updateCount;
+					System.out.format("Reasigning node %d from cluster %d (%f) to cluster %d (%f)\n", nodes.indexOf(destination), medoids.indexOf(destination.medoid), destination.distance, medoids.indexOf(next.medoid), entry.getKey() + next.distance);
+					reassignCluster(destination, next.medoid);
 					destination.distance = entry.getKey() + next.distance; 
 					contractionQueue.add(destination);
 				}
@@ -306,6 +302,7 @@ public class EmpirePlacer implements ForceOfNature
 			n.medoid.clusterSize--;
 		m.clusterSize++;
 		n.medoid = m;
+		n.lastModified = updateCount;
 	}
 
 	void updateGalaxy()

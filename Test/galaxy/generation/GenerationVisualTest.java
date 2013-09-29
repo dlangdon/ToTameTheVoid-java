@@ -69,7 +69,7 @@ public class GenerationVisualTest extends BasicGame
 		
 		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
-		this.placer = new EmpirePlacer(2);
+		this.placer = new EmpirePlacer(5);
 		forces = new ForceOfNature[] {
 				new SimpleBlobCreator(100, 100, 2, 14, 30),
 				new SimplePointCreator(5, 150, 1.0f),
@@ -135,7 +135,7 @@ public class GenerationVisualTest extends BasicGame
 			if(f < forces.length)
 			{
 				currentForce = f;
-				System.out.println("Running force: " + forces[f].toString());
+				System.err.println("Running force: " + forces[f].toString());
 				
 				if(!interactive)
 					forces[f].unleash(nascent);
@@ -150,7 +150,7 @@ public class GenerationVisualTest extends BasicGame
 					}
 					catch (Exception e)
 					{
-						System.out.println(e.getMessage());
+						System.err.println(e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -172,7 +172,7 @@ public class GenerationVisualTest extends BasicGame
 		{
 			if(interactive && forces[currentForce] == placer)
 			{
-				System.out.println("Runnint Empire Placement Step");
+				System.err.println("Runnint Empire Placement Step");
 				if(!placer.step())
 					interactive = false;
 				placer.updateGalaxy();
