@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
-import java.util.TreeMap;
 
 import org.newdawn.slick.geom.Vector2f;
 
@@ -29,7 +27,8 @@ public class EmpirePlacer implements ForceOfNature
 		Medoid medoid;
 		double distance;
 		int lastModified;
-		TreeMap<Double, Integer> outwardConnections;
+		ArrayList<Integer> outwardConnections;
+		ArrayList<Double> outwardDistances;
 		
 		@Override
 		public int compareTo(Node other)
@@ -49,7 +48,7 @@ public class EmpirePlacer implements ForceOfNature
 			return clusterSize - other.clusterSize;
 		}
 	}
-	
+
 	int numEmpires;
 	List<Medoid> medoids;
 	List<Node> nodes;
@@ -100,9 +99,11 @@ public class EmpirePlacer implements ForceOfNature
 		for(int i=0; i<nascent.points.size(); i++)
 		{
 			Node newNode = new Node();
+			newNode.id = i;
 			newNode.distance = Double.MAX_VALUE;
 			newNode.medoid = null;
-			newNode.outwardConnections = new TreeMap<Double, Integer>();
+			newNode.outwardConnections = new ArrayList<Integer>();
+			newNode.outwardDistances = new ArrayList<Double>();
 			for(int j=0; j<nascent.points.size(); j++)
 			{
 				Edge edge = new Edge(i, j);
@@ -111,7 +112,8 @@ public class EmpirePlacer implements ForceOfNature
 					Vector2f p1 = nascent.points.get(i);
 					Vector2f p2 = nascent.points.get(j);
 					double distance = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
-					newNode.outwardConnections.put(distance, j);
+					newNode.outwardConnections.add(j);
+					newNode.outwardDistances.add(distance);
 				}
 			}
 			nodes.add(newNode);
@@ -137,6 +139,12 @@ public class EmpirePlacer implements ForceOfNature
 						break;
 					}
 				}
+				
+				// Validate no point too close to the galaxy borders (push a little the conflict to the center.
+				if(location >= 0)
+				{
+					
+				}
 			}
 			
 			if(location < 0)
@@ -145,13 +153,11 @@ public class EmpirePlacer implements ForceOfNature
 			Medoid toAdd = new Medoid();
 			toAdd.location = location;
 			toAdd.clusterSize = 1;
-			nodes.get(location).medoid = toAdd;
 			medoids.add(toAdd);
 		}
 		
 		// Now update all clusters
-		for(Medoid m : medoids)
-			UpdateBoundary(m);
+		updateBoundaries();
 	}
 	
 	boolean step()
@@ -165,7 +171,7 @@ public class EmpirePlacer implements ForceOfNature
 		
 		for(Medoid m : sortedMedoids)
 		{
-			for(Integer option : nodes.get(m.location).outwardConnections.values())
+			for(Integer option : nodes.get(m.location).outwardConnections)
 			{
 				// Check if the jump would put us too close.
 				boolean tooClose = false;
@@ -179,13 +185,16 @@ public class EmpirePlacer implements ForceOfNature
 					}
 				}
 				if(tooClose)
+				{
+					System.out.println("Too close!");
 					continue;
+				}
 				
 				// Do the jump, update the distribution of nodes and see what happens.
 				System.out.format("Moving cluster %d --> %d", m.location, option);
 				int oldLocation = m.location;
 				m.location = option;
-				UpdateBoundary(m);
+				updateBoundaries();
 				System.out.format("done.\n");
 
 				List<Medoid> newSortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
@@ -197,7 +206,7 @@ public class EmpirePlacer implements ForceOfNature
 					// Revert and keep trying
 					System.out.format("Score %d >= %d, reverting", newScore, score);
 					m.location = oldLocation;
-					UpdateBoundary(m);
+					updateBoundaries();
 					System.out.format("done.\n");
 				}
 				else
@@ -207,102 +216,40 @@ public class EmpirePlacer implements ForceOfNature
 		return false;
 	}
 	
-	/**
-	 * Updates the boundary around a specific medoid. 
-	 * This expands in a similar way to an MST, but only for those nodes marked as belonging to a cluster.
-	 * If we are updating cluster A and a node is found belonging to cluster B, the distances are compared. Two thing can happen:
-	 * - The node is switched from B to A and the update continues.
-	 * - The update stops, and the node will then try to expand cluster B in reverse.
-	 * So a run will first expand as much as possible, recalculating distances for the input cluster, then the boundary will contract.  
-	 * @param m The medoid being updated.
-	 */
-	void UpdateBoundary(Medoid m)
+	void updateBoundaries()
 	{
-		PriorityQueue<Node> expansionQueue = new PriorityQueue<Node>();
-		PriorityQueue<Node> contractionQueue = new PriorityQueue<Node>();
-
-		// Phase 1, expansion.
 		updateCount++;
-		Node n = nodes.get(m.location);
-		reassignCluster(n, m);
-		n.distance = 0.0;
-		expansionQueue.add(n);
-
-		while(!expansionQueue.isEmpty())
+		PriorityQueue<Node> toExpand = new PriorityQueue<Node>();
+		for(Medoid m : medoids)
 		{
-			System.out.format(".");
-			Node next = expansionQueue.poll();
+			Node n = nodes.get(m.location);
+			n.distance = 0.0;
+			n.medoid = m;
+			n.lastModified = updateCount;
+			toExpand.add(n);
+		}
+
+		while(!toExpand.isEmpty())
+		{
+			// Same node can be enqueue more than once, if reached from many nodes. Not a problem since operations are harmless.
+			Node next = toExpand.remove();	 
 			
-			for (Entry<Double, Integer> entry : next.outwardConnections.entrySet()) 
+			for (int i = 0 ; i<next.outwardConnections.size(); i++) 
 			{
-				Node destination = nodes.get(entry.getValue());
-			
-				// Case 0: if destination was already updated this round, stop right here.
-				if(destination.lastModified == updateCount)
-					continue;
-				
-				// Case 1: same cluster node, needs distance update (can increase or decrease) and continue.
-				if(destination.medoid == m)
+				Node destination = nodes.get(next.outwardConnections.get(i));
+				if(destination.lastModified < updateCount || next.outwardDistances.get(i) + next.distance < destination.distance)
 				{
-					destination.distance = next.distance + entry.getKey();
+//					System.out.format("Reasigning node %d from cluster %d (%f) to cluster %d (%f)\n", nodes.indexOf(destination), medoids.indexOf(destination.medoid), destination.distance, medoids.indexOf(next.medoid), entry.getKey() + next.distance);
+					if(destination.medoid != null)
+						destination.medoid.clusterSize--;
+					next.medoid.clusterSize++;
+					destination.medoid = next.medoid;
 					destination.lastModified = updateCount;
-					expansionQueue.add(destination);
-				}
-				
-				// Case 2: different cluster.
-				else
-				{
-					// 2.1 we can get there faster now, the node is ours.
-					if(entry.getKey() + next.distance < destination.distance)
-					{
-						reassignCluster(destination, next.medoid);
-						destination.distance = entry.getKey() + next.distance; 
-						expansionQueue.add(destination);
-					}
-					
-					// 2.2 they can get here faster, the node is theirs. This works even if more this happens from more than one destination, as the shortest path wins.
-					else if(entry.getKey() + destination.distance < next.distance )
-					{
-						reassignCluster(next, destination.medoid);
-						next.distance = entry.getKey() + destination.distance;
-						contractionQueue.add(next);
-					}
-					
-					// 2.3 To each its own, no changes.
+					destination.distance = next.outwardDistances.get(i) + next.distance; 
+					toExpand.add(destination);
 				}
 			}
 		}
-		
-		// Phase 2, contraction.
-		updateCount++;
-		while(!contractionQueue.isEmpty())
-		{
-			Node next = contractionQueue.poll();
-			System.out.format("Picked %d for contraction, queue size: %d\n", nodes.indexOf(next), contractionQueue.size());
-
-			for (Entry<Double, Integer> entry : next.outwardConnections.entrySet()) 
-			{
-				Node destination = nodes.get(entry.getValue());
-				
-				// Else we are guaranteed that the cluster is of a different color than us. See if we can keep growing.
-				if(entry.getKey() + next.distance < destination.distance)
-				{
-					System.out.format("Reasigning node %d from cluster %d (%f) to cluster %d (%f)\n", nodes.indexOf(destination), medoids.indexOf(destination.medoid), destination.distance, medoids.indexOf(next.medoid), entry.getKey() + next.distance);
-					reassignCluster(destination, next.medoid);
-					destination.distance = entry.getKey() + next.distance; 
-					contractionQueue.add(destination);
-				}
-			}
-		}
-	}
-	
-	void reassignCluster(Node n, Medoid m)
-	{
-		if(n.medoid != null)
-			n.medoid.clusterSize--;
-		m.clusterSize++;
-		n.medoid = m;
-		n.lastModified = updateCount;
 	}
 
 	void updateGalaxy()
