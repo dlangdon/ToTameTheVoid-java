@@ -6,6 +6,7 @@ package galaxy.generation;
 import galaxy.generation.NascentGalaxy.Edge;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -38,12 +39,18 @@ public class EmpirePlacer implements ForceOfNature
 		}
 	}
 	
-	class Medoid
+	class Medoid implements Comparable<Medoid>
 	{
 		int clusterSize;
 		int location;
-	}
 
+		@Override
+		public int compareTo(Medoid other)
+		{
+			return clusterSize - other.clusterSize;
+		}
+	}
+	
 	int numEmpires;
 	List<Medoid> medoids;
 	List<Node> nodes;
@@ -80,9 +87,35 @@ public class EmpirePlacer implements ForceOfNature
 		return true;
 	}
 	
+	/**
+	 * Initializes all nodes and finds initial locations for all empires. Those locations are assigned to the relevant clusters, but others are left unallocated (null). 
+	 */
 	void init(NascentGalaxy nascent) throws Exception
 	{
 		this.nascent = nascent;
+
+		// Initialize the mappings (this is only an optimization for later). 
+		// Initially, all points belong to the first medoid.
+		nodes = new ArrayList<Node>();
+		for(int i=0; i<nascent.points.size(); i++)
+		{
+			Node newNode = new Node();
+			newNode.distance = Double.MAX_VALUE;
+			newNode.medoid = null;
+			newNode.outwardConnections = new TreeMap<Double, Integer>();
+			for(int j=0; j<nascent.points.size(); j++)
+			{
+				Edge edge = new Edge(i, j);
+				if(nascent.prunedEdges.contains(edge))
+				{
+					Vector2f p1 = nascent.points.get(i);
+					Vector2f p2 = nascent.points.get(j);
+					double distance = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
+					newNode.outwardConnections.put(distance, j);
+				}
+			}
+			nodes.add(newNode);
+		}
 		
 		// Place 5 centers randomly
 		Random rand = new Random();
@@ -111,31 +144,9 @@ public class EmpirePlacer implements ForceOfNature
 
 			Medoid toAdd = new Medoid();
 			toAdd.location = location;
-			toAdd.clusterSize = 0;
+			toAdd.clusterSize = 1;
+			nodes.get(location).medoid = toAdd;
 			medoids.add(toAdd);
-		}
-		
-		// Initialize the mappings (this is only an optimization for later). Initially, all points belong to the first medoid.
-		nodes = new ArrayList<Node>();
-		for(int i=0; i<nascent.points.size(); i++)
-		{
-			Node newNode = new Node();
-			newNode.distance = Double.MAX_VALUE;
-			newNode.medoid = medoids.get(0);
-			medoids.get(0).clusterSize++;
-			newNode.outwardConnections = new TreeMap<Double, Integer>();
-			for(int j=0; j<nascent.points.size(); j++)
-			{
-				Edge edge = new Edge(i, j);
-				if(nascent.prunedEdges.contains(edge))
-				{
-					Vector2f p1 = nascent.points.get(i);
-					Vector2f p2 = nascent.points.get(j);
-					double distance = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
-					newNode.outwardConnections.put(distance, j);
-				}
-			}
-			nodes.add(newNode);
 		}
 		
 		// Now update all clusters
@@ -145,17 +156,51 @@ public class EmpirePlacer implements ForceOfNature
 	
 	boolean step()
 	{
-		for(Medoid m : medoids)
-		{
-			// ... check valid changes (never getting to a 1-jump distanceCheck options from this medoid
-
-				// Try this one out
-			
-				// Revert if there is no improvement and try another.
-			
-				// Set the galaxy's starting locations and return that the step was successful.
-		}
+		// Resort medoids by size, so the search tries always to enlarge the smallest cluster first.
+		List<Medoid> sortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
+		Collections.sort(sortedMedoids);
 		
+		// Score for this configuration is just the size distance between the biggest cluster and the smallest.
+		int score = sortedMedoids.get(sortedMedoids.size()-1).clusterSize - sortedMedoids.get(0).clusterSize;
+		
+		for(Medoid m : sortedMedoids)
+		{
+			for(Integer option : nodes.get(m.location).outwardConnections.values())
+			{
+				// Check if the jump would put us too close.
+				boolean tooClose = false;
+				for(Medoid n : sortedMedoids)
+				{
+					Edge edge = new Edge(m.location, n.location);
+					if(nascent.prunedEdges.contains(edge))
+					{
+						tooClose = true;
+						break;
+					}
+				}
+				if(tooClose)
+					continue;
+				
+				// Do the jump, update the distribution of nodes and see what happens.
+				System.out.format("Moving cluster %d --> %d\n", m.location, option);
+				int oldLocation = m.location;
+				m.location = option;
+				UpdateBoundary(m);
+
+				List<Medoid> newSortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
+				Collections.sort(newSortedMedoids);
+				int newScore = newSortedMedoids.get(newSortedMedoids.size()-1).clusterSize - newSortedMedoids.get(0).clusterSize;
+				
+				if(newScore >= score)	// Can't be greater only or it might fall into an infinite loop.
+				{
+					// Revert and keep trying
+					m.location = oldLocation;
+					UpdateBoundary(m);
+				}
+				else
+					return true;
+			}
+		}
 		return false;
 	}
 	
@@ -176,8 +221,8 @@ public class EmpirePlacer implements ForceOfNature
 		// Phase 1, expansion.
 		updateCount++;
 		Node n = nodes.get(m.location);
+		reassignCluster(n, m);
 		n.distance = 0.0;
-		n.medoid = m;
 		expansionQueue.add(n);
 
 		while(!expansionQueue.isEmpty())
@@ -207,9 +252,7 @@ public class EmpirePlacer implements ForceOfNature
 					// 2.1 we can get there faster now, the node is ours.
 					if(entry.getKey() + next.distance < destination.distance)
 					{
-						destination.medoid.clusterSize--;
-						next.medoid.clusterSize++;
-						destination.medoid = next.medoid;
+						reassignCluster(destination, next.medoid);
 						destination.lastModified = updateCount;
 						destination.distance = entry.getKey() + next.distance; 
 						expansionQueue.add(destination);
@@ -218,9 +261,7 @@ public class EmpirePlacer implements ForceOfNature
 					// 2.2 they can get here faster, the node is theirs. This works even if more this happens from more than one destination, as the shortest path wins.
 					else if(entry.getKey() + destination.distance < next.distance )
 					{
-						destination.medoid.clusterSize++;
-						next.medoid.clusterSize--;
-						next.medoid = destination.medoid;
+						reassignCluster(next, destination.medoid);
 						next.distance = entry.getKey() + destination.distance;
 						contractionQueue.add(next);
 					}
@@ -257,6 +298,14 @@ public class EmpirePlacer implements ForceOfNature
 				}
 			}
 		}
+	}
+	
+	void reassignCluster(Node n, Medoid m)
+	{
+		if(n.medoid != null)
+			n.medoid.clusterSize--;
+		m.clusterSize++;
+		n.medoid = m;
 	}
 
 	void updateGalaxy()
