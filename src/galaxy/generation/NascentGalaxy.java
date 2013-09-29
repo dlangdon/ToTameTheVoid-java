@@ -67,6 +67,7 @@ public class NascentGalaxy
 	
 	float[][] heatmap;
 	List<Vector2f> points;
+	List<Integer> startingLocations;
 	Set<Edge> initialEdges;
 	Set<Edge> prunedEdges;
 	List<Star> bornStars;
@@ -79,6 +80,7 @@ public class NascentGalaxy
 	{
 		heatmap = null;
 		points = null;
+		startingLocations = null;
 		initialEdges = null;
 		prunedEdges = null;
 		bornStars = null;

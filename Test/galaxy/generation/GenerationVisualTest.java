@@ -7,6 +7,7 @@ import galaxy.generation.DelaunayLaneGenerator.Triangle;
 import galaxy.generation.NascentGalaxy.Edge;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -19,10 +20,20 @@ import org.newdawn.slick.geom.Vector2f;
 
 public class GenerationVisualTest extends BasicGame
 {
+	private static Color[] palette = new Color[]{
+		new Color(210, 49, 93),
+		new Color(247, 200, 8),
+		new Color(34, 181, 191),
+		new Color(135, 103, 166),
+		new Color(233, 136, 19),
+		new Color(136, 193, 52)
+	};
+	
 	NascentGalaxy nascent;
 	ForceOfNature[] forces;
 	DelaunayLaneGenerator laneGenerator;
 	MinimumSpanningTreeForce mstForce;
+	EmpirePlacer placer;
 	
 	boolean showHeatMap;
 	boolean showPoints;
@@ -30,6 +41,10 @@ public class GenerationVisualTest extends BasicGame
 	boolean showInitialEdges;
 	boolean showMST;
 	boolean showPrunnedEdges;
+	boolean showStaringLocations;
+	
+	int currentForce;
+	boolean interactive;
 	
 	/**
 	 * For triangulation tests, this iterates one step at the time instead of running the whole thing.
@@ -47,32 +62,49 @@ public class GenerationVisualTest extends BasicGame
 		this.showInitialEdges = true;
 		this.showPrunnedEdges = true;
 		this.showMST = true;
+		this.showStaringLocations = true;
 		this.pointCount = -1;
+		this.currentForce = -1;
+		this.interactive = false;
 		
 		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
+		this.placer = new EmpirePlacer(2);
 		forces = new ForceOfNature[] {
 				new SimpleBlobCreator(100, 100, 2, 14, 30),
 				new SimplePointCreator(5, 150, 1.0f),
 				this.laneGenerator,
-				this.mstForce
+				this.mstForce,
+				this.placer
 		};
-		
+
+		nascent = new NascentGalaxy();
 		setInitialData();
 	}
 
 	void setInitialData()
 	{
-		nascent = new NascentGalaxy();
 		nascent.points = new ArrayList<Vector2f>();
-		nascent.points.add(new Vector2f(30, 70));
-		nascent.points.add(new Vector2f(20, 30));
-		nascent.points.add(new Vector2f(70, 90));
-		nascent.points.add(new Vector2f(30, 30));
+		nascent.points.add(new Vector2f(10, 50));
+		nascent.points.add(new Vector2f(30, 10));
+		nascent.points.add(new Vector2f(35, 90));
+		nascent.points.add(new Vector2f(70, 10));
+		nascent.points.add(new Vector2f(65, 90));
+		nascent.points.add(new Vector2f(90, 50));
 
 		laneGenerator.triangles = new ArrayList<Triangle>();
 		laneGenerator.triangles.add(new Triangle(0, 1, 2, nascent.points));
-		laneGenerator.triangles.add(new Triangle(1, 2, 3, nascent.points));
+		laneGenerator.triangles.add(new Triangle(3, 4, 5, nascent.points));
+		
+		nascent.prunedEdges = new HashSet<NascentGalaxy.Edge>();
+		nascent.prunedEdges.add(new Edge(0, 1));
+		nascent.prunedEdges.add(new Edge(0, 2));
+		nascent.prunedEdges.add(new Edge(1, 2));
+		nascent.prunedEdges.add(new Edge(1, 3));
+		nascent.prunedEdges.add(new Edge(2, 4));
+		nascent.prunedEdges.add(new Edge(3, 4));
+		nascent.prunedEdges.add(new Edge(3, 5));
+		nascent.prunedEdges.add(new Edge(4, 5));
 	}
 	
 	@Override
@@ -91,6 +123,10 @@ public class GenerationVisualTest extends BasicGame
 			showMST = !showMST;
 		if(key == Input.KEY_Y)
 			showPrunnedEdges = !showPrunnedEdges;
+		if(key == Input.KEY_U)
+			showStaringLocations = !showStaringLocations;
+		if(key == Input.KEY_BACK)
+			interactive = !interactive;
 		
 		// Whole forces to unleash.
 		if(c >= '1' && c <= '9')
@@ -98,8 +134,27 @@ public class GenerationVisualTest extends BasicGame
 			int f = c-'1'; 
 			if(f < forces.length)
 			{
-				forces[f].unleash(nascent);
+				currentForce = f;
+				System.out.println("Running force: " + forces[f].toString());
 				
+				if(!interactive)
+					forces[f].unleash(nascent);
+				
+				// Interactive mode for empire placement.
+				else if(forces[currentForce] == placer)
+				{
+					try
+					{
+						placer.init(nascent);
+						placer.updateGalaxy();
+					}
+					catch (Exception e)
+					{
+						System.out.println(e.getMessage());
+						e.printStackTrace();
+					}
+				}
+
 				// Re-creating points has serious consequences on existing lanes.
 				if(f == 1)
 				{
@@ -107,6 +162,7 @@ public class GenerationVisualTest extends BasicGame
 					nascent.prunedEdges = null;
 					laneGenerator.triangles = null;
 					mstForce.mst = null;
+					nascent.startingLocations = null;
 				}
 			}
 		}
@@ -114,17 +170,27 @@ public class GenerationVisualTest extends BasicGame
 		// Enter controls steps for the delaunay generation.
 		if(key == Input.KEY_ENTER)
 		{
-			if(pointCount == -1)
-			{	
-				laneGenerator.init(nascent);
-				pointCount++;
-			}
-			else if(pointCount < nascent.points.size()-3)
-				laneGenerator.step(this.pointCount++);
-			else if(pointCount == nascent.points.size()-3)
+			if(interactive && forces[currentForce] == placer)
 			{
-				laneGenerator.end();
-				laneGenerator.generateAllEdges();
+				System.out.println("Runnint Empire Placement Step");
+				if(!placer.step())
+					interactive = false;
+				placer.updateGalaxy();
+			}
+			if(forces[currentForce] == laneGenerator)
+			{
+				if(pointCount == -1)
+				{	
+					laneGenerator.init(nascent);
+					pointCount++;
+				}
+				else if(pointCount < nascent.points.size()-3)
+					laneGenerator.step(this.pointCount++);
+				else if(pointCount == nascent.points.size()-3)
+				{
+					laneGenerator.end();
+					laneGenerator.generateAllEdges();
+				}
 			}
 		}
 	}
@@ -203,7 +269,7 @@ public class GenerationVisualTest extends BasicGame
 		
 		if(nascent.prunedEdges != null && showPrunnedEdges)
 		{
-			g.setColor(Color.blue);
+			g.setColor(Color.white);
 			for(Edge l : nascent.prunedEdges)
 			{
 				Vector2f from = nascent.points.get(l.v1);
@@ -230,9 +296,31 @@ public class GenerationVisualTest extends BasicGame
 				if(pointCount < 0 || p < pointCount)
 					g.fillOval(50+nascent.points.get(p).x*4-2, 50+nascent.points.get(p).y*4-2, 5, 5);
 		}
+
+		if(nascent.startingLocations != null && showStaringLocations)
+		{
+			// Repaint all points with the given color.
+			for(int p=0; p<nascent.points.size(); p++)
+			{
+				int cluster = placer.medoids.indexOf(placer.nodes.get(p).medoid);
+				g.setColor(cluster < 0 ? Color.gray : palette[cluster]);
+				g.fillOval(50+nascent.points.get(p).x*4-2, 50+nascent.points.get(p).y*4-2, 5, 5);
+			}
+			
+			// Paint starting locations bigger
+			for(int s=0; s<nascent.startingLocations.size(); s++)
+			{
+				g.setColor(palette[s]);
+				Vector2f v = nascent.points.get(nascent.startingLocations.get(s));
+				g.fillRect(50+v.x*4-4, 50+v.y*4-4, 9, 9);
+			}
+
+		}
 		
 		// Paint configuration feedback
 		g.setColor(Color.red);
+		g.drawString("Current stage: " + currentForce + (interactive ? "(INTERACTIVE MODE)" : ""), 100, 10);
+		
 		g.setColor(Color.white);
 		if(showHeatMap)
 			g.drawString("HM", 10, 30);
@@ -246,6 +334,8 @@ public class GenerationVisualTest extends BasicGame
 			g.drawString("MST", 10, 110);
 		if(showPrunnedEdges)
 			g.drawString("PE", 10, 130);
+		if(showStaringLocations)
+			g.drawString("SL", 10, 150);
 	}
 	
 	/**

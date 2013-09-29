@@ -228,7 +228,7 @@ public class DelaunayLaneGenerator implements ForceOfNature
 			}
 		}
 		
-		System.out.println("\ntriangles: " + triangles.toString());
+//		System.out.println("\ntriangles: " + triangles.toString());
 	}
 	
 	void end()
