@@ -10,16 +10,12 @@ import java.util.Random;
  */
 public class SimpleBlobCreator implements ForceOfNature
 {
-	private int height;
-	private int width;
 	private int numBlobs;
 	private int minBlobRadius;
 	private int maxBlobRadius;
 	
-	public SimpleBlobCreator(int width, int height, int numblobs, int minBlobRadius, int maxBlobRadius)
+	public SimpleBlobCreator(int numblobs, int minBlobRadius, int maxBlobRadius)
 	{
-		this.height = height;
-		this.width = width;
 		this.numBlobs = numblobs;
 		this.minBlobRadius = minBlobRadius;
 		this.maxBlobRadius = (maxBlobRadius > minBlobRadius) ? maxBlobRadius : minBlobRadius+5;
@@ -31,6 +27,8 @@ public class SimpleBlobCreator implements ForceOfNature
 	@Override
 	public boolean unleash(NascentGalaxy nascentGalaxy)
 	{
+		int height = (int)(nascentGalaxy.height / nascentGalaxy.explosionFactor);
+		int width = (int)(nascentGalaxy.width / nascentGalaxy.explosionFactor);
 		Random rand = new Random();
 		float[][] map = nascentGalaxy.heatmap = new float[width][height];
 		

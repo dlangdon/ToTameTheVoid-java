@@ -7,7 +7,6 @@ import galaxy.generation.NascentGalaxy.Edge;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -49,18 +48,19 @@ public class EmpirePlacer implements ForceOfNature
 		}
 	}
 
+	int updateCount;
 	int numEmpires;
+	int exclusionBorder;
 	List<Medoid> medoids;
 	List<Node> nodes;
-	HashMap<Integer, Node> revertInfo;
 	NascentGalaxy nascent;
-	int updateCount;
 	
 	/**
 	 * 
 	 */
-	public EmpirePlacer(int numEmpires)
+	public EmpirePlacer(int numEmpires, int exclusionBorder)
 	{
+		this.exclusionBorder = exclusionBorder;
 		this.numEmpires = numEmpires;
 		this.updateCount = 0;
 	}
@@ -240,6 +240,20 @@ public class EmpirePlacer implements ForceOfNature
 			if(m != skip && (m.location == location || nascent.prunedEdges.contains(edge)))
 				return false;
 		}
+		return true;
+	}
+	
+	/**
+	 * Validates that at least 30 pixels. 
+	 * @param m
+	 * @return
+	 */
+	boolean validMedoidPosition(Medoid m)
+	{
+//		if(nascent.)
+		
+		
+		
 		return true;
 	}
 	

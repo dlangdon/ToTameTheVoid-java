@@ -15,7 +15,6 @@ public class SimplePointCreator implements ForceOfNature
 {
 	private int exclusionRadius;
 	private int maxFailures;
-	private float explosionFactor;
 	
 	/**
 	 * Creates a bunch of points.
@@ -23,11 +22,10 @@ public class SimplePointCreator implements ForceOfNature
 	 * @param maxFailures
 	 * @param explosionFactor The random coordinates created relate to the heatmap size, so this multiplier is used to get intended world coordinates. 
 	 */
-	public SimplePointCreator(int exclusionRadius, int maxFailures, float explosionFactor)
+	public SimplePointCreator(int exclusionRadius, int maxFailures)
 	{
 		this.exclusionRadius = exclusionRadius;
 		this.maxFailures = maxFailures;
-		this.explosionFactor = explosionFactor;
 	}
 	
 	/* (non-Javadoc)
@@ -55,7 +53,7 @@ public class SimplePointCreator implements ForceOfNature
 				failures++;
 				continue;
 			}
-			nascent.points.add(new Vector2f(x*explosionFactor, y*explosionFactor));
+			nascent.points.add(new Vector2f(x*nascent.explosionFactor, y*nascent.explosionFactor));
 			
 			// Paint an exclusion radius to avoid points being too close to each other.
 			for(int i=-exclusionRadius; i<=exclusionRadius; i++)

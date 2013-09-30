@@ -67,18 +67,18 @@ public class GenerationVisualTest extends BasicGame
 		this.currentForce = -1;
 		this.interactive = false;
 		
+		nascent = new NascentGalaxy(100, 100, 1.0f);
 		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
-		this.placer = new EmpirePlacer(5);
+		this.placer = new EmpirePlacer(5, 15);
 		forces = new ForceOfNature[] {
-				new SimpleBlobCreator(100, 100, 2, 14, 30),
-				new SimplePointCreator(5, 150, 1.0f),
+				new SimpleBlobCreator(2, 14, 30),
+				new SimplePointCreator(5, 150),
 				this.laneGenerator,
 				this.mstForce,
 				this.placer
 		};
 
-		nascent = new NascentGalaxy();
 		setInitialData();
 	}
 
@@ -319,7 +319,7 @@ public class GenerationVisualTest extends BasicGame
 		
 		// Paint configuration feedback
 		g.setColor(Color.red);
-		g.drawString("Current stage: " + currentForce + (interactive ? "(INTERACTIVE MODE)" : ""), 100, 10);
+		g.drawString("Current stage: " + (currentForce+1) + (interactive ? "(INTERACTIVE MODE)" : ""), 100, 10);
 		
 		g.setColor(Color.white);
 		if(showHeatMap)

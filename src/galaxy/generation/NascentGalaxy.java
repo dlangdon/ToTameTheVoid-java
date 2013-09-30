@@ -65,6 +65,9 @@ public class NascentGalaxy
 		}
 	}
 	
+	float height;
+	float width;
+	float explosionFactor;
 	float[][] heatmap;
 	List<Vector2f> points;
 	List<Integer> startingLocations;
@@ -76,8 +79,11 @@ public class NascentGalaxy
 	/**
 	 * 
 	 */
-	public NascentGalaxy()
+	public NascentGalaxy(float height, float width, float explosionFactor)
 	{
+		this.explosionFactor = explosionFactor;
+		this.height = height;
+		this.width = width;
 		heatmap = null;
 		points = null;
 		startingLocations = null;
