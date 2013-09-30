@@ -79,7 +79,7 @@ public class NascentGalaxy
 	/**
 	 * 
 	 */
-	public NascentGalaxy(float height, float width, float explosionFactor)
+	public NascentGalaxy(float width, float height, float explosionFactor)
 	{
 		this.explosionFactor = explosionFactor;
 		this.height = height;

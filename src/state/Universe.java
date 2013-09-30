@@ -44,12 +44,12 @@ public class Universe
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		this.fleets = new HashSet<Fleet>();
-		NascentGalaxy ng = new NascentGalaxy();
+		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
 
 //		ng.addForce(new StaticGalaxyCreator());
 
-		ng.addForce(new SimpleBlobCreator(125, 75, 30, 4, 15));
-		ng.addForce(new SimplePointCreator(5, 50, 4.0f));
+		ng.addForce(new SimpleBlobCreator(30, 4, 15));
+		ng.addForce(new SimplePointCreator(5, 50));
 		ng.addForce(new DelaunayLaneGenerator(0.15f));
 		ng.addForce(new MinimumSpanningTreeForce());
 		
