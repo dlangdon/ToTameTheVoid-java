@@ -128,7 +128,7 @@ public class EmpirePlacer implements ForceOfNature
 			for(int trials = 0; trials < 100; trials++)
 			{
 				location = rand.nextInt(nascent.points.size());
-				if(validMedoidDistance(location, null))
+				if(validMedoidDistance(location, null) && validMedoidPosition(location))
 					break;
 				location = -1;
 			}
@@ -160,7 +160,7 @@ public class EmpirePlacer implements ForceOfNature
 			for(Integer option : nodes.get(m.location).outwardConnections)
 			{
 				// Check if the jump would put us too close.
-				if(!validMedoidDistance(option, m))
+				if(!validMedoidDistance(option, m) || !validMedoidPosition(option))
 					continue;
 				
 				// Do the jump, update the distribution of nodes and see what happens.
@@ -244,16 +244,14 @@ public class EmpirePlacer implements ForceOfNature
 	}
 	
 	/**
-	 * Validates that at least 30 pixels. 
-	 * @param m
-	 * @return
+	 * Validates that no medoids are placed too close to the galaxy borders. 
 	 */
-	boolean validMedoidPosition(Medoid m)
+	boolean validMedoidPosition(int location)
 	{
-//		if(nascent.)
-		
-		
-		
+		Vector2f v = nascent.points.get(location);
+		if(v.x < exclusionBorder || v.x > nascent.width - exclusionBorder ||
+				v.y < exclusionBorder || v.y > nascent.height - exclusionBorder)
+			return false;
 		return true;
 	}
 	
