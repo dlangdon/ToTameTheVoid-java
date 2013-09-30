@@ -124,27 +124,13 @@ public class EmpirePlacer implements ForceOfNature
 		medoids = new ArrayList<Medoid>();
 		for(int i=0; i<numEmpires; i++)
 		{
-			int location = -1;
-			for(int trials = 0; location< 0 && trials < 100; trials++)
+			int location = 0;
+			for(int trials = 0; trials < 100; trials++)
 			{
 				location = rand.nextInt(nascent.points.size());
-
-				// Validate no direct connection to previous medoids.
-				for(Medoid m: medoids)
-				{
-					Edge edge = new Edge(m.location, location);
-					if(m.location == location || nascent.prunedEdges.contains(edge))
-					{
-						location = -1;
-						break;
-					}
-				}
-				
-				// Validate no point too close to the galaxy borders (push a little the conflict to the center.
-				if(location >= 0)
-				{
-					
-				}
+				if(validMedoidDistance(location, null))
+					break;
+				location = -1;
 			}
 			
 			if(location < 0)
@@ -174,21 +160,8 @@ public class EmpirePlacer implements ForceOfNature
 			for(Integer option : nodes.get(m.location).outwardConnections)
 			{
 				// Check if the jump would put us too close.
-				boolean tooClose = false;
-				for(Medoid n : sortedMedoids)
-				{
-					Edge edge = new Edge(option, n.location);
-					if(n != m && nascent.prunedEdges.contains(edge))
-					{
-						tooClose = true;
-						break;
-					}
-				}
-				if(tooClose)
-				{
-					System.out.println("Too close!");
+				if(!validMedoidDistance(option, m))
 					continue;
-				}
 				
 				// Do the jump, update the distribution of nodes and see what happens.
 				System.out.format("Moving cluster %d --> %d", m.location, option);
@@ -259,4 +232,15 @@ public class EmpirePlacer implements ForceOfNature
 			nascent.startingLocations.add(m.location);
 	}
 
+	boolean validMedoidDistance(int location, Medoid skip)
+	{
+		for(Medoid m: medoids)
+		{
+			Edge edge = new Edge(m.location, location);
+			if(m != skip && (m.location == location || nascent.prunedEdges.contains(edge)))
+				return false;
+		}
+		return true;
+	}
+	
 }
