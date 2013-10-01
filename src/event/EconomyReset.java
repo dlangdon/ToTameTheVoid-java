@@ -1,8 +1,8 @@
 package event;
 
+import galaxy.generation.Galaxy;
 import state.Empire;
 import state.Star;
-import state.Universe;
 
 /**
  * Eliminates empty fleets.
@@ -16,7 +16,7 @@ public class EconomyReset implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
-		for(Empire e: Universe.instance().getEmpires())
+		for(Empire e: Galaxy.instance().getEmpires())
 		{
 			e.getEconomy().resetTurn();
 		}

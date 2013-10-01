@@ -36,9 +36,9 @@ public class Shipyard extends HQ
 		try
 		{
 			// Add units.
-			// TODO For now, just a hardcoded list of units.
 			availableUnits_.add(new Ship("Figther", new Image("resources/ship2.png"), 1.0f));
 			availableUnits_.add(new Ship("Colony Ship", new Image("resources/ship1.png"), 10.0f));
+			availableUnits_.add(new Ship("Scout", new Image("resources/ship1.png"), 10.0f));
 			
 			// Load icon.
 			icon_ = new Image("resources/ironFist.png");

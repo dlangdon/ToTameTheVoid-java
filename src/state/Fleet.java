@@ -1,5 +1,6 @@
 package state;
 
+import galaxy.generation.Galaxy;
 import graphic.Camera;
 import graphic.Render;
 
@@ -46,7 +47,7 @@ public class Fleet extends Orbiter
 	 * @param orbiting Star this fleet is going to be orbiting.
 	 * @param empire
 	 */
-	Fleet(Star orbiting, Empire empire)
+	public Fleet(Star orbiting, Empire empire)
 	{
 		super(orbiting);
 
@@ -60,7 +61,7 @@ public class Fleet extends Orbiter
 		this.destinations.add(orbiting);
 
 		orbiting.arrive(this);	// Needs to happen after destinations exist, else priority can't be calculated.
-		Universe.instance().getFleets().add(this);
+		Galaxy.instance().getFleets().add(this);
 	}
 
 	/**
@@ -412,7 +413,7 @@ public class Fleet extends Orbiter
 		if(col != null && col.owner() == owner_)
 			base += 9;
 		else
-			base += Universe.instance().getEmpires().indexOf(owner_);
+			base += Galaxy.instance().getEmpires().indexOf(owner_);
 		
 		return base;
 	}

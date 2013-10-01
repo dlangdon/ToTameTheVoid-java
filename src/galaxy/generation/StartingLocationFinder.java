@@ -18,7 +18,7 @@ import org.newdawn.slick.geom.Vector2f;
  * It uses a modified K-medoids algorithm that does gradient descent on the number of stars closer to each starting location.
  * @author Daniel Langdon
  */
-public class EmpirePlacer implements ForceOfNature
+public class StartingLocationFinder implements ForceOfNature
 {
 	class Node implements Comparable<Node>
 	{
@@ -58,7 +58,7 @@ public class EmpirePlacer implements ForceOfNature
 	/**
 	 * 
 	 */
-	public EmpirePlacer(int numEmpires, int exclusionBorder)
+	public StartingLocationFinder(int numEmpires, int exclusionBorder)
 	{
 		this.exclusionBorder = exclusionBorder;
 		this.numEmpires = numEmpires;
@@ -149,11 +149,12 @@ public class EmpirePlacer implements ForceOfNature
 	boolean step()
 	{
 		// Resort medoids by size, so the search tries always to enlarge the smallest cluster first.
-		List<Medoid> sortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
+		List<Medoid> sortedMedoids = new ArrayList<StartingLocationFinder.Medoid>(medoids);
 		Collections.sort(sortedMedoids);
 		
 		// Score for this configuration is just the size distance between the biggest cluster and the smallest.
-		int score = sortedMedoids.get(sortedMedoids.size()-1).clusterSize - sortedMedoids.get(0).clusterSize;
+		// int score = sortedMedoids.get(sortedMedoids.size()-1).clusterSize - sortedMedoids.get(0).clusterSize;
+		double score = calculateScore();
 		
 		for(Medoid m : sortedMedoids)
 		{
@@ -170,14 +171,14 @@ public class EmpirePlacer implements ForceOfNature
 				updateBoundaries();
 				System.out.format("done.\n");
 
-				List<Medoid> newSortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
-				Collections.sort(newSortedMedoids);
-				int newScore = newSortedMedoids.get(newSortedMedoids.size()-1).clusterSize - newSortedMedoids.get(0).clusterSize;
-				
+				//List<Medoid> newSortedMedoids = new ArrayList<EmpirePlacer.Medoid>(medoids);
+				//Collections.sort(newSortedMedoids);
+				//int newScore = newSortedMedoids.get(newSortedMedoids.size()-1).clusterSize - newSortedMedoids.get(0).clusterSize;
+				double newScore = calculateScore(); 
 				if(newScore >= score)	// Can't be greater only or it might fall into an infinite loop.
 				{
 					// Revert and keep trying
-					System.out.format("Score %d >= %d, reverting", newScore, score);
+					System.out.format("Score %f >= %f, reverting", newScore, score);
 					m.location = oldLocation;
 					updateBoundaries();
 					System.out.format("done.\n");
@@ -254,5 +255,17 @@ public class EmpirePlacer implements ForceOfNature
 			return false;
 		return true;
 	}
-	
+
+	double calculateScore()
+	{
+		double average = 0.0;
+		for(Medoid m : medoids)
+			average += m.clusterSize;
+		average /= medoids.size();
+		
+		double score = 0.0;
+		for(Medoid m : medoids)
+			score += (m.clusterSize - average)*(m.clusterSize - average);
+		return score;
+	}
 }

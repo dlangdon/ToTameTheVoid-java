@@ -1,5 +1,7 @@
 package event;
 
+import galaxy.generation.Galaxy;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,7 +17,6 @@ import state.Empire;
 import state.Fleet;
 import state.HQ;
 import state.Star;
-import state.Universe;
 
 /**
  * HIGHLY EXPERIMENTAL Event queue for special turn events. This is needed to
@@ -135,7 +136,7 @@ public class GameEventQueue
 		System.out.println("New turn: " + turn);
 
 		// Resets
-		for (Empire e : Universe.instance().getEmpires())
+		for (Empire e : Galaxy.instance().getEmpires())
 			e.getEconomy().resetTurn();
 
 		// Produce new units
@@ -144,11 +145,11 @@ public class GameEventQueue
 			hq.turn();
 
 		// Update all fleets
-		for (Fleet f : Universe.instance().getFleets())
+		for (Fleet f : Galaxy.instance().getFleets())
 			f.turn();
 
 		// Update all empires.
-		for (Empire e : Universe.instance().getEmpires())
+		for (Empire e : Galaxy.instance().getEmpires())
 		{
 			e.getEconomy().applyGrowth(e.getColonies());
 		}

@@ -33,7 +33,7 @@ public class GenerationVisualTest extends BasicGame
 	ForceOfNature[] forces;
 	DelaunayLaneGenerator laneGenerator;
 	MinimumSpanningTreeForce mstForce;
-	EmpirePlacer placer;
+	StartingLocationFinder placer;
 	
 	boolean showHeatMap;
 	boolean showPoints;
@@ -70,7 +70,7 @@ public class GenerationVisualTest extends BasicGame
 		nascent = new NascentGalaxy(100, 100, 1.0f);
 		this.laneGenerator = new DelaunayLaneGenerator(0.15f);
 		this.mstForce = new MinimumSpanningTreeForce();
-		this.placer = new EmpirePlacer(5, 15);
+		this.placer = new StartingLocationFinder(5, 15);
 		forces = new ForceOfNature[] {
 				new SimpleBlobCreator(2, 14, 30),
 				new SimplePointCreator(5, 150),
@@ -269,7 +269,7 @@ public class GenerationVisualTest extends BasicGame
 		
 		if(nascent.prunedEdges != null && showPrunnedEdges)
 		{
-			g.setColor(Color.white);
+			g.setColor(Color.gray);
 			for(Edge l : nascent.prunedEdges)
 			{
 				Vector2f from = nascent.points.get(l.v1);

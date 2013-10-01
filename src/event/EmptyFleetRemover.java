@@ -1,8 +1,8 @@
 package event;
 
+import galaxy.generation.Galaxy;
 import state.Fleet;
 import state.Star;
-import state.Universe;
 
 /**
  * Eliminates empty fleets.
@@ -15,6 +15,6 @@ public class EmptyFleetRemover implements TurnSubProcess
 	{
 		for(Fleet f : location.getFleetsInOrbit())
 			if(f.isEmpty())
-				Universe.instance().removeFleet(f);
+				Galaxy.instance().removeFleet(f);
 	}
 }

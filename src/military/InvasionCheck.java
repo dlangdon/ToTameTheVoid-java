@@ -4,12 +4,12 @@ import java.util.List;
 
 import event.GameEventQueue;
 import event.TurnSubProcess;
+import galaxy.generation.Galaxy;
 
 import state.Colony;
 import state.Empire;
 import state.Fleet;
 import state.Star;
-import state.Universe;
 
 /**
  * Analyzes if an invasion should occur. 

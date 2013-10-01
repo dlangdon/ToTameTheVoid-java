@@ -11,7 +11,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import state.Lane;
 import state.Star;
-import state.Universe;
 
 /**
  * This is a common data structure to support the pipeline that produces a full galaxy map.
@@ -74,7 +73,8 @@ public class NascentGalaxy
 	Set<Edge> initialEdges;
 	Set<Edge> prunedEdges;
 	List<Star> bornStars;
-	List<ForceOfNature> forces;
+	List<ForceOfNature> priorForces;
+	List<ForceOfNature> posteriorForces;
 	
 	/**
 	 * 
@@ -90,39 +90,38 @@ public class NascentGalaxy
 		initialEdges = null;
 		prunedEdges = null;
 		bornStars = null;
-		forces = new LinkedList<ForceOfNature>();
+		priorForces = new LinkedList<ForceOfNature>();
+		posteriorForces = new LinkedList<ForceOfNature>();
 	}
 	
 	/**
 	 * @param force Force of nature to be added to shape this newborn galaxy. The order in which these forces are added is extremely important.
 	 */
-	public void addForce(ForceOfNature force)
+	public void addForce(ForceOfNature force, boolean prior)
 	{
-		forces.add(force);
+		if(prior)
+			priorForces.add(force);
+		else
+			posteriorForces.add(force);
 	}
 	
 	/**
 	 * Runs all preconfigured forces of nature in order, creating a new galaxy.
 	 * @return true if the galaxy was successfully created (all forces were successful), else false.
 	 */
-	public boolean unleashAllForces()
+	public boolean blossom()
 	{
-		for(ForceOfNature force : forces)
+		for(ForceOfNature force : priorForces)
+			if(!force.unleash(this))
+				return false;
+
+		Galaxy.instance().getStars().addAll(bornStars);
+		for(Edge e : prunedEdges)
+			Lane.addLane(bornStars.get(e.v1), bornStars.get(e.v2));
+
+		for(ForceOfNature force : posteriorForces)
 			if(!force.unleash(this))
 				return false;
 		return true;
 	}
-
-	/**
-	 * Uses all the generated data to populate the main game structures.
-	 */
-	public void blosom()
-	{
-		for(Star s : bornStars)
-			Universe.instance().getStars().add(s);
-		
-		for(Edge e : prunedEdges)
-			Lane.addLane(bornStars.get(e.v1), bornStars.get(e.v2));
-	}
-
 }

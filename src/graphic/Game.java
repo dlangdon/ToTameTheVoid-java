@@ -19,13 +19,13 @@ import state.Fleet;
 import state.HQ;
 import state.Lane;
 import state.Star;
-import state.Universe;
 import ui.EconomyDialog;
 import ui.FleetWidget;
 import ui.HQWidget;
 import ui.IndexedDialog;
 import ui.StarWidget;
 import event.GameEventQueue;
+import galaxy.generation.Galaxy;
 
 public class Game extends BasicGameState
 {
@@ -55,7 +55,7 @@ public class Game extends BasicGameState
 		selected = null;
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
-		new Universe();
+		new Galaxy();
 		
 		mouseDownTime = -1;
 		currentDialog = null;
@@ -89,13 +89,13 @@ public class Game extends BasicGameState
 		Lane.renderAll(gc, g);
 
 		// Draw Stars
-		for(Star s : Universe.instance().getStars())
+		for(Star s : Galaxy.instance().getStars())
 		{
 			s.render(gc, g);
 		}
 
 		// Draw fleets
-		for(Fleet tf : Universe.instance().getFleets())
+		for(Fleet tf : Galaxy.instance().getFleets())
 		{
 			tf.render(gc, g, (tf == selected) ? Render.SELECTED : 0);
 		}
@@ -203,7 +203,7 @@ public class Game extends BasicGameState
 
 		// Check if the click corresponds to a star.
 		Star selectedStar = null;
-		for(Star s : Universe.instance().getStars())
+		for(Star s : Galaxy.instance().getStars())
 		{
 			if(s.screenCLick((float)x, (float)y, button))
 			{
@@ -238,7 +238,7 @@ public class Game extends BasicGameState
 			selected = null;
 
 		// Check which objects may have received the click signal.
-		for(Fleet tf : Universe.instance().getFleets())
+		for(Fleet tf : Galaxy.instance().getFleets())
 		{
 			if(tf.screenCLick((float)x, (float)y, button))
 			{
