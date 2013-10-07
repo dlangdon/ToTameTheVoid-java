@@ -96,7 +96,7 @@ public class HQWidgetTest extends BasicGame
 		Economy.init();	// Needs to be initialized first.
 		Shipyard.init();
 		
-		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500));
+		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(500, 500), new Vector2f(0, 0));
 
 	}
 

@@ -23,21 +23,23 @@ public class Camera
 	
 	Vector2f world;			// World size
 	Vector2f resolution;		// Half the Screen size
+	Vector2f padding;			// Half the Screen size
 	Vector2f view;				// World coordinate of the screen origin.
-	float scale_;					// Multiplier for scale: 1, 2 or 4
+	float scale_;				// Multiplier for scale: 1, 2 or 4
 	
 	/**
 	 * Creates a new camera.
 	 * @param screen Vector that indicates the size of the screen (in screen coordinates).
 	 * @param world Vector that indicates the size of the world (in world coordinates).
 	 */
-	public Camera(Vector2f screen, Vector2f world)
+	public Camera(Vector2f screen, Vector2f world, Vector2f padding)
 	{
 		instance_ = this;
 		this.resolution = new Vector2f(screen).scale(0.5f);
 		this.world = new Vector2f(world);
 		this.view = new Vector2f(-world.x/2, -world.y/2);
 		this.scale_ = 1;
+		this.padding = padding;
 		
 		move(new Vector2f(0.0f, 0.0f));
 	}
@@ -53,9 +55,8 @@ public class Camera
 	{
 		view.add(delta);
 		
-		// Check boundaries in world coordinates.
-		Vector2f topLeftDif = new Vector2f(0.0f, 0.0f).scale(1.0f/scale_).add(view);
-		Vector2f bottomRightDif = new Vector2f(resolution).scale(2.0f/scale_).add(view).sub(world).negate();
+		Vector2f topLeftDif = screenToWorld(padding);
+		Vector2f bottomRightDif = screenToWorld(new Vector2f(resolution).scale(2.0f).sub(padding)).sub(world).negate();
 
 		if(topLeftDif.x <= 0.0 && bottomRightDif.x <= 0.0)
 			view.x = (topLeftDif.x + bottomRightDif.x)/2;
@@ -70,11 +71,6 @@ public class Camera
 			view.y -= topLeftDif.y;
 		else if(bottomRightDif.y < 0.0)
 			view.y += bottomRightDif.y;
-		
-//		System.out.println("Boundary differences: (" 
-//													+ topLeftDif.x + ", " + topLeftDif.y + ") --> (" 
-//													+ bottomRightDif.x + ", " + bottomRightDif.y + "), view = ("
-//													+ view.x + ", " + view.y + ")");
 	}
 	
 	/**
@@ -110,18 +106,21 @@ public class Camera
 	
 	public Vector2f worldToScreen(Vector2f world)
 	{
-		return new Vector2f(world).sub(view).scale(scale_);
+//		return new Vector2f(world).sub(view).scale(scale_);
+		return new Vector2f(world).sub(view).scale(scale_).add(padding);
 	}
 
 	public Vector2f screenToWorld(Vector2f screen)
 	{
-		return new Vector2f(screen).scale(1.0f/scale_).add(view);
+		return new Vector2f(screen).sub(padding).scale(1.0f/scale_).add(view);
+//		return new Vector2f(screen).scale(1.0f/scale_).add(view);
 	}
 	
 	public void centerOnWorld(Vector2f world)
 	{
 		view = world;
 	}
+
 
 	/**
 	 * Pushes a new transformation matrix in terms of the world's coordinates.
@@ -130,16 +129,12 @@ public class Camera
 	void pushWorldTransformation(Graphics g)
 	{
 		g.pushTransform();
-		
-		// Always zoom in the center of the screen.
-//		g.translate(resolution.getX(), resolution.getY());
+		g.translate(padding.getX(), padding.getY());
 		g.scale(scale_, scale_);
-//		g.translate(-resolution.getX(), -resolution.getY());
-
-		// Move the view
 		g.translate(-view.getX(), -view.getY());
 	}
 	
+
 	/**
 	 * Allows objects to draw on local screen coordinates, ignoring size.
 	 */
@@ -154,6 +149,7 @@ public class Camera
 		g.scale(1.0f/scale_, 1.0f/scale_);
 	}
 	
+	
 	public void drawWorldLimits(Graphics g)
 	{
 		g.setColor(Color.white);
@@ -161,11 +157,11 @@ public class Camera
 	}
 
 	/**
-	 * @return The screen coordinates of the center of the screen. This object should not be modified.
+	 * @return The screen coordinates of the center of the screen.
 	 */
 	public Vector2f getScreenCenter()
 	{
-		return resolution;
+		return new Vector2f(resolution);
 	}
 
 	public float scale()
