@@ -30,7 +30,7 @@ public class Main extends StateBasedGame
 		try
 		{
 			AppGameContainer app = new AppGameContainer(new Main("To tame the void"));
-			app.setDisplayMode(800, 600, false);
+			app.setDisplayMode(1000, 700, false);
 			app.start();
 		}
 		catch (SlickException e)

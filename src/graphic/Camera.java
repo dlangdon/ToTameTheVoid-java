@@ -3,7 +3,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-
 /**
  * Class that represents a camera, centered in a specific location in world coordinates.
  * This class provides the necessary transformations (displacement and scale) needed to render world objects.
@@ -118,7 +117,8 @@ public class Camera
 	
 	public void centerOnWorld(Vector2f world)
 	{
-		view = world;
+		Vector2f center = screenToWorld(new Vector2f(resolution));
+		move(new Vector2f(world).sub(center));
 	}
 
 

@@ -48,7 +48,7 @@ public class Game extends BasicGameState
 		Shipyard.init();
 		
 		// TODO figure out universe sizes, 500x500 for now. Size should be in the universe, not the camera!
-		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(600, 400), new Vector2f(100, 50));
+		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(600, 400), new Vector2f(350, 150));
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
 		hqWidget = new HQWidget();
@@ -265,16 +265,19 @@ public class Game extends BasicGameState
 		{
 			fleetWidget.showFleet((Fleet)selected);
 			currentDialog = fleetWidget;
+			Camera.instance().centerOnWorld(fleetWidget.location());
 		}
 		else if(selected instanceof Star)
 		{
 			starWidget.showStar((Star)selected);
 			currentDialog = starWidget;
+			Camera.instance().centerOnWorld(starWidget.location());
 		}
 		else if(selected instanceof HQ)
 		{
 			hqWidget.showHQ((HQ)selected);
 			currentDialog = hqWidget;
+			Camera.instance().centerOnWorld(hqWidget.location());
 		}
 		else
 			currentDialog = null;
