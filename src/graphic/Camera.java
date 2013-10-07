@@ -89,13 +89,15 @@ public class Camera
 		// Modify the zoom.
 		if(in)
 		{
-			if(scale_ <= 2)
-				scale_ *= 2;
+			if(scale_ > 2)
+				return;
+			scale_ *= 2;
 		}
 		else
 		{
-			if(scale_ >= 2)
-				scale_ /= 2;
+			if(scale_ < 2)
+				return;
+			scale_ /= 2;
 		}
 		
 		// After zooming, move the view so that the point gets to the center.

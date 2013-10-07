@@ -47,7 +47,7 @@ public abstract class Orbiter implements UIListener
 	@Override
 	public boolean screenCLick(float x, float y, int button)
 	{
-		Vector2f screen = new Vector2f(20.0f, 0.0f);
+		Vector2f screen = new Vector2f(25.0f, 0.0f);
 
 		// Orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 		screen.setTheta(-30 * location_.getDock(this) - 30);
@@ -65,7 +65,7 @@ public abstract class Orbiter implements UIListener
 			color = location_.colony().owner().color();
 		
 		// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
-		Vector2f pos = new Vector2f(20.0f, 0.0f);
+		Vector2f pos = new Vector2f(30.0f, 0.0f);
 		pos.setTheta(-30 * location_.getDock(this) - 30);
 		drawIcon(location_.getPos(), g, pos, color);
 	}
