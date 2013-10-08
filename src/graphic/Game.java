@@ -4,7 +4,6 @@ import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.XRandR.Screen;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -243,13 +242,14 @@ public class Game extends BasicGameState
 		{
 			fleetWidget.showFleet((Fleet)selected);
 			currentDialog = fleetWidget;
-			Camera.instance().centerOnWorld(fleetWidget.location());
+//			Camera.instance().centerOnWorld(fleetWidget.location());
+			Camera.instance().ensureVisible(fleetWidget.location(), 180, 370, 180, 180);
 		}
 		else if(selected instanceof Star)
 		{
 			starWidget.showStar((Star)selected);
 			currentDialog = starWidget;
-			Camera.instance().centerOnWorld(starWidget.location());
+//			Camera.instance().centerOnWorld(starWidget.location());
 		}
 		else if(selected instanceof HQ)
 		{

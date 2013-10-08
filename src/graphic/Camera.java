@@ -185,4 +185,25 @@ public class Camera
       	displacement.y = 0.0f;
 		Camera.instance().move(displacement);
 	}
+
+	/**
+	 * Ensures that the current view has enough margins to all sides.
+	 * If not, it moves the view just enough to comply with the requirements.
+	 * When trying to comply, the normal camera limits apply (see Camera.move())
+	 */
+	public void ensureVisible(Vector2f origin, float top, float right, float bottom, float left)
+	{
+		Vector2f screen = worldToScreen(origin);
+		Vector2f adjustment = new Vector2f(0.0f, 0.0f);
+		if(screen.x + right > 2*resolution.x)
+			adjustment.x = 2*resolution.x - right - screen.x;
+		if(screen.x - left < 0)
+			adjustment.x = left - screen.x;
+		if(screen.y + bottom > 2*resolution.y)
+			adjustment.y = 2*resolution.y - bottom  - screen.y;
+		if(screen.y - top < 0)
+			adjustment.y = top - screen.y;
+		this.move(adjustment.scale(-1.0f/scale_));
+	}
+
 }
