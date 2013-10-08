@@ -4,6 +4,7 @@ import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.XRandR.Screen;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -127,9 +128,6 @@ public class Game extends BasicGameState
 		if(eventQueue.update(gc, delta))
 			return;
 
-		// Check for input
-		Input input = gc.getInput();
-
 		// Some interfaces 
 		if(mouseDownTime >= 0 && currentDialog != null)
 		{
@@ -137,27 +135,7 @@ public class Game extends BasicGameState
 			mouseDownTime += delta;
 		}
 		
-      // Window displacement
-		Vector2f displacement = new Vector2f(0.0f, 0.0f);
-		if(input.isKeyDown(Input.KEY_RIGHT) || Mouse.getX() > Display.getWidth() - 5)
-      {
-      	displacement.x = 1;
-      }
-		if(input.isKeyDown(Input.KEY_LEFT) || Mouse.getX() < 5)
-      {
-      	displacement.x = -1;
-      }
-		if(input.isKeyDown(Input.KEY_UP) || Mouse.getY() > Display.getHeight() - 5)
-      {
-      	displacement.y = -1;
-      }
-		if(input.isKeyDown(Input.KEY_DOWN) || Mouse.getY() < 5)
-      {
-      	displacement.y = 1;
-      }
-		
-		// Update x and y positions.
-		Camera.instance().move(displacement.scale(delta/10.0f));
+		Camera.instance().update(delta);
 	}
 	
 	/**
