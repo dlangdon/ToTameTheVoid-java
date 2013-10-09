@@ -64,7 +64,7 @@ public class EmpireInitialiazer implements ForceOfNature
 			s.setParameters(0.5f, 0.5f, 0.5f);
 			
 			Fleet f = new Fleet(s, e);
-			f.addUnits(Unit.fetchByName("Scout"), 2);
+			f.addUnits(Unit.fetchByName("Figther"), 2);
 			f.addUnits(Unit.fetchByName("Colony Ship"), 1);
 			
 			new Colony(s, e);
