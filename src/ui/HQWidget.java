@@ -216,7 +216,6 @@ public class HQWidget extends IndexedDialog
 	@Override
 	protected Vector2f indexToCoord(int index)
 	{
-		// Determine first 12 segments.
 		if(index < 0)
 		{
 			float angle = -(1 + index)*20.0f -40.0f;
