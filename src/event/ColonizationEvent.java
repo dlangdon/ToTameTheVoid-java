@@ -7,9 +7,9 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 import state.Colony;
-import state.Empire;
+import state.Fleet;
 import state.Star;
-import state.UnitStack;
+import state.Unit;
 
 /**
  * Stores information when a star system can be colonized by an empire, allowing such an action.
@@ -17,17 +17,17 @@ import state.UnitStack;
  */
 public class ColonizationEvent extends GameEvent
 {
-	UnitStack stack;
-	Empire e;
+	Fleet fleet;
+	Unit unit;
 	
 	/**
 	 * Constructs a colonization event. 
 	 */
-	public ColonizationEvent(Star location, UnitStack stack, Empire empire)
+	public ColonizationEvent(Star location, Fleet fleet, Unit unit)
 	{
 		super(location);
-		this.stack = stack;
-		this.e = empire;
+		this.fleet = fleet;
+		this.unit = unit;
 	}
 	
 	/**
@@ -68,9 +68,8 @@ public class ColonizationEvent extends GameEvent
 	public void runAction()
 	{
 		// Create the colony.
-		Colony colony = new Colony(location(), e);
-		location().setColony(colony);
-		stack.add(-1);
+		new Colony(location(), fleet.owner());
+		fleet.addUnits(unit, -1);
 
 		// Add new options that become available for the colony
 		GameEventQueue.instance().addEvent(new ShipyardBuildEvent(location()));

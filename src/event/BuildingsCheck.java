@@ -74,7 +74,7 @@ public class BuildingsCheck<T> implements TurnSubProcess
 		// Create the option to colonize.
 		if(canColonize != null)
 		{
-			queue.addEvent(new ColonizationEvent(location, canColonize, e));
+//			queue.addEvent(new ColonizationEvent(location, canColonize, e));
 		}
 	}
 }
