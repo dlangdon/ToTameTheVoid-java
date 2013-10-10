@@ -2,6 +2,7 @@ package state;
 
 import galaxy.generation.Galaxy;
 import graphic.Camera;
+import graphic.Render;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -324,13 +325,17 @@ public class Fleet extends Orbiter
 	public void render(GameContainer gc, Graphics g, int flags)
 	{
 		Vector2f zero = new Vector2f();
-		g.setColor(owner_.color());
 		
-//		if((flags & Render.SELECTED) != 0)
-		if(true)
+		Color color = owner_.color();
+		if((flags & Render.SELECTED) != 0)
 		{
-			g.setColor(Color.white);
-			
+			float alpha = 1.0f - 1.2f * Math.abs((System.currentTimeMillis() % 1500) / 1500.0f - 0.5f);
+			color = new Color(color.r, color.g, color.b, alpha);
+		}
+		g.setColor(color);
+		
+		if(true) // Always paint route. This is an experiment
+		{
 			// Paint small dots for all our route, but only if the fleet is selected.
 			Iterator<Star> i = destinations.iterator();
 			Star to = i.next();
@@ -357,7 +362,7 @@ public class Fleet extends Orbiter
 			// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 			Vector2f pos = new Vector2f(25.0f, 0.0f);
 			pos.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
-			drawIcon(destinations.getFirst().getPos(), g, pos, owner_.color());
+			drawIcon(destinations.getFirst().getPos(), g, pos, color);
 		}
 		else
 		{
@@ -365,7 +370,7 @@ public class Fleet extends Orbiter
 			Vector2f dir = new Vector2f();
 			dir.set(destinations.get(1).getPos());
 			dir.sub(destinations.getFirst().getPos());
-			drawIcon(dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos()), g, zero, owner_.color());
+			drawIcon(dir.scale(1.0f * turnsTraveled / turnsTotal).add(destinations.getFirst().getPos()), g, zero, color);
 		}
 	}
 	
