@@ -67,7 +67,6 @@ public class GameEventQueue
 //		registerSubProcess(new ColonyUpdater());			// Star
 		registerSubProcess(new FleetMerger()); // Star
 		registerSubProcess(new SpaceCombatCheck()); // Star
-		registerSubProcess(new EmptyFleetRemover()); // Star
 		registerSubProcess(new InvasionCheck()); // Star
 		registerSubProcess(new ColonizationCheck()); // Star
 	}
@@ -145,7 +144,7 @@ public class GameEventQueue
 			hq.turn();
 
 		// Update all fleets
-		for (Fleet f : Galaxy.instance().getFleets())
+		for (Fleet f : Fleet.all())
 			f.turn();
 
 		// Update all empires.

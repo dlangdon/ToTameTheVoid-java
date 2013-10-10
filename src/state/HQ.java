@@ -119,7 +119,9 @@ public abstract class HQ extends Orbiter
 		location_.colony().owner().getEconomy().addMovement(toSpend - maxOutput()*outputConfig.output, outputExpense());
 
 		// Set the fleet just created.
-		if(!newUnits.isEmpty())
+		if(newUnits.isEmpty())
+			newUnits.removeIfEmpty();
+		else
 			for(Star s : relocation_)
 				newUnits.addToRoute(s);
 	}

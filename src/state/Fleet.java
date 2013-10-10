@@ -2,8 +2,9 @@ package state;
 
 import galaxy.generation.Galaxy;
 import graphic.Camera;
-import graphic.Render;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,18 +22,45 @@ import org.newdawn.slick.geom.Vector2f;
 public class Fleet extends Orbiter
 {
 // Statics ============================================================================================================
-	private static int maintenanceExpense;
-	private static Image fleet;
+	/**
+	 * Interface for external observers that need to be notified whenever a fleet is dramatically altered.
+	 */
+	public static interface FleetObserver
+	{
+		void onDelete(); 
+	}
 	
 	/**
 	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
 	 */
 	public static void init() throws SlickException
 	{
+		scrapIncome = Economy.registerCause("Ships for parts");
 		maintenanceExpense = Economy.registerCause("Fleet Maintenance");
-		fleet = new Image("resources/fleet.png");
+		fleetIcon = new Image("resources/fleet.png");
+		fleets = new HashSet<Fleet>();
+		observers = new ArrayList<FleetObserver>();
+	}
+
+	public static void registerObserver(FleetObserver obs)
+	{
+		observers.add(obs);
+	}
+
+	/**
+	 * @return An array with a pointer to all current fleets. The array is fixed, such that it can be used safely even if new fleets are added or removed during iteration.
+	 */
+	public static Fleet[] all()
+	{
+		return fleets.toArray(new Fleet[fleets.size()]);
 	}
 	
+	private static int maintenanceExpense;
+	private static int scrapIncome;
+	private static Image fleetIcon;
+	private static HashSet<Fleet> fleets;
+	private static ArrayList<FleetObserver> observers;
+
 // Internals ==========================================================================================================
 	private LinkedList<Star> destinations;		///< Route of stars to follow. The first star corresponds to the last star arrival.
 	private int turnsTotal;							///< Number of turns that it takes to move to the next destination.
@@ -40,6 +68,7 @@ public class Fleet extends Orbiter
 	private float speed;								///< Minimum common speed for the stacks.
 	private Empire owner_;							///< Empire that owns this Fleet.
 	private TreeMap<Unit, UnitStack> stacks;	///< Stacks composing this Fleet (individual ships and types).
+	private boolean autoMerge;
 
 // Public Methods =====================================================================================================
 	
@@ -59,9 +88,11 @@ public class Fleet extends Orbiter
 		this.stacks = new TreeMap<Unit, UnitStack>();
 		this.destinations = new LinkedList<Star>();
 		this.destinations.add(orbiting);
+		this.autoMerge = true;
 
 		orbiting.arrive(this);	// Needs to happen after destinations exist, else priority can't be calculated.
-		Galaxy.instance().getFleets().add(this);
+		fleets.add(this);
+//		Galaxy.instance().getFleets().add(this);
 	}
 
 	/**
@@ -149,11 +180,12 @@ public class Fleet extends Orbiter
 			}
 			
 			// Update the local stack.
-			local.add(entry.getValue());
+			local.mergeIn(entry.getValue());
 		}
 		
 		// Empty the other fleet.
 		other.stacks.clear();
+		other.removeIfEmpty();
 		return true;
 	}
 	
@@ -165,6 +197,7 @@ public class Fleet extends Orbiter
 	public Fleet split(Map<Unit, Integer> units)
 	{
 		Fleet aux = new Fleet(destinations.getFirst(), owner_);
+		aux.setAutoMerge(autoMerge);
 		
 		// Create new stacks.
 		for(Entry<Unit, Integer> split : units.entrySet())
@@ -182,21 +215,38 @@ public class Fleet extends Orbiter
 			aux.stacks.put(split.getKey(), created);
 		}
 		
+		if(aux.removeIfEmpty())
+			return null;
+		this.removeIfEmpty();
 		return aux;
 	}
 	
+	/**
+	 * Adds or scraps ships into this fleet. 
+	 * In case of additions, new ships are assumed to be whole.
+	 * In case of deletions, and if the fleet is orbiting an owned colony, 1/3 of the production costs for the ships are recovered.
+	 * If there are not enough ships to destroy, an Error is thrown.
+	 */
 	public void addUnits(Unit kind, int number)
 	{
-		// FIXME fix for subtraction
-		if(number != 0)
+		UnitStack current = stacks.get(kind);
+		if(current == null)
 		{
-			UnitStack toAdd = new UnitStack(number);
-			UnitStack current = stacks.get(kind);
-			if(current == null)
-				stacks.put(kind, toAdd);
-			else
-				current.add(toAdd);
+			current = new UnitStack(0);
+			stacks.put(kind, current);
 		}
+		
+		if(number < 0)
+		{
+			if(current.quantity() < -number)
+				throw new Error("Can't delete ships that do not exist.");
+			owner().getEconomy().addMovement(-kind.cost()/3.0f, scrapIncome);
+		}
+		current.add(number);
+		
+		if(current.quantity() <= 0)
+			stacks.remove(kind);
+		removeIfEmpty();
 	}
 
 	/**
@@ -227,6 +277,7 @@ public class Fleet extends Orbiter
 		// Remove the stack if it is killed completely.
 		if(stack.quantity_ <= 0)
 			stacks.remove(kind);
+		removeIfEmpty();
 	}
 	
 	public void turn()
@@ -275,7 +326,8 @@ public class Fleet extends Orbiter
 		Vector2f zero = new Vector2f();
 		g.setColor(owner_.color());
 		
-		if((flags & Render.SELECTED) != 0)
+//		if((flags & Render.SELECTED) != 0)
+		if(true)
 		{
 			g.setColor(Color.white);
 			
@@ -375,7 +427,6 @@ public class Fleet extends Orbiter
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-
 		sb.append("Fleet:");
 		for(Entry<Unit, UnitStack> entry : stacks.entrySet())
 		{
@@ -397,7 +448,7 @@ public class Fleet extends Orbiter
 	@Override
 	public Image icon()
 	{
-		return fleet;
+		return fleetIcon;
 	}
 
 	/* (non-Javadoc)
@@ -418,4 +469,30 @@ public class Fleet extends Orbiter
 		return base;
 	}
 	
+	public boolean removeIfEmpty()
+	{
+		if(isEmpty())
+		{
+			orbiting().leave(this);
+			fleets.remove(this);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return the autoMerge
+	 */
+	public boolean isAutoMerge()
+	{
+		return autoMerge;
+	}
+
+	/**
+	 * @param autoMerge the autoMerge to set
+	 */
+	public void setAutoMerge(boolean autoMerge)
+	{
+		this.autoMerge = autoMerge;
+	}
 }

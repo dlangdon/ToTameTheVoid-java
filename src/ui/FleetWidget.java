@@ -14,6 +14,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Fleet;
+import state.Star;
 import state.Unit;
 import state.UnitStack;
 
@@ -132,27 +133,6 @@ public class FleetWidget extends IndexedDialog
 		g.popTransform();
 	}
 
-	public Fleet getFleetFromSelection()
-	{
-		// Check if a split can be done.
-		if(fleet.orbiting() == null)
-			return null;	// Can't split in transit.
-		
-		// Collect a map of selections.
-		HashMap<Unit, Integer> split = new HashMap<Unit, Integer>();
-		boolean everything = true;
-		for(StackSelection s : cache)
-		{
-			if(s.selected > 0)
-				split.put(s.design, (int)s.selected);
-			
-			if(s.selected != s.max)
-				everything = false;
-		}
-		
-		return everything ? fleet : fleet.split(split);
-	}
-	
 	/* (non-Javadoc)
 	 * @see ui.IndexedDialog#indexToCoord(int)
 	 */
@@ -178,7 +158,6 @@ public class FleetWidget extends IndexedDialog
 		}
 	}
 	
-
 	/* (non-Javadoc)
 	 * @see ui.IndexedDialog#location()
 	 */
@@ -197,23 +176,28 @@ public class FleetWidget extends IndexedDialog
 		double angle = vector.getTheta();
 		double radius = vector.length();
 		
+		int index = NO_INDEX;
 		if(54 < radius && radius < 74 )
 		{
 			// Buttons
 			if(angle >= 310)
-				return -1 - (int)((angle - 310.0) / 20.0);
+				index = -1 - (int)((angle - 310.0) / 20.0);
 			
 			if(angle <= 50)
-				return -1 - (int)((angle + 50) / 20.0);
+				index = -1 - (int)((angle + 50) / 20.0);
+			
+			// Invalid index for decoration
+			if(angle >= 130 && angle <= 230)
+				index = -6;
 		}
 		if(76 < radius && radius < 121 )
 		{
 			// First circle, all of it works
 			int aux = (int)(360 - angle) / 30;
 			if(aux < 6)
-				return aux*2;
+				index = aux*2;
 			else
-				return 23 - aux*2; 
+				index = 23 - aux*2; 
 		}
 		else if(123 < radius && radius < 168 )
 		{
@@ -222,12 +206,15 @@ public class FleetWidget extends IndexedDialog
 			if(aux > 2)
 			{
 				if(aux < 9)
-					return 28 - aux*2;
+					index = 28 - aux*2;
 				else if(aux < 14)
-					return aux*2 - 5;
+					index = aux*2 - 5;
 			}
 		}
-		return NO_INDEX;
+		
+		// Check that the index is actually being shown.
+		int numStacks = (int) (Math.ceil((fleet.stacks().size())/4.0)) *4;
+		return (index < numStacks) ? index : NO_INDEX;
 	}
 
 	/*
@@ -242,13 +229,19 @@ public class FleetWidget extends IndexedDialog
 			return;
 		
 		// Process if it's a button.
-		if(hoverIndex < 0)
-		{
-			// TODO
-		}
+		if(hoverIndex == -1)
+			clearSelection();
+		else if(hoverIndex == -2)
+			invertSelection();
+		else if(hoverIndex == -3)
+			disbandSelection();
+		else if(hoverIndex == -4)
+			leaveInOrbit();
+		else if(hoverIndex == -5)
+			splitSelection(false);
 		
 		// Process if its a stack.
-		else
+		else if(hoverIndex >= 0)
 		{
 			// This calculation may seem rather convoluted and the % operator may sound like a better idea, but this behavior is rather rare. 
 			// If we are close to the maximum, we want to go to 12 before going pass 12. Example to avoid: 0, 3, 6, 9, 12, 2, 5, 8, 11...
@@ -273,4 +266,93 @@ public class FleetWidget extends IndexedDialog
 		return;
 	}
 
+	/**
+	 * Called when a star is clicked, potentially signaling that the route for a fleet needs to change.
+	 */
+	public void starClick(int button, Star s)
+	{
+		// Case 1: a click while in orbit and with a selection in place need to be split.
+		if(fleet.orbiting() != null)
+		{
+			Fleet newFleet = splitSelection(true);
+			if(newFleet != null)
+				showFleet(newFleet);
+		}
+		
+		// Now in every case, try to append or remove from the fleet's route.
+		if(button == 0)
+			fleet.addToRoute(s);
+		else
+			fleet.removeFromRoute(s);
+	}
+	
+	/**
+	 * Sets the selection to be empty, fo all unit types in the fleet.
+	 */
+	private void clearSelection()
+	{
+		for(StackSelection ss : cache)
+			ss.selected = 0;
+	}
+	
+	/**
+	 * Sets the selection to be the complement of the current selection. For instance, if 2 ships were selected out of 5, the new selection is 3 ships.
+	 */
+	private void invertSelection()
+	{
+		for(StackSelection ss : cache)
+			ss.selected = ss.max - ss.selected;
+	}
+	
+	/**
+	 * Scraps the ships currently selected, so they stop requiring maintenance.
+	 */
+	private void disbandSelection()
+	{
+		for(StackSelection ss : cache)
+			fleet.addUnits(ss.design, (int)-ss.selected);
+		clearSelection();
+	}
+
+	/**
+	 * Leaves the selection in orbit.
+	 */
+	private void leaveInOrbit()
+	{
+		// Find the fleet where the ships would be deposited.
+		Fleet toJoin = null;
+		for(Fleet f: fleet.orbiting().getFleetsInOrbit())
+			if(f != fleet && f.owner() == fleet.owner() && !f.isAutoMerge())
+			{
+				toJoin = f;
+				break;
+			}
+			
+		// Split this fleet and merge to that one.
+		Fleet aux = this.splitSelection(true);
+		if(toJoin != null && aux != null)
+			toJoin.mergeIn(aux);
+	}
+	
+	private Fleet splitSelection(boolean autoMerge)
+	{
+		// Check if a split can be done.
+		if(fleet.orbiting() == null)
+			return null;	// Can't split in transit.
+		
+		// Collect a map of selections.
+		HashMap<Unit, Integer> split = new HashMap<Unit, Integer>();
+		boolean everything = true;
+		for(StackSelection s : cache)
+		{
+			if(s.selected > 0)
+				split.put(s.design, (int)s.selected);
+			
+			if(s.selected != s.max)
+				everything = false;
+		}
+		
+		// A full split can't be made.
+		return everything ? null : fleet.split(split);
+	}
 }

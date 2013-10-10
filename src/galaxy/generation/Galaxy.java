@@ -2,13 +2,11 @@ package galaxy.generation;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.newdawn.slick.SlickException;
 
 import state.Empire;
-import state.Fleet;
 import state.Star;
 
 /**
@@ -27,7 +25,6 @@ public class Galaxy
 // Internals ==========================================================================================================	
 	List<Star> stars;
 	List<Empire> empires;
-	HashSet<Fleet> fleets;
 	Empire playerEmpire;
 
 // Public Methods =====================================================================================================
@@ -36,7 +33,6 @@ public class Galaxy
 		instance_ = this;
 		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
-		this.fleets = new HashSet<Fleet>();
 		
 		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
 
@@ -71,29 +67,10 @@ public class Galaxy
 	}
 
 	/**
-	 * @return A set of all task fleets in the galaxy.
-	 */
-	public HashSet<Fleet> getFleets()
-	{
-		return fleets;
-	}
-	
-	/**
 	 * @return the empire corresponding to the local player
 	 */
 	public Empire getPlayerEmpire()
 	{
 		return playerEmpire;
 	}
-
-	/**
-	 * Removes a fleet from the list of all fleets.
-	 * @param f The fleet to remove.
-	 */
-	public void removeFleet(Fleet f)
-	{
-		f.orbiting().leave(f);
-		fleets.remove(f);
-	}
-
 }

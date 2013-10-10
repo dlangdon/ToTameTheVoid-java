@@ -32,8 +32,7 @@ public class FleetMerger implements TurnSubProcess
 					break;
 
 				// Check if this particular fleet should be merged with A.
-				// TODO Other tests while fleets should not be merged: named fleets?
-				if(!a.hasOrders() && !b.hasOrders())
+				if(!a.hasOrders() && !b.hasOrders() && a.isAutoMerge() && b.isAutoMerge())
 				{
 					b.mergeIn(a);
 				}

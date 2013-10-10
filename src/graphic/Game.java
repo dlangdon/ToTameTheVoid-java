@@ -95,7 +95,7 @@ public class Game extends BasicGameState
 		}
 
 		// Draw fleets
-		for(Fleet tf : Galaxy.instance().getFleets())
+		for(Fleet tf : Fleet.all())
 		{
 			tf.render(gc, g, (tf == selected) ? Render.SELECTED : 0);
 		}
@@ -194,16 +194,7 @@ public class Game extends BasicGameState
 		{
 			if(selected instanceof Fleet)
 			{
-				Fleet fleet = (Fleet)selected; 
-
-				// If a fleet was selected and a star was clicked, we might be adding a route point.
-				if(button == 0)
-				{
-					fleet = fleetWidget.getFleetFromSelection();
-					fleet.addToRoute(selectedStar);
-				}
-				else
-					fleet.removeFromRoute(selectedStar);
+				fleetWidget.starClick(button, selectedStar);
 				return;
 			}
 			else
@@ -215,7 +206,7 @@ public class Game extends BasicGameState
 			selected = null;
 
 		// Check which objects may have received the click signal.
-		for(Fleet tf : Galaxy.instance().getFleets())
+		for(Fleet tf : Fleet.all())
 		{
 			if(tf.screenCLick((float)x, (float)y, button))
 			{
@@ -287,4 +278,22 @@ public class Game extends BasicGameState
 	{
 		return Main.GameStates.MAINGAME.ordinal();
 	}
+
+	/**
+	 * @return the selected
+	 */
+	public Object getSelected()
+	{
+		return selected;
+	}
+
+	/**
+	 * @param selected the selected to set
+	 */
+	public void setSelected(Object selected)
+	{
+		this.selected = selected;
+	}
+
+
 }

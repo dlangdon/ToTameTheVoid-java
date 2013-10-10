@@ -1,6 +1,5 @@
 package event;
 
-import galaxy.generation.Galaxy;
 import state.Fleet;
 import state.Star;
 
@@ -17,7 +16,7 @@ public class FleetUpdater implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
-		for(Fleet f: Galaxy.instance().getFleets())
+		for(Fleet f: Fleet.all())
 			f.turn();
 	}
 }

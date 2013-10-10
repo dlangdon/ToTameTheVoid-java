@@ -70,7 +70,7 @@ public class ColonizationEvent extends GameEvent
 		// Create the colony.
 		Colony colony = new Colony(location(), e);
 		location().setColony(colony);
-		stack.add(-1, false);
+		stack.add(-1);
 
 		// Add new options that become available for the colony
 		GameEventQueue.instance().addEvent(new ShipyardBuildEvent(location()));

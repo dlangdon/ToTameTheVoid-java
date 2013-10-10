@@ -20,7 +20,10 @@ public class UnitStack
 		this.maxVarDamage_ = 0;
 	}
 	
-	void add(UnitStack other)
+	/**
+	 * Merges in another stack of ships of the same type (not checked here). Damage among the stacks is kept.
+	 */
+	void mergeIn(UnitStack other)
 	{
 		baseDamage_ = (baseDamage_ * quantity_ + other.quantity_ * other.baseDamage_) / (quantity_ + other.quantity_); 
 		maxVarDamage_ = (maxVarDamage_ * quantity_ + other.quantity_ * other.maxVarDamage_) / (quantity_ + other.quantity_);
@@ -28,17 +31,16 @@ public class UnitStack
 	}
 
 	/**
-	 * Changes the number of units in this stack.
-	 * @param delta A positive number if new ships should be added.
-	 * @param brandNew True if the added quantity is a positive number and the new ships are undamaged.
+	 * Changes the number of whole units in this stack. 
+	 * @param delta A positive number if new ships should be added. If the number is positive, new units are assumed to be undamaged. If negative, the damage distribution is not altered.
 	 */
-	public void add(int delta, boolean brandNew)
+	public void add(int delta)
 	{
 		// Check if the damage distribution needs recalculation...
-		if(brandNew && delta > 0)
+		if(delta > 0)
 		{
-			baseDamage_ = (baseDamage_ * quantity_) / (quantity_ + quantity_); 
-			maxVarDamage_ = (maxVarDamage_ * quantity_) / (quantity_ + quantity_);
+			baseDamage_ = (baseDamage_ * quantity_) / (quantity_ + delta); 
+			maxVarDamage_ = (maxVarDamage_ * quantity_) / (quantity_ + delta);
 		}
 		quantity_ += delta;
 	}
