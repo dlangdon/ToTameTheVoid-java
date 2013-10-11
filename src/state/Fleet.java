@@ -499,4 +499,19 @@ public class Fleet extends Orbiter
 	{
 		this.autoMerge = autoMerge;
 	}
+
+	/**
+	 * @return The default fleet in orbit for this system. This is the first fleet which has no orders, auto-merges and belongs to the same empire than this fleet.
+	 */
+	public Fleet findOrbitingFleet()
+	{
+		if(this.orbiting() == null)
+			return null;
+		
+		for (Fleet f : this.orbiting().getFleetsInOrbit())
+			if (f.owner() == owner() && !f.hasOrders() && f.isAutoMerge())
+				return f;
+		return null;
+	}
+
 }

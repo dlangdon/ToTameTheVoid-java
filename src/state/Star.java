@@ -143,7 +143,7 @@ public class Star implements UIListener
 		// Find the correct location for this item and insert it there.
 		int priority = orbiter.priority();
 		int index = 0;
-		while(index < inOrbit.size() && priority < inOrbit.get(index).priority())
+		while(index < inOrbit.size() && priority <= inOrbit.get(index).priority())
 			index++;
 		inOrbit.add(index, orbiter);
 

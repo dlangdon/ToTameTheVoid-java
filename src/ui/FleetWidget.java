@@ -80,6 +80,7 @@ public class FleetWidget extends IndexedDialog
 				fleet = Selection.getSelectionAs(Fleet.class);
 				if(fleet != null)
 				{
+					buttonLetters[4] = fleet.isAutoMerge() ? 'm' : '-';
 					refreshCache();
 					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
 				}
@@ -265,21 +266,7 @@ public class FleetWidget extends IndexedDialog
 		else if (hoverIndex == -4)
 			leaveSelectionInOrbit();
 		else if (hoverIndex == -5)
-		{
-			if(buttonLetters[4] == '-')
-			{
-				Fleet newFleet = splitSelection(false);
-				if (newFleet != null)
-					Selection.set(newFleet);
-				buttonLetters[4] = 'm';
-			}
-			else
-			{
-				invertSelection();
-				leaveSelectionInOrbit();
-				buttonLetters[4] = '-';
-			}
-		}
+			toggleAutoMerge();
 
 		// Process if its a stack.
 		else if (hoverIndex >= 0)
@@ -372,27 +359,41 @@ public class FleetWidget extends IndexedDialog
 	 */
 	private void leaveSelectionInOrbit()
 	{
-		// Find the fleet where the ships would be deposited.
-		Fleet toJoin = null;
-		for (Fleet f : fleet.orbiting().getFleetsInOrbit())
-			if (f != fleet && f.owner() == fleet.owner() && !f.isAutoMerge())
-			{
-				toJoin = f;
-				break;
-			}
-
+		Fleet toJoin = fleet.findOrbitingFleet();
+		if(toJoin == fleet)
+			return;
+		
 		// Split this fleet and merge to that one.
 		Fleet aux = this.splitSelection(true);
 		if (toJoin != null && aux != null)
 			toJoin.mergeIn(aux);
 	}
+	
+	private void toggleAutoMerge()
+	{
+		if(buttonLetters[4] == 'm') // Create a new fleet that does not automerge.
+		{
+			// TODO Confirmation dialog.
+			fleet.setAutoMerge(false);
+			buttonLetters[4] = '-';
+		}
+		else // Set fleet to automerge.
+		{
+			Fleet join = fleet.findOrbitingFleet();
+			if(join != null && !fleet.hasOrders())
+			{
+				join.mergeIn(fleet);
+				Selection.set(join);
+			}
+			else
+				fleet.setAutoMerge(true);
+			buttonLetters[4] = 'm';
+		}
+
+	}
 
 	private Fleet splitSelection(boolean autoMerge)
 	{
-		// Check if a split can be done.
-		if (fleet.orbiting() == null)
-			return null; // Can't split in transit.
-
 		// Collect a map of selections.
 		HashMap<Unit, Integer> split = new HashMap<Unit, Integer>();
 		boolean everything = true;
@@ -408,6 +409,8 @@ public class FleetWidget extends IndexedDialog
 		// A full split can't be made.
 		return everything ? null : fleet.split(split);
 	}
+	
+	
 
 	/**
 	 * Resets the selected values of the ships for this fleet to their maximum value.
