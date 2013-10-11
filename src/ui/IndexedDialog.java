@@ -17,6 +17,24 @@ import org.newdawn.slick.geom.Vector2f;
 public abstract class IndexedDialog
 {
 	protected static final int NO_INDEX = -10;
+	protected static IndexedDialog current = null;
+	protected static boolean disabled = false;
+
+	public static IndexedDialog current()
+	{
+		return current;
+	}
+
+	public static void setCurrent(IndexedDialog dialog)
+	{
+		current = dialog;
+	}
+
+	public static void setDisabled(boolean disabled)
+	{
+		IndexedDialog.disabled = disabled;
+	}
+	
 	protected int hoverIndex;
 
 	public IndexedDialog()
@@ -54,7 +72,7 @@ public abstract class IndexedDialog
 	 */
 	public boolean isCursorInside()
 	{
-		return hoverIndex > NO_INDEX;
+		return !disabled && hoverIndex > NO_INDEX;
 	}
 
 	public boolean moveCursor(int oldx, int oldy, int newx, int newy) 

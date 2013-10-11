@@ -1,5 +1,10 @@
 package ui;
 
+import event.GameEvent;
+import event.GameEventQueue;
+import graphic.Camera;
+import graphic.Render;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,11 +16,9 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Colony;
+import state.Selection;
+import state.Selection.Observer;
 import state.Star;
-import event.GameEvent;
-import event.GameEventQueue;
-import graphic.Camera;
-import graphic.Render;
 
 public class StarWidget extends IndexedDialog
 {
@@ -30,17 +33,23 @@ public class StarWidget extends IndexedDialog
 		background = new Image("resources/starWidgetBck.png");
 		meter = new Image("resources/meter.png");
 		star = null;
-	}
-
-	public void showStar(Star star)
-	{
-		this.star = star;
+		
+		Selection.register(new Observer()
+		{
+			@Override
+			public void selectionChanged(Object oldSelection, Object newSelection)
+			{
+				star = Selection.getSelectionAs(Star.class);
+				if(star != null)
+					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+			}
+		});
 	}
 
 	public void render(GameContainer gc, Graphics g)
 	{
 		// If no star is being displayed, do nothing.
-		if(star == null)
+		if(star == null || disabled)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
@@ -108,7 +117,7 @@ public class StarWidget extends IndexedDialog
 	public void mouseClick(int button, int delta)
 	{
 		// Check if visible.
-		if(star == null || hoverIndex <= NO_INDEX || delta != 0)
+		if(star == null || hoverIndex <= NO_INDEX || delta != 0 || disabled)
 			return;
 		
 		// Process the corresponding action-event.

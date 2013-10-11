@@ -15,6 +15,8 @@ import org.newdawn.slick.geom.Vector2f;
 
 import state.HQ;
 import state.HQ.QueuedUnit;
+import state.Selection;
+import state.Selection.Observer;
 import state.Unit;
 
 public class HQWidget extends IndexedDialog
@@ -37,20 +39,22 @@ public class HQWidget extends IndexedDialog
 				new Image("resources/fleetExt3.png"),
 				new Image("resources/ui_hover.png"),
 			};
-	}
-
-	/**
-	 * Sets the task fleet to be displayed by this
-	 * @param hq
-	 */
-	public void showHQ(HQ hq)
-	{
-		this.hq = hq;
+		
+		Selection.register(new Observer()
+		{
+			@Override
+			public void selectionChanged(Object oldSelection, Object newSelection)
+			{
+				hq = Selection.getSelectionAs(HQ.class);
+				if(hq != null)
+					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+			}
+		});
 	}
 
 	public void render(GameContainer gc, Graphics g)
 	{
-		if(hq == null)
+		if(hq == null || disabled)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
@@ -145,7 +149,7 @@ public class HQWidget extends IndexedDialog
 	public void mouseClick(int button, int delta)
 	{
 		// Not a valid action.
-		if(hq == null || hoverIndex <= NO_INDEX)
+		if(hq == null || hoverIndex <= NO_INDEX || disabled)
 			return;
 		
 		// Buttons

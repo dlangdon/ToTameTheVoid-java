@@ -18,6 +18,7 @@ import state.Economy;
 import state.Fleet;
 import state.HQ;
 import state.Lane;
+import state.Selection;
 import state.Star;
 import ui.EconomyDialog;
 import ui.FleetWidget;
@@ -34,9 +35,7 @@ public class Game extends BasicGameState
 	private FleetWidget fleetWidget;
 	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
-	private Object selected;
 	private GameEventQueue eventQueue;
-	private IndexedDialog currentDialog;
 	private int mouseDownTime;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
@@ -52,13 +51,11 @@ public class Game extends BasicGameState
 		starWidget = new StarWidget();
 		fleetWidget = new FleetWidget();
 		hqWidget = new HQWidget();
-		selected = null;
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
 		new Galaxy();
 		
 		mouseDownTime = -1;
-		currentDialog = null;
 		
 		// TODO load resources in a more intelligent way...
 		Render.init();
@@ -97,18 +94,21 @@ public class Game extends BasicGameState
 		// Draw fleets
 		for(Fleet tf : Fleet.all())
 		{
-			tf.render(gc, g, (tf == selected) ? Render.SELECTED : 0);
+			tf.render(gc, g);
 		}
 
 		// Draw HQ
 		for(HQ hq : HQ.all())
 		{
-			hq.render(gc, g, (hq == selected) ? Render.SELECTED : 0);
+			hq.render(gc, g);
 		}
 		
 		// Draw in world widgets
-		if(currentDialog != null)
-			currentDialog.render(gc, g);
+//		if(currentDialog != null)
+//			currentDialog.render(gc, g);
+		starWidget.render(gc, g);
+		fleetWidget.render(gc, g);
+		hqWidget.render(gc, g);
 		
 		// FIXME Temporary drawing world boundaries.
 		Camera.instance().drawWorldLimits(g);
@@ -128,9 +128,9 @@ public class Game extends BasicGameState
 			return;
 
 		// Some interfaces 
-		if(mouseDownTime >= 0 && currentDialog != null)
+		if(mouseDownTime >= 0 && IndexedDialog.current() != null)
 		{
-			currentDialog.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
+			IndexedDialog.current().mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
 			mouseDownTime += delta;
 		}
 		
@@ -161,21 +161,21 @@ public class Game extends BasicGameState
 		else if(key == Input.KEY_E)
 			econDialog.setVisible(!econDialog.isVisible());
 		else if(key == Input.KEY_SPACE)
-			currentDialog = null;
+			IndexedDialog.setDisabled(true);
 	}
 
 	@Override
 	public void keyReleased(int key, char c)
 	{
 		if(key == Input.KEY_SPACE)
-			showDialogForSelection();
+			IndexedDialog.setDisabled(false);
 	}
 	
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
 		mouseDownTime = 0;
-		if(currentDialog != null && currentDialog.isCursorInside())
+		if(IndexedDialog.current() != null && IndexedDialog.current().isCursorInside())
 			return;
 
 		// Check if the click corresponds to a star.
@@ -192,25 +192,29 @@ public class Game extends BasicGameState
 		// If a star, check if we add routepoints.
 		if(selectedStar != null)
 		{
-			if(selected instanceof Fleet)
+			if(Selection.getSelectionAs(Fleet.class) != null)
 			{
 				fleetWidget.starClick(button, selectedStar);
 				return;
 			}
 			else
-				selected = selectedStar;
+			{
+				Selection.set(selectedStar);
+				IndexedDialog.setCurrent(starWidget);
+			}
 			
 			// TODO HQ relocation
 		}
 		else
-			selected = null;
+			Selection.set(null);
 
 		// Check which objects may have received the click signal.
 		for(Fleet tf : Fleet.all())
 		{
 			if(tf.screenCLick((float)x, (float)y, button))
 			{
-				selected = tf;
+				Selection.set(tf);
+				IndexedDialog.setCurrent(fleetWidget);
 				break;
 			}
 		}
@@ -218,40 +222,11 @@ public class Game extends BasicGameState
 		{
 			if(hq.screenCLick((float)x, (float)y, button))
 			{
-				selected = hq;
+				Selection.set(hq);
+				IndexedDialog.setCurrent(hqWidget);
 				break;
 			}
 		}
-		
-		showDialogForSelection();
-	}
-	
-	private void showDialogForSelection()
-	{
-		// Toggle modal interfaces according to the new selection.
-		if(selected instanceof Fleet)
-		{
-			fleetWidget.showFleet((Fleet)selected);
-			currentDialog = fleetWidget;
-//			Camera.instance().centerOnWorld(fleetWidget.location());
-			Camera.instance().ensureVisible(fleetWidget.location(), 180, 370, 180, 180);
-		}
-		else if(selected instanceof Star)
-		{
-			starWidget.showStar((Star)selected);
-			currentDialog = starWidget;
-//			Camera.instance().centerOnWorld(starWidget.location());
-		}
-		else if(selected instanceof HQ)
-		{
-			hqWidget.showHQ((HQ)selected);
-			currentDialog = hqWidget;
-			Camera.instance().centerOnWorld(hqWidget.location());
-		}
-		else
-			currentDialog = null;
-		
-		System.out.format("selected: %s, dialog: %s\n", (selected == null ? "null" : selected.toString()), (currentDialog == null ? "null" : currentDialog.toString()));
 	}
 	
 	@Override
@@ -269,7 +244,7 @@ public class Game extends BasicGameState
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
 	{
-		if(currentDialog != null && currentDialog.moveCursor(oldx, oldy, newx, newy))
+		if(IndexedDialog.current() != null && IndexedDialog.current().moveCursor(oldx, oldy, newx, newy))
 			mouseDownTime = -1;
 	}
 	
@@ -278,22 +253,4 @@ public class Game extends BasicGameState
 	{
 		return Main.GameStates.MAINGAME.ordinal();
 	}
-
-	/**
-	 * @return the selected
-	 */
-	public Object getSelected()
-	{
-		return selected;
-	}
-
-	/**
-	 * @param selected the selected to set
-	 */
-	public void setSelected(Object selected)
-	{
-		this.selected = selected;
-	}
-
-
 }

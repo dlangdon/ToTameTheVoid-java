@@ -14,9 +14,11 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Fleet;
+import state.Selection.Observer;
 import state.Star;
 import state.Unit;
 import state.UnitStack;
+import state.Selection;
 
 public class FleetWidget extends IndexedDialog
 {
@@ -69,17 +71,20 @@ public class FleetWidget extends IndexedDialog
 					"Leave selected ships in orbit",
 					"Toggle auto-merge for selected ships.\nFleets with no auto-merge will not merge with others in orbit."
 				};
-	}
-
-	/**
-	 * Sets the task fleet to be displayed by this
-	 * 
-	 * @param fleet
-	 */
-	public void showFleet(Fleet fleet)
-	{
-		this.fleet = fleet;
-		refreshCache();
+		
+		Selection.register(new Observer()
+		{
+			@Override
+			public void selectionChanged(Object oldSelection, Object newSelection)
+			{
+				fleet = Selection.getSelectionAs(Fleet.class);
+				if(fleet != null)
+				{
+					refreshCache();
+					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+				}
+			}
+		});
 	}
 
 	public Fleet selectedfleet()
@@ -90,7 +95,7 @@ public class FleetWidget extends IndexedDialog
 	public void render(GameContainer gc, Graphics g)
 	{
 		// If no star is being displayed, do nothing.
-		if(fleet == null)
+		if(fleet == null || disabled)
 			return;
 		
 		// Make it so drawing stars is always done in local coordinates.
@@ -247,7 +252,7 @@ public class FleetWidget extends IndexedDialog
 	public void mouseClick(int button, int delta)
 	{
 		// Check if visible.
-		if (fleet == null || hoverIndex <= NO_INDEX || delta != 0 || hoverIndex >= cache.length)
+		if (fleet == null || hoverIndex <= NO_INDEX || delta != 0 || hoverIndex >= cache.length || disabled)
 			return;
 
 		// Process if it's a button.
@@ -265,7 +270,7 @@ public class FleetWidget extends IndexedDialog
 			{
 				Fleet newFleet = splitSelection(false);
 				if (newFleet != null)
-					showFleet(newFleet);
+					Selection.set(newFleet);
 				buttonLetters[4] = 'm';
 			}
 			else
@@ -315,7 +320,7 @@ public class FleetWidget extends IndexedDialog
 		{
 			Fleet newFleet = splitSelection(true);
 			if (newFleet != null)
-				showFleet(newFleet);
+				Selection.set(newFleet);
 		}
 
 		// Now in every case, try to append or remove from the fleet's route.
@@ -357,7 +362,7 @@ public class FleetWidget extends IndexedDialog
 			fleet.addUnits(ss.design, (int) -ss.selected);
 
 		if(fleet.isEmpty())
-			showFleet(null);
+			Selection.set(null);
 		else
 			refreshCache();
 	}
@@ -423,4 +428,6 @@ public class FleetWidget extends IndexedDialog
 			}
 		}
 	}
+
+
 }

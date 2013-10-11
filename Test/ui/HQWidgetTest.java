@@ -19,6 +19,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Economy;
+import state.Selection;
 import state.Star;
 
 public class HQWidgetTest extends BasicGame
@@ -42,9 +43,9 @@ public class HQWidgetTest extends BasicGame
 			return;
 		
 		if(hq.screenCLick((float)x, (float)y, button))
-			widget.showHQ(hq);
+			Selection.set(hq);
 		else
-			widget.showHQ(null);
+			Selection.set(null);
 
 		// Update the 
 	}
@@ -108,7 +109,7 @@ public class HQWidgetTest extends BasicGame
 	{
 		g.setBackground(Color.darkGray);
 		widget.render(gc, g);
-		hq.render(gc, g, 0);
+		hq.render(gc, g);
 	}
 	
 	/**

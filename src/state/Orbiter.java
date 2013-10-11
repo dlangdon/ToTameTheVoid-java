@@ -4,7 +4,6 @@
 package state;
 
 import graphic.Camera;
-import graphic.Render;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -59,12 +58,12 @@ public abstract class Orbiter implements UIListener
 		return (local.x * local.x <= 25 && local.y * local.y <= 25);
 	}
 	
-	public void render(GameContainer gc, Graphics g, int flags)
+	public void render(GameContainer gc, Graphics g)
 	{
 		Color color = Color.white;
 		if(location_.colony() != null)
 			color = location_.colony().owner().color();
-		if((flags & Render.SELECTED) != 0)
+		if(Selection.is(this))
 		{
 			float alpha = 1.0f - 1.2f * Math.abs((System.currentTimeMillis() % 1500) / 1500.0f - 0.5f);
 			color = new Color(color.r, color.g, color.b, alpha);

@@ -2,7 +2,6 @@ package state;
 
 import galaxy.generation.Galaxy;
 import graphic.Camera;
-import graphic.Render;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -322,12 +321,12 @@ public class Fleet extends Orbiter
 	}	
 	
 	@Override
-	public void render(GameContainer gc, Graphics g, int flags)
+	public void render(GameContainer gc, Graphics g)
 	{
 		Vector2f zero = new Vector2f();
 		
 		Color color = owner_.color();
-		if((flags & Render.SELECTED) != 0)
+		if(Selection.is(this))
 		{
 			float alpha = 1.0f - 1.2f * Math.abs((System.currentTimeMillis() % 1500) / 1500.0f - 0.5f);
 			color = new Color(color.r, color.g, color.b, alpha);
