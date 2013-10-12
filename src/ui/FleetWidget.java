@@ -49,11 +49,12 @@ public class FleetWidget extends IndexedDialog
 		this.numSteps = 6;
 		backgrounds = new Image[] 
 			{
-				new Image("resources/fleetBase.png"),
+				new Image("resources/ui_base.png"),
 				new Image("resources/fleetExt1.png"),
 				new Image("resources/fleetExt2.png"),
 				new Image("resources/fleetExt3.png"),
-				new Image("resources/fleetExt4.png")
+				new Image("resources/fleetExt4.png"),
+				new Image("resources/ui_hover.png"),
 			};
 		
 		bckDeltas = new int[][]
@@ -132,6 +133,7 @@ public class FleetWidget extends IndexedDialog
 			// Check if we also display the local information.
 			if(hoverIndex == i)
 			{
+				backgrounds[5].draw(62, -119);
 				Render.titles.drawString(120, -100, cache[i].design.name());
 			}
 		}
@@ -145,7 +147,10 @@ public class FleetWidget extends IndexedDialog
 					pos.y - Render.normal.getHeight()/2,
 					"" + buttonLetters[i], Color.white);
 			if(hoverIndex == -i-1)
+			{
+				backgrounds[5].draw(62, -119);
 				Render.titles.drawString(120, -100, buttonTexts[i]);
+			}
 		}
 		g.popTransform();
 	}
@@ -290,9 +295,7 @@ public class FleetWidget extends IndexedDialog
 				else
 					cache[hoverIndex].selected = Math.max(cache[hoverIndex].selected - step, 0.0f);
 			}
-			System.out.println(cache[hoverIndex].selected);
 		}
-
 		return;
 	}
 
@@ -302,8 +305,10 @@ public class FleetWidget extends IndexedDialog
 	 */
 	public void starClick(int button, Star s)
 	{
+		// TODO This fails, we need to know if the route exists before knowing if a split needs to happen
+		
 		// Case 1: a click while in orbit and with a selection in place need to be split.
-		if (fleet.orbiting() != null)
+		if (button == 0 && fleet.orbiting() != null)
 		{
 			Fleet newFleet = splitSelection(true);
 			if (newFleet != null)
@@ -316,7 +321,7 @@ public class FleetWidget extends IndexedDialog
 		else
 		{
 			fleet.removeFromRoute(s);
-			if(!fleet.hasOrders())
+			if(!fleet.hasOrders() && fleet.isAutoMerge())
 				leaveSelectionInOrbit();
 		}
 	}
@@ -365,8 +370,17 @@ public class FleetWidget extends IndexedDialog
 		
 		// Split this fleet and merge to that one.
 		Fleet aux = this.splitSelection(true);
-		if (toJoin != null && aux != null)
+		if (toJoin != null)
+		{
 			toJoin.mergeIn(aux);
+			Selection.set(toJoin);
+		}
+		else
+		{
+			aux.setAutoMerge(true);
+			if(aux == fleet)
+				Selection.set(toJoin);
+		}
 	}
 	
 	private void toggleAutoMerge()
@@ -389,7 +403,6 @@ public class FleetWidget extends IndexedDialog
 				fleet.setAutoMerge(true);
 			buttonLetters[4] = 'm';
 		}
-
 	}
 
 	private Fleet splitSelection(boolean autoMerge)
@@ -407,11 +420,9 @@ public class FleetWidget extends IndexedDialog
 		}
 
 		// A full split can't be made.
-		return everything ? null : fleet.split(split);
+		return everything ? fleet : fleet.split(split);
 	}
 	
-	
-
 	/**
 	 * Resets the selected values of the ships for this fleet to their maximum value.
 	 */
@@ -431,6 +442,5 @@ public class FleetWidget extends IndexedDialog
 			}
 		}
 	}
-
 
 }

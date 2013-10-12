@@ -81,7 +81,7 @@ public class Fleet extends Orbiter
 		super(orbiting);
 
 		// Base values
-		this.speed = 10;
+		this.speed = 20;
 		this.owner_ = empire;
 		this.turnsTraveled = 0;
 		this.turnsTotal = 0;

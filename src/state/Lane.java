@@ -29,6 +29,12 @@ public class Lane
 		return l == null ? 0.0f : l.length;
 	}
 	
+	public static List<Star> getRoute(Star from, Star to)
+	{
+		// TODO Use A* to figure out a path.
+		return null;
+	}
+	
 	public static List<Star> getPath(Star from, Star to)
 	{
 		// TODO
