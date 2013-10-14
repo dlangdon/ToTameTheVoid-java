@@ -9,18 +9,21 @@ import org.newdawn.slick.Color;
 public class Empire
 {
 // Statics ============================================================================================================	
-	public static final int CEASE_FIRE = 17;
-	public static final int OPEN_TRADE = 34;
-	public static final int CULTURAL_COOPERATION = 50;
-	public static final int SANCTUARY = 67;
-	public static final int RESOURCE_SHARING = 84;
+	public static final float DISTRUST = 0.0f;
+	public static final float CEASE_FIRE = 0.14f;
+	public static final float OPEN_TRADE = 0.28f;
+	public static final float CULTURAL_COOPERATION = 42f;
+	public static final float SANCTUARY = 0.57f;
+	public static final float RESOURCE_SHARING = 71f;
+	public static final float OPEN_BORDERS = 85f;
+	public static final float BROTHERHOOD = 1.0f;
 	
 // Internals ==========================================================================================================
 	private String name_;
 	private Color color_;
 	private Economy economy_;
 	private HashSet<Colony> colonies_;
-	private HashMap<Empire, Integer> trust;
+	private HashMap<Empire, Double> trust;
 
 // Public Methods =====================================================================================================
 
@@ -31,7 +34,7 @@ public class Empire
 		this.color_ = color_;
 		colonies_ = new HashSet<Colony>();
 		economy_ = new Economy();
-		trust = new HashMap<Empire, Integer>();
+		trust = new HashMap<Empire, Double>();
 	}
 
 	public void addColony(Colony colony)
@@ -83,12 +86,12 @@ public class Empire
 	 * @param other Opposite empire.
 	 * @return A number between 0 and 100 measuring trust.
 	 */
-	public int trustLevel(Empire other)
+	public double trustLevel(Empire other)
 	{
 		if(this == other)
 			return 100;
 
-		Integer aux = trust.get(other);
+		Double aux = trust.get(other);
 		return aux == null ? 0 : aux;
 	}
 	
@@ -97,7 +100,7 @@ public class Empire
 	 * @param other The other empire.
 	 * @return A number between 0 and 100 measuring trust.
 	 */
-	public int reciprocalTrust(Empire other)
+	public double reciprocalTrust(Empire other)
 	{
 		return Math.min(this.trustLevel(other), other.trustLevel(this));
 	}

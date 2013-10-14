@@ -83,22 +83,22 @@ public class EconomyTest
 		{
 			// Get some temporary variables.
 			float lastTurnMaintenance = economy.totalMaintenance();
-			float lastTurnProduction = colony.production();
+			double lastTurnProduction = colony.production();
 			float lastTurnReserve = economy.reserve();
 			
 			economy.resetTurn();
 			economy.applyGrowth(colonies);
 			
 			// Check that basic values match, as there is only one colony.
-			Assert.assertEquals(economy.totalProduction(), colony.production());
-			Assert.assertEquals(economy.totalInfrastructure(), colony.infrastructure());
-			Assert.assertEquals(economy.totalMaintenance(), colony.maintenance());
-			Assert.assertEquals(economy.bestROI(), colony.returnOfInvestment());
+			Assert.assertEquals(economy.totalProduction(), colony.production(), 1e-6);
+			Assert.assertEquals(economy.totalInfrastructure(), colony.infrastructure(), 1e-6 );
+			Assert.assertEquals(economy.totalMaintenance(), colony.maintenance(), 1e-6);
+			Assert.assertEquals(economy.bestROI(), colony.returnOfInvestment(), 1e-6);
 			
 			// Check that the posted expenses hold.
 			Assert.assertEquals(economy.movements()[0], -lastTurnMaintenance);
 			Assert.assertEquals(economy.movements()[1], economy.reserve() -lastTurnReserve +lastTurnMaintenance - lastTurnProduction, 1E-5);
-			Assert.assertEquals(economy.movements()[2], lastTurnProduction);
+			Assert.assertEquals(economy.movements()[2], lastTurnProduction, 1e-6);
 			
 //			System.out.format("\nTurn %d: prod=%3.4f, main=%3.4f", i, economy.totalProduction(), economy.totalMaintenance());
 		}

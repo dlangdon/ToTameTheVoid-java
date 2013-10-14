@@ -3,13 +3,11 @@ package military;
 import java.util.ArrayList;
 import java.util.List;
 
-import event.GameEventQueue;
-import event.TurnSubProcess;
-import galaxy.generation.Galaxy;
-
 import state.Empire;
 import state.Fleet;
 import state.Star;
+import event.GameEventQueue;
+import event.TurnSubProcess;
 
 /**
  * Creates events for space battles.

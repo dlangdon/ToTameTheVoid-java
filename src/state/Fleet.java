@@ -36,7 +36,8 @@ public class Fleet extends Orbiter
 	public static void init() throws SlickException
 	{
 		scrapIncome = Economy.registerCause("Ships for parts");
-		maintenanceExpense = Economy.registerCause("Fleet Maintenance");
+		maintenanceExpense = Economy.registerCause("Fleet maintenance");
+		repairExpense = Economy.registerCause("Fleet repairs");
 		fleetIcon = new Image("resources/fleet.png");
 		fleets = new HashSet<Fleet>();
 		observers = new ArrayList<FleetObserver>();
@@ -57,6 +58,7 @@ public class Fleet extends Orbiter
 	
 	private static int maintenanceExpense;
 	private static int scrapIncome;
+	private static int repairExpense;
 	private static Image fleetIcon;
 	private static HashSet<Fleet> fleets;
 	private static ArrayList<FleetObserver> observers;
@@ -283,15 +285,32 @@ public class Fleet extends Orbiter
 	public void turn()
 	{
 		// Generate expenses (repair and maintenance) for this turn.
-		float expenses = 0.0f;
-		for(Entry<Unit, UnitStack> entry : stacks.entrySet())
+		Economy ec = owner_.getEconomy();
+		TreeMap<Unit, UnitStack> safeCopy = new TreeMap<Unit, UnitStack>(stacks);
+		for(Entry<Unit, UnitStack> entry : safeCopy.entrySet())
 		{
-			// Expenses are 1% of original ship cost per turn. After 100 turns they become a liability ;-)
-			expenses -= entry.getKey().cost() * entry.getValue().quantity() * 0.01f;
-			// TODO Repairs
+			Unit type = entry.getKey();
+			UnitStack stack = entry.getValue();
+			
+			// Expenses are 1% of original ship cost per turn. After 100 turns they become a liability unless you use them ;-)
+			// If enough funds are not there, up to 3% of ships in the stack are scrapped due to inability to maintain.
+			double expenses = - type.cost() * stack.quantity() * 0.01f;
+			if(!ec.addMovement(expenses, maintenanceExpense))
+				this.addUnits(type, -(int)Math.ceil(stack.quantity() * 0.03));
+
+			// FIXME Here a NaN is produced when damages are 0, puting an NaN in the reserve!
+			// Repair costs are 25% of the cost of a new ship, proportional to the damage.
+			// On friendly territory, up to 50% of hitpoints can be repaired on a turn, otherwise only 20% of it can.
+			boolean friendlyPlace = orbiting() != null && orbiting().colony() != null && owner().reciprocalTrust(orbiting().colony().owner()) >= Empire.SANCTUARY;
+			double repairCost = -type.cost() * stack.quantity() * 0.25;
+			double repairNeed = (stack.maxVariableDamage()+stack.baseDamage()) / 2.0 / type.hitPoints(); 
+			double repairAmount = Math.min(friendlyPlace ? 0.5 : 0.20, repairNeed); 
+			if(repairAmount > 0.0 && ec.addMovement(repairCost * repairAmount, repairExpense))
+			{
+				stack.baseDamage_ *= repairAmount / repairNeed;
+				stack.maxVarDamage_ *= repairAmount / repairNeed;
+			}
 		}
-		System.out.println("Total fleet maintenance:" + expenses);
-		owner_.getEconomy().addMovement(expenses, maintenanceExpense);
 
 		// Go for movements. If no destinations, do nothing.
 		if(destinations.size() < 2)

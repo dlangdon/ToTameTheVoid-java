@@ -97,7 +97,7 @@ public class SpaceCombatSimulation
 				ArrayList<Attack> attacks = new ArrayList<Attack>(); 
 				for(int j=0; j<inCombat.length; j++)
 				{
-					int trust = inCombat[i].owner().reciprocalTrust(inCombat[j].owner());
+					double trust = inCombat[i].owner().reciprocalTrust(inCombat[j].owner());
 					if(trust < Empire.CEASE_FIRE)
 					{
 						// Distribute attacks evenly over all enemy stacks.

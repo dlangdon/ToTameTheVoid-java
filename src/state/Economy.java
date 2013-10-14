@@ -10,6 +10,8 @@ import java.util.TreeMap;
  * A static list of expense causes needs to be statically created when modules are loaded, so multiple expenses can be added to a single cause by different objects. 
  * The reason for this static initialization is that the economy module does not have to have prior knowledge of which other modules exist. 
  * 
+ * FIXME Values here are reasonable but too low! Interface is printing to 1e5 just for kicks. 
+ * 
  * @author Daniel Langdon
  */
 public class Economy
@@ -53,7 +55,7 @@ public class Economy
 	private float totalProduction_;
 	private float totalGrowth_;
 	private float totalMaintenance_;
-	private float bestROI_;
+	private double bestROI_;
 	private float reserve_;
 	private float growthPolicy_;
 	private int returnOfInvestmentLimit_;
@@ -126,7 +128,7 @@ public class Economy
 		return totalMaintenance_;
 	}
 
-	public float bestROI()
+	public double bestROI()
 	{
 		return bestROI_;
 	}
@@ -179,15 +181,13 @@ public class Economy
 		// Before anything can be done, pay for maintenance for the current level of infrastructure.
 		if(!addMovement(-totalMaintenance_, 0))
 		{
-			// If the cost of infrastructure is not paid, infrastructure is reduced 10% of the proportion between the cost paid and the unpaid.
+			// If the cost of infrastructure is not paid, infrastructure is reduced by 50% of the proportion between the cost paid and the unpaid.
 			// Note that this will never kill any colony ;-)
-			float percentage = 0.1f * (1.0f - reserve_/totalInfrastructure_);
+			double percentage = (1.0 - reserve_/totalInfrastructure_) * 0.5;
 			addMovement(-reserve_, 0);
-
 			for(Colony colony : colonies)
-			{
-				colony.killInfrastructure(colony.infrastructure() * percentage);
-			}
+				colony.spend(-percentage, 0.0, 9999, false);
+			// FIXME bug here, colony expenses are too high...
 		}
 		else
 		{
@@ -200,7 +200,7 @@ public class Economy
 			}
 	
 			// First pass: let every system apply the policy locally.
-			TreeMap<Float, Colony> firstBets = new TreeMap<Float, Colony>();
+			TreeMap<Double, Colony> firstBets = new TreeMap<Double, Colony>();
 			for(Colony colony : colonies)
 			{
 				if(reminder < 1e-6)
@@ -211,7 +211,7 @@ public class Economy
 			}
 	
 			// Second pass: take the remainder and apply it, cheapest colonies first, till the money runs out.
-			TreeMap<Float, Colony> secondBets = new TreeMap<Float, Colony>();
+			TreeMap<Double, Colony> secondBets = new TreeMap<Double, Colony>();
 			for(Colony colony : firstBets.values())
 			{
 				if(reminder < 1e-6)
@@ -247,7 +247,7 @@ public class Economy
 			totalInfrastructure_ += colony.infrastructure();
 			totalMaintenance_ += colony.maintenance();
 
-			float roi = colony.returnOfInvestment();
+			double roi = colony.returnOfInvestment();
 			if(roi < bestROI_ )
 				bestROI_ = roi;
 		}

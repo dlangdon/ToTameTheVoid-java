@@ -149,9 +149,7 @@ public class GameEventQueue
 
 		// Update all empires.
 		for (Empire e : Galaxy.instance().getEmpires())
-		{
 			e.getEconomy().applyGrowth(e.getColonies());
-		}
 
 		// Update all stars
 		for (Star s : checkLocations)

@@ -5,13 +5,13 @@ public class Colony
 // Internals ==========================================================================================================
 	private static final float MIN_INFRASTRUCTURE = 0.01f;
 
-	private float infrastructure_;
-	private float maxInfrastructure_; // Only changes after tech updated, hence update off-turn.
-	private float lastTurnProduction_;
-	private float production_;
-	private float maintenance_;
-	private float conditions_;
-	private float roi_;
+	private double infrastructure_;
+	private double maxInfrastructure_; // Only changes after tech updated, hence update off-turn.
+	private double lastTurnProduction_;
+	private double production_;
+	private double maintenance_;
+	private double conditions_;
+	private double roi_;
 	private Star location_;
 	private Empire owner_;
 
@@ -33,7 +33,9 @@ public class Colony
 		spend(1.0f, 0.0f, 9999, false);
 	}
 
-	// / @todo Agregar desición de que hacer con la producción, por ahora solo crecer.
+	/**
+	 * Stores stats for next turn. Actual production is handled on spend()
+	 */
 	public void turn()
 	{
 		lastTurnProduction_ = production_;
@@ -62,14 +64,14 @@ public class Colony
 	 *           True if the colony should use imported resources, which cost twice as much per unit of infrastructure.
 	 * @return Total cost of infrastructure actually built, after applying all spending restrictions.
 	 */
-	public float spend(float percentage, float maximum, int ROILimit, boolean nonLocal)
+	public double spend(double percentage, double maximum, int ROILimit, boolean nonLocal)
 	{
 		// Avoid infrastructure that is too costly.
 		if (roi_ >= ROILimit || lastTurnProduction_ <= 0)
-			return 0.0f;
+			return 0.0;
 
 		// Calculate real cost of new infrastructure.
-		float cost = (2.0f + 2.5f / (conditions_ + 0.75f));
+		double cost = (2.0 + 2.5 / (conditions_ + 0.75));
 		if (nonLocal)
 			cost *= 2;
 
@@ -78,7 +80,7 @@ public class Colony
 			maximum = lastTurnProduction_ * percentage;
 
 		// We can't grow past the maximum infrastructure limit, else we risk decreasing total production.
-		float toGrow = maxInfrastructure_ - infrastructure_;
+		double toGrow = maxInfrastructure_ - infrastructure_;
 		if (toGrow * cost > maximum)
 			toGrow = maximum / cost;
 
@@ -88,8 +90,8 @@ public class Colony
 
 		// Recalculate economy due to last turn spending.
 		conditions_ = location_.conditions() - infrastructure_ / (location_.size() + 0.75f);
-		float auxMaintenance = infrastructure_ / (conditions_ + 0.75f);
-		float auxProduction = infrastructure_ * (location_.resources() + 0.75f);
+		double auxMaintenance = infrastructure_ / (conditions_ + 0.75);
+		double auxProduction = infrastructure_ * (location_.resources() + 0.75);
 		if (cost > 0)
 			roi_ = cost / (auxProduction - auxMaintenance - production_ + maintenance_);
 		production_ = auxProduction;
@@ -104,23 +106,23 @@ public class Colony
 	 *           Amount of infrastructure to destroy. Excedents are ignored.
 	 * @return True if the infrastructure went down to 0 (and the colony should be deleted).
 	 */
-	public boolean killInfrastructure(float amount)
+	public boolean killInfrastructure(double amount)
 	{
 		if (amount > infrastructure_)
 		{
-			infrastructure_ = 0;
+			infrastructure_ = 0.0;
 			return true;
 		}
 		infrastructure_ -= amount;
 		return false;
 	}
 	
-	public float infrastructure()
+ 	public double infrastructure()
 	{
 		return infrastructure_;
 	}
 
-	public float maxInfrastructure()
+	public double maxInfrastructure()
 	{
 		return maxInfrastructure_;
 	}
@@ -128,29 +130,28 @@ public class Colony
 	/**
 	 * @return The last calculated total production of this colony. This value does not discount maintenance.
 	 */
-	public float production()
+	public double production()
 	{
 		return production_;
 	}
 
-	public float maintenance()
+	public double maintenance()
 	{
 		return maintenance_;
 	}
 
-	public float conditions()
+	public double conditions()
 	{
 		return conditions_;
 	}
 
-	public float returnOfInvestment()
+	public double returnOfInvestment()
 	{
 		return roi_;
 	}
 
 	/**
-	 * TODO set the owner to be on the star rather than the colony, so a star does not have to know colonies...
-	 * @return
+	 * @return The empire who owns this star, or null if the star has not been claimed.
 	 */
 	public Empire owner()
 	{
