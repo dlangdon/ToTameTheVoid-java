@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.newdawn.slick.SlickException;
 
-import state.Empire;
 import state.Star;
 
 /**
@@ -24,14 +23,11 @@ public class Galaxy
 
 // Internals ==========================================================================================================	
 	List<Star> stars;
-	List<Empire> empires;
-	Empire playerEmpire;
 
 // Public Methods =====================================================================================================
 	public Galaxy() throws SlickException
 	{
 		instance_ = this;
-		this.empires = new ArrayList<Empire>();
 		this.stars = new ArrayList<Star>();
 		
 		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
@@ -56,21 +52,5 @@ public class Galaxy
 	public List<Star> getStars()
 	{
 		return stars;
-	}
-
-	/**
-	 * @return A list of all empires.
-	 */
-	public List<Empire> getEmpires()
-	{
-		return empires;
-	}
-
-	/**
-	 * @return the empire corresponding to the local player
-	 */
-	public Empire getPlayerEmpire()
-	{
-		return playerEmpire;
 	}
 }

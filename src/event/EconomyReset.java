@@ -1,6 +1,5 @@
 package event;
 
-import galaxy.generation.Galaxy;
 import state.Empire;
 import state.Star;
 
@@ -16,7 +15,7 @@ public class EconomyReset implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
-		for(Empire e: Galaxy.instance().getEmpires())
+		for(Empire e: Empire.all())
 		{
 			e.getEconomy().resetTurn();
 		}

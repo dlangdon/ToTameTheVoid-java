@@ -34,12 +34,6 @@ public class Lane
 		// TODO Use A* to figure out a path.
 		return null;
 	}
-	
-	public static List<Star> getPath(Star from, Star to)
-	{
-		// TODO
-		return null;
-	}
 
 	public static void addLane(Star from, Star to)
 	{

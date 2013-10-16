@@ -1,7 +1,5 @@
 package event;
 
-import galaxy.generation.Galaxy;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -60,8 +58,7 @@ public class GameEventQueue
 		checks = new LinkedList<TurnSubProcess>();
 		turn = 0;
 
-		// FIXME Instantiate all sub processes. This should be done by
-		// configuration or something like that. Fixed for now.
+		// FIXME Instantiate all sub processes. This should be done by configuration or something like that. Fixed for now.
 //		registerSubProcess(new EconomyReset());			// Empire level
 //		registerSubProcess(new FleetUpdater());			// Star
 //		registerSubProcess(new ColonyUpdater());			// Star
@@ -135,7 +132,7 @@ public class GameEventQueue
 		System.out.println("New turn: " + turn);
 
 		// Resets
-		for (Empire e : Galaxy.instance().getEmpires())
+		for (Empire e : Empire.all())
 			e.getEconomy().resetTurn();
 
 		// Produce new units
@@ -148,7 +145,7 @@ public class GameEventQueue
 			f.turn();
 
 		// Update all empires.
-		for (Empire e : Galaxy.instance().getEmpires())
+		for (Empire e : Empire.all())
 			e.getEconomy().applyGrowth(e.getColonies());
 
 		// Update all stars
@@ -160,6 +157,8 @@ public class GameEventQueue
 		}
 
 		// Try to process outstanding events.
+		
+		// TODO Update power snapshots for graphs and AI
 
 	}
 
@@ -185,4 +184,8 @@ public class GameEventQueue
 		return false;
 	}
 
+	public int getTurnCount()
+	{
+		return turn;
+	}
 }

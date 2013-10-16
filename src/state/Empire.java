@@ -1,7 +1,9 @@
 package state;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.newdawn.slick.Color;
@@ -17,6 +19,21 @@ public class Empire
 	public static final float RESOURCE_SHARING = 71f;
 	public static final float OPEN_BORDERS = 85f;
 	public static final float BROTHERHOOD = 1.0f;
+
+	private static List<Empire> all = new ArrayList<Empire>();
+	private static Empire playerEmpire = null;
+	public static Empire getPlayerEmpire()
+	{
+		return playerEmpire;
+	}
+	public static void setPlayerEmpire(Empire playerEmpire)
+	{
+		Empire.playerEmpire = playerEmpire;
+	}	
+	public static List<Empire> all()
+	{
+		return all;
+	}
 	
 // Internals ==========================================================================================================
 	private String name_;
@@ -50,22 +67,6 @@ public class Empire
 	public Color color()
 	{
 		return color_;
-	}
-	
-	void turn()
-	{
-		// Reset last's turn expenses.
-		economy_.resetTurn();
-
-		// Produce new expenses from all related modules.
-		// Move all fleets.
-//		foreach(Fleet* f, fleets)
-//		{
-//			f->turn();
-//		}
-
-		// Grow colonies and recalculate production.
-		economy_.applyGrowth(colonies_);
 	}
 	
 	/**
@@ -104,4 +105,6 @@ public class Empire
 	{
 		return Math.min(this.trustLevel(other), other.trustLevel(this));
 	}
+
+
 }

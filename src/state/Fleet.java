@@ -1,6 +1,5 @@
 package state;
 
-import galaxy.generation.Galaxy;
 import graphic.Camera;
 
 import java.util.ArrayList;
@@ -298,7 +297,6 @@ public class Fleet extends Orbiter
 			if(!ec.addMovement(expenses, maintenanceExpense))
 				this.addUnits(type, -(int)Math.ceil(stack.quantity() * 0.03));
 
-			// FIXME Here a NaN is produced when damages are 0, puting an NaN in the reserve!
 			// Repair costs are 25% of the cost of a new ship, proportional to the damage.
 			// On friendly territory, up to 50% of hitpoints can be repaired on a turn, otherwise only 20% of it can.
 			boolean friendlyPlace = orbiting() != null && orbiting().colony() != null && owner().reciprocalTrust(orbiting().colony().owner()) >= Empire.SANCTUARY;
@@ -487,7 +485,7 @@ public class Fleet extends Orbiter
 		if(col != null && col.owner() == owner_)
 			base += 9;
 		else
-			base += Galaxy.instance().getEmpires().indexOf(owner_);
+			base += Empire.all().indexOf(owner_);
 		
 		return base;
 	}

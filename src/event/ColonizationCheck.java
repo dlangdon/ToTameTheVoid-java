@@ -64,8 +64,7 @@ public class ColonizationCheck implements TurnSubProcess
 			// Check if this fleets contains a colony ship.
 			for (Entry<Unit, UnitStack> stack : f.stacks().entrySet())
 			{
-				// TODO This is hardcoded for now. Eventually we need to be able to
-				// discover which unit has special abilities of any kind.
+				// TODO This is hardcoded for now. Eventually we need to be able to discover which unit has special abilities of any kind.
 				if (stack.getKey().name().compareToIgnoreCase("Colony Ship") == 0)
 				{
 					canColonize = f;

@@ -54,13 +54,10 @@ public class EmpireInitialiazer implements ForceOfNature
 		if(numEmpires >= names.length)
 			return false;
 		
-		Galaxy g = Galaxy.instance();
 		for(int i=0; i<numEmpires; i++)
 		{
 			Empire e = new Empire(names[i], palette[i]);
-			g.empires.add(e);
-
-			Star s = g.stars.get(nascentGalaxy.startingLocations.get(i));
+			Star s = Galaxy.instance().stars.get(nascentGalaxy.startingLocations.get(i));
 			s.setParameters(0.5f, 0.5f, 0.5f);
 			
 			Fleet f = new Fleet(s, e);
@@ -70,7 +67,7 @@ public class EmpireInitialiazer implements ForceOfNature
 			new Colony(s, e);
 			new Shipyard(s);
 		}
-		g.playerEmpire = g.empires.get(0);
+		Empire.setPlayerEmpire(Empire.all().get(0));
 		return true;
 	}
 

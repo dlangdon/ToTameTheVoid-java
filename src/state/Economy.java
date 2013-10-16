@@ -10,8 +10,6 @@ import java.util.TreeMap;
  * A static list of expense causes needs to be statically created when modules are loaded, so multiple expenses can be added to a single cause by different objects. 
  * The reason for this static initialization is that the economy module does not have to have prior knowledge of which other modules exist. 
  * 
- * FIXME Values here are reasonable but too low! Interface is printing to 1e5 just for kicks. 
- * 
  * @author Daniel Langdon
  */
 public class Economy
@@ -147,7 +145,7 @@ public class Economy
 	 */
 	public boolean addMovement(double d, int cause)
 	{
-		if(d + reserve_ < 0)
+		if(d + reserve_ < 0 || Double.isNaN(d))
 		{
 			rejections_[cause] = true;
 			return false;
@@ -187,7 +185,6 @@ public class Economy
 			addMovement(-reserve_, 0);
 			for(Colony colony : colonies)
 				colony.spend(-percentage, 0.0, 9999, false);
-			// FIXME bug here, colony expenses are too high...
 		}
 		else
 		{

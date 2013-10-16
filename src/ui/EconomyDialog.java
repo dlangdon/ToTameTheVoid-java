@@ -1,6 +1,5 @@
 package ui;
 
-import galaxy.generation.Galaxy;
 import graphic.Render;
 
 import org.newdawn.slick.Color;
@@ -26,7 +25,7 @@ public class EconomyDialog
 		if(!visible)
 			return;
 		
-		Empire e = Galaxy.instance().getPlayerEmpire();
+		Empire e = Empire.getPlayerEmpire();
 		Economy ec = e.getEconomy();
 
 		// Background.
