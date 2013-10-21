@@ -115,7 +115,6 @@ public class NascentGalaxy
 			if(!force.unleash(this))
 				return false;
 
-		Galaxy.instance().getStars().addAll(bornStars);
 		for(Edge e : prunedEdges)
 			Lane.addLane(bornStars.get(e.v1), bornStars.get(e.v2));
 

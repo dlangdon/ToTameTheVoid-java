@@ -16,6 +16,13 @@ import ui.UIListener;
 
 public class Star implements UIListener
 {
+// Statics ============================================================================================================	
+	private static List<Star> all = new ArrayList<Star>();
+	public static List<Star> all()
+	{
+		return all;
+	}
+
 // Internals ==========================================================================================================
 	// Core star internals
 	private int index_;					// Mainly needed for persistence && communications, also used to reduce memory footprint for lanes.
@@ -37,6 +44,7 @@ public class Star implements UIListener
 		index_ = index;
 		pos = new Vector2f(x, y);
 		inOrbit = new ArrayList<Orbiter>();
+		all.add(this);
 	}
 
 	public float x()

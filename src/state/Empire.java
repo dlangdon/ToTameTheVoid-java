@@ -52,6 +52,7 @@ public class Empire
 		colonies_ = new HashSet<Colony>();
 		economy_ = new Economy();
 		trust = new HashMap<Empire, Double>();
+		all.add(this);
 	}
 
 	public void addColony(Colony colony)

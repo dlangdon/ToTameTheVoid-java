@@ -17,7 +17,6 @@ import state.Economy;
 import state.Fleet;
 import state.HQ;
 import state.Lane;
-import state.Selection;
 import state.Star;
 import ui.EconomyDialog;
 import ui.FleetWidget;
@@ -25,7 +24,14 @@ import ui.HQWidget;
 import ui.IndexedDialog;
 import ui.StarWidget;
 import event.GameEventQueue;
-import galaxy.generation.Galaxy;
+import galaxy.generation.DelaunayLaneGenerator;
+import galaxy.generation.EmpireInitialiazer;
+import galaxy.generation.MinimumSpanningTreeForce;
+import galaxy.generation.NascentGalaxy;
+import galaxy.generation.RandomStarGenerator;
+import galaxy.generation.SimpleBlobCreator;
+import galaxy.generation.SimplePointCreator;
+import galaxy.generation.StartingLocationFinder;
 
 public class Game extends BasicGameState
 {
@@ -52,7 +58,18 @@ public class Game extends BasicGameState
 		hqWidget = new HQWidget();
 		econDialog = new EconomyDialog();
 		eventQueue = new GameEventQueue();
-		new Galaxy();
+		
+		// Initialize galaxy
+		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
+//		ng.addForce(new StaticGalaxyCreator());
+		ng.addForce(new SimpleBlobCreator(30, 4, 15), true);
+		ng.addForce(new SimplePointCreator(5, 50), true);
+		ng.addForce(new DelaunayLaneGenerator(0.15f), true);
+		ng.addForce(new MinimumSpanningTreeForce(), true);
+		ng.addForce(new StartingLocationFinder(5, 50), true);
+		ng.addForce(new RandomStarGenerator(), true);
+		ng.addForce(new EmpireInitialiazer(5), false);
+		ng.blossom();
 		
 		mouseDownTime = -1;
 		
@@ -79,7 +96,7 @@ public class Game extends BasicGameState
 		Lane.renderAll(gc, g);
 
 		// Draw Stars
-		for(Star s : Galaxy.instance().getStars())
+		for(Star s : Star.all())
 		{
 			s.render(gc, g);
 		}
@@ -170,7 +187,7 @@ public class Game extends BasicGameState
 
 		// Check if the click corresponds to a star.
 		Star selectedStar = null;
-		for(Star s : Galaxy.instance().getStars())
+		for(Star s : Star.all())
 		{
 			if(s.screenCLick((float)x, (float)y, button))
 			{

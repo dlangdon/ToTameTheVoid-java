@@ -2,6 +2,8 @@ package ui;
 
 import graphic.Camera;
 import graphic.Render;
+import graphic.Selection;
+import graphic.Selection.Observer;
 
 import java.util.List;
 
@@ -15,8 +17,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import state.HQ;
 import state.HQ.QueuedUnit;
-import state.Selection;
-import state.Selection.Observer;
 import state.Unit;
 
 public class HQWidget extends IndexedDialog

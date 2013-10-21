@@ -4,6 +4,8 @@ import event.GameEvent;
 import event.GameEventQueue;
 import graphic.Camera;
 import graphic.Render;
+import graphic.Selection;
+import graphic.Selection.Observer;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,8 +18,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Colony;
-import state.Selection;
-import state.Selection.Observer;
 import state.Star;
 
 public class StarWidget extends IndexedDialog

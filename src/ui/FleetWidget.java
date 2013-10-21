@@ -2,6 +2,8 @@ package ui;
 
 import graphic.Camera;
 import graphic.Render;
+import graphic.Selection;
+import graphic.Selection.Observer;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -14,11 +16,9 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Fleet;
-import state.Selection.Observer;
 import state.Star;
 import state.Unit;
 import state.UnitStack;
-import state.Selection;
 
 public class FleetWidget extends IndexedDialog
 {

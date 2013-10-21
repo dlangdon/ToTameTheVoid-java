@@ -1,7 +1,7 @@
 /**
  * 
  */
-package state;
+package graphic;
 
 import java.util.ArrayList;
 

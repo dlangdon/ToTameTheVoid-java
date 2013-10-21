@@ -57,7 +57,7 @@ public class EmpireInitialiazer implements ForceOfNature
 		for(int i=0; i<numEmpires; i++)
 		{
 			Empire e = new Empire(names[i], palette[i]);
-			Star s = Galaxy.instance().stars.get(nascentGalaxy.startingLocations.get(i));
+			Star s = Star.all().get(nascentGalaxy.startingLocations.get(i));
 			s.setParameters(0.5f, 0.5f, 0.5f);
 			
 			Fleet f = new Fleet(s, e);

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import graphic.Camera;
 import graphic.Render;
+import graphic.Selection;
 import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
@@ -19,7 +20,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import state.Economy;
-import state.Selection;
 import state.Star;
 
 public class HQWidgetTest extends BasicGame
