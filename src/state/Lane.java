@@ -12,7 +12,7 @@ import org.newdawn.slick.Graphics;
  * Note that drawing methods are static since lanes have no difference between each other (for now), also, centralization allows lanes to be drawn below other objects (i.e. stars) and only once.
  * @author Daniel Langdon
  */
-public class Lane
+public class Lane extends Place
 {
 // Internals ==========================================================================================================	
 	private static HashMap<Integer, Lane> all = new HashMap<Integer, Lane>();
@@ -27,6 +27,12 @@ public class Lane
 		int key = createKey(from, to);
 		Lane l = all.get(key);
 		return l == null ? 0.0f : l.length;
+	}
+
+	public static Lane get(Star from, Star to)
+	{
+		int key = createKey(from, to);
+		return all.get(key);
 	}
 	
 	public static List<Star> getRoute(Star from, Star to)

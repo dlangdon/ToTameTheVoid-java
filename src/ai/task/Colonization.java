@@ -4,12 +4,9 @@
 package ai.task;
 
 import java.util.List;
-import java.util.Map.Entry;
 
 import state.Empire;
 import state.Star;
-import state.Unit;
-import state.UnitStack;
 
 /**
  * Task to colonize a potential colony.
@@ -43,7 +40,6 @@ public class Colonization implements Task
 	
 	Star colonize;
 	
-	
 	/* (non-Javadoc)
 	 * @see ai.task.Task#importance()
 	 */
@@ -72,6 +68,16 @@ public class Colonization implements Task
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	/* (non-Javadoc)
+	 * @see ai.task.Task#location()
+	 */
+	@Override
+	public Star location()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

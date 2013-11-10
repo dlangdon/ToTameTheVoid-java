@@ -1,6 +1,8 @@
 package state;
 
-public class Colony
+import org.newdawn.slick.Image;
+
+public class Colony extends Placeable
 {
 // Internals ==========================================================================================================
 	private static final float MIN_INFRASTRUCTURE = 0.01f;
@@ -12,16 +14,13 @@ public class Colony
 	private double maintenance_;
 	private double conditions_;
 	private double roi_;
-	private Star location_;
-	private Empire owner_;
 
 // Public Methods =====================================================================================================
 	public Colony(Star location, Empire empire)
 	{
-		location_ = location;
-		owner_ = empire;
-		owner_.addColony(this);
-		location.setColony(this);
+		super(location);
+		location.setOwner(empire);
+		empire.addColony(this);
 
 		infrastructure_ = MIN_INFRASTRUCTURE; // This is the initial infrastructure after colonization.
 		roi_ = 0;
@@ -43,7 +42,7 @@ public class Colony
 
 	public void updateTech()
 	{
-		maxInfrastructure_ = (float) ((0.75f + location_.size()) * ((conditions_ + 0.75f) - Math.sqrt((conditions_ + 0.75f) / (location_.resources() + 0.75f))));
+		maxInfrastructure_ = (float) ((0.75f + star().size()) * ((conditions_ + 0.75f) - Math.sqrt((conditions_ + 0.75f) / (star().resources() + 0.75f))));
 		if (maxInfrastructure_ <= 0)
 			maxInfrastructure_ = MIN_INFRASTRUCTURE;
 	}
@@ -89,9 +88,9 @@ public class Colony
 		cost = toGrow * cost;
 
 		// Recalculate economy due to last turn spending.
-		conditions_ = location_.conditions() - infrastructure_ / (location_.size() + 0.75f);
+		conditions_ = star().conditions() - infrastructure_ / (star().size() + 0.75f);
 		double auxMaintenance = infrastructure_ / (conditions_ + 0.75);
-		double auxProduction = infrastructure_ * (location_.resources() + 0.75);
+		double auxProduction = infrastructure_ * (star().resources() + 0.75);
 		if (cost > 0)
 			roi_ = cost / (auxProduction - auxMaintenance - production_ + maintenance_);
 		production_ = auxProduction;
@@ -150,27 +149,22 @@ public class Colony
 		return roi_;
 	}
 
-	/**
-	 * @return The empire who owns this star, or null if the star has not been claimed.
+	/* (non-Javadoc)
+	 * @see state.Placeable#icon()
 	 */
-	public Empire owner()
+	@Override
+	public Image icon()
 	{
-		return owner_;
+		return null;
 	}
 
-	/**
-	 * @param owner A new owner for the colony (invasion, trade, who knows) 
+	/* (non-Javadoc)
+	 * @see state.Placeable#priority()
 	 */
-	public void setOwner(Empire owner)
+	@Override
+	public int priority()
 	{
-		owner_.getColonies().remove(this);
-		owner.addColony(this);
-		this.owner_ = owner;
-	}
-
-	public Star location()
-	{
-		return location_;
+		return 0;
 	}
 
 }

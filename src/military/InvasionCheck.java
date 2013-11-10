@@ -24,23 +24,23 @@ public class InvasionCheck implements TurnSubProcess
 	public void check(GameEventQueue queue, Star location)
 	{
 		// If there is no colony, nothing to invade.
-		Colony colony = location.colony();
+		Colony colony = location.getPlaceable(Colony.class);
 		if(colony == null)
 			return;				
 		
 		// Check if no fleets at all, or my own fleet in orbit protecting!
-		List<Fleet> fleets = location.getFleetsInOrbit();
-		if(fleets.isEmpty() || fleets.get(0).owner() == colony.owner())
+		List<Fleet> fleets = location.getFleets();
+		if(fleets.isEmpty() || fleets.get(0).owner() == location.owner())
 			return;				
 
 		// Now, collect all possible invaders.
 		// TODO for now this is trivial, invasion is FIFO and automatic.
 		for(Fleet f : fleets)
 		{
-			if(f.owner().reciprocalTrust(colony.owner()) < Empire.CEASE_FIRE)
+			if(f.owner().reciprocalTrust(location.owner()) < Empire.CEASE_FIRE)
 			{
 				// Conquered!
-				colony.setOwner(f.owner());
+				location.setOwner(f.owner());
 				break;
 			}
 		}

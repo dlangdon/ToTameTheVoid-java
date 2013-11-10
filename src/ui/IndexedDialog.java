@@ -77,7 +77,6 @@ public abstract class IndexedDialog
 
 	public boolean moveCursor(int oldx, int oldy, int newx, int newy) 
 	{
-		System.out.println("Hover index: " + hoverIndex);
 		// Check if we are active.
 		int newHover = NO_INDEX;
 		if(location() != null)

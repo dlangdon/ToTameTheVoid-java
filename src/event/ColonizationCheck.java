@@ -43,12 +43,12 @@ public class ColonizationCheck implements TurnSubProcess
 		}
 
 		// If there is a colony already, nothing to do.
-		Colony colony = location.colony();
+		Colony colony = location.getPlaceable(Colony.class);
 		if (colony != null)
 			return;
 
 		// Are there still fleets in orbit?
-		List<Fleet> fleets = location.getFleetsInOrbit();
+		List<Fleet> fleets = location.getFleets();
 		if (fleets.isEmpty())
 			return;
 

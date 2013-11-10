@@ -306,7 +306,7 @@ public class FleetWidget extends IndexedDialog
 	public void starClick(int button, Star s)
 	{
 		// Case 1: a click while in orbit and with a selection in place need to be split.
-		if (button == 0 && fleet.orbiting() != null)
+		if (button == 0 && fleet.place() != null)
 		{
 			// TODO This fails, we need to know if the route exists before knowing if a split needs to happen
 			// Not fixing it yet since when there is an implementetion for path finding the check will not be needed...

@@ -20,13 +20,14 @@ import ui.UIListener;
  * Also, these icons might be selected in order to produce other actions.
  * @author Daniel Langdon
  */
-public abstract class Orbiter implements UIListener
+public abstract class Placeable implements UIListener
 {
-	protected Star location_;
+	private Place location_;
 	
-	protected Orbiter(Star location)
+	protected Placeable(Place location)
 	{
 		location_ = location;
+		location_.arrive(this);
 	}
 	
 	/**
@@ -48,32 +49,40 @@ public abstract class Orbiter implements UIListener
 	@Override
 	public boolean screenCLick(float x, float y, int button)
 	{
-		Vector2f screen = new Vector2f(25.0f, 0.0f);
-
-		// Orbiting the star. In this case, each fleet is separated by a 30 degree angle.
-		screen.setTheta(-30 * location_.getDock(this) - 30);
-		screen.add(Camera.instance().worldToScreen(location_.getPos()));
-			
-		// Compare against mouse screen position.
-		Vector2f local = new Vector2f(x, y).sub(screen);
-		return (local.x * local.x <= 25 && local.y * local.y <= 25);
+		if(location_ instanceof Star)
+		{
+			Star location_ = (Star)this.location_; 
+			Vector2f screen = new Vector2f(25.0f, 0.0f);
+	
+			// Orbiting the star. In this case, each fleet is separated by a 30 degree angle.
+			screen.setTheta(-30 * location_.indexOf(this) - 30);
+			screen.add(Camera.instance().worldToScreen(location_.getPos()));
+				
+			// Compare against mouse screen position.
+			Vector2f local = new Vector2f(x, y).sub(screen);
+			return (local.x * local.x <= 25 && local.y * local.y <= 25);
+		}
+		return false;
 	}
 	
 	public void render(GameContainer gc, Graphics g)
 	{
-		Color color = Color.white;
-		if(location_.colony() != null)
-			color = location_.colony().owner().color();
-		if(Selection.is(this))
+		if(location_ instanceof Star)
 		{
-			float alpha = 1.0f - 1.2f * Math.abs((System.currentTimeMillis() % 1500) / 1500.0f - 0.5f);
-			color = new Color(color.r, color.g, color.b, alpha);
+			Star location_ = (Star)this.location_; 
+				
+			Color color = (location_.owner() != null) ? place().owner().color() : Color.white;
+			if(Selection.is(this))
+			{
+				float alpha = 1.0f - 1.2f * Math.abs((System.currentTimeMillis() % 1500) / 1500.0f - 0.5f);
+				color = new Color(color.r, color.g, color.b, alpha);
+			}
+			
+			// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
+			Vector2f pos = new Vector2f(30.0f, 0.0f);
+			pos.setTheta(-30 * location_.indexOf(this) - 30);
+			drawIcon(location_.getPos(), g, pos, color);
 		}
-		
-		// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
-		Vector2f pos = new Vector2f(30.0f, 0.0f);
-		pos.setTheta(-30 * location_.getDock(this) - 30);
-		drawIcon(location_.getPos(), g, pos, color);
 	}
 	
 	protected void drawIcon(Vector2f world, Graphics g, Vector2f screenDisp, Color color)
@@ -84,9 +93,26 @@ public abstract class Orbiter implements UIListener
 		g.popTransform();
 	}
 	
-	public Star orbiting()
+	public Place place()
 	{
 		return location_;
 	}
+	
+	/** 
+	 * @return The place, casted to a star. This is useful when the caller has given guarantees about the place.
+	 */
+	public Star star()
+	{
+		return (Star) location_;
+	}
 
+	/**
+	 * Moves a placeable from one place to another. Assumes that the move has been correctly validated before.
+	 */
+	protected void setPlace(Place p)
+	{
+		location_.leave(this);
+		location_ = p;
+		location_.arrive(this);
+	}
 }

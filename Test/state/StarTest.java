@@ -27,8 +27,8 @@ public class StarTest
 		Star s = new Star(0, 0, 0);
 		Shipyard sy = new Shipyard(s);
 		
-		assertNotNull("No shipyard present", s.getOrbiter(Shipyard.class));
-		assertNull("Invalid fleet present", s.getOrbiter(Fleet.class));
+		assertNotNull("No shipyard present", s.getPlaceable(Shipyard.class));
+		assertNull("Invalid fleet present", s.getPlaceable(Fleet.class));
 	}
 
 }

@@ -2,8 +2,10 @@ package event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import military.InvasionCheck;
 import military.SpaceCombatCheck;
@@ -41,7 +43,7 @@ public class GameEventQueue
 // Internals ==========================================================================================================	
 
 	private int turn;
-	private LinkedList<Star> checkLocations;
+	private Set<Star> checkLocations;
 	private HashMap<Star, List<GameEvent>> events;
 	private LinkedList<TurnSubProcess> checks;
 
@@ -53,7 +55,7 @@ public class GameEventQueue
 	public GameEventQueue()
 	{
 		instance_ = this;
-		checkLocations = new LinkedList<Star>();
+		checkLocations = new HashSet<Star>();
 		events = new HashMap<Star, List<GameEvent>>();
 		checks = new LinkedList<TurnSubProcess>();
 		turn = 0;
@@ -149,8 +151,10 @@ public class GameEventQueue
 			e.getEconomy().applyGrowth(e.getColonies());
 
 		// Update all stars
+		System.out.println("Checking events for turn " + turn);
 		for (Star s : checkLocations)
 		{
+			System.out.println("\tChecking location " + s.name());
 			// Run all registered checks for this location.
 			for (TurnSubProcess sp : checks)
 				sp.check(this, s);

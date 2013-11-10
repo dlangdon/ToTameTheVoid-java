@@ -14,7 +14,7 @@ import org.newdawn.slick.Image;
  * @author Daniel Langdon
  * TODO Store partial progress separately from the queue, add logic so that production is not lost completely if unit is deleted, then added again.
  */
-public abstract class HQ extends Orbiter
+public abstract class HQ extends Placeable
 {
 // Statics ============================================================================================================
 	/**
@@ -66,7 +66,6 @@ public abstract class HQ extends Orbiter
 		queue_ = new ArrayList<HQ.QueuedUnit>(5);
 		relocation_ = new LinkedList<Star>();
 		level_ = 1;
-		location.arrive(this);
 		outputConfig = OutputLevel.FULL;
 		all().add(this);
 	}
@@ -94,7 +93,7 @@ public abstract class HQ extends Orbiter
 	public void turn()
 	{
 		// Produce new units.
-		Fleet newUnits = new Fleet(location_, location_.colony().owner());
+		Fleet newUnits = new Fleet(star(), star().owner());
 		double toSpend = maxOutput()*outputConfig.output;
 		while(!queue_.isEmpty() && toSpend > 0.0)
 		{
@@ -114,7 +113,7 @@ public abstract class HQ extends Orbiter
 				toSpend = 0.0;
 			}
 		}
-		location_.colony().owner().getEconomy().addMovement(toSpend - maxOutput()*outputConfig.output, outputExpense());
+		place().owner().getEconomy().addMovement(toSpend - maxOutput()*outputConfig.output, outputExpense());
 
 		// Set the fleet just created.
 		if(newUnits.isEmpty())

@@ -17,7 +17,7 @@ public class FleetMerger implements TurnSubProcess
 	@Override
 	public void check(GameEventQueue queue, Star location)
 	{
-		List<Fleet> fleets = location.getFleetsInOrbit();
+		List<Fleet> fleets = location.getFleets();
 
 		// Check for fleets to merge.
 		for(int i=0; i<fleets.size(); i++)

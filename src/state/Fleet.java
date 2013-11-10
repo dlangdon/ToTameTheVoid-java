@@ -19,7 +19,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-public class Fleet extends Orbiter
+public class Fleet extends Placeable
 {
 // Statics ============================================================================================================
 	/**
@@ -92,9 +92,7 @@ public class Fleet extends Orbiter
 		this.destinations.add(orbiting);
 		this.autoMerge = true;
 
-		orbiting.arrive(this);	// Needs to happen after destinations exist, else priority can't be calculated.
 		fleets.add(this);
-//		Galaxy.instance().getFleets().add(this);
 	}
 
 	/**
@@ -300,7 +298,7 @@ public class Fleet extends Orbiter
 
 			// Repair costs are 25% of the cost of a new ship, proportional to the damage.
 			// On friendly territory, up to 50% of hitpoints can be repaired on a turn, otherwise only 20% of it can.
-			boolean friendlyPlace = orbiting() != null && orbiting().colony() != null && owner().reciprocalTrust(orbiting().colony().owner()) >= Empire.SANCTUARY;
+			boolean friendlyPlace = place().owner() != null && owner().reciprocalTrust(place().owner()) >= Empire.SANCTUARY;
 			double repairCost = -type.cost() * stack.quantity() * 0.25;
 			double repairNeed = (stack.maxVariableDamage()+stack.baseDamage()) / 2.0 / type.hitPoints(); 
 			double repairAmount = Math.min(friendlyPlace ? 0.5 : 0.20, repairNeed); 
@@ -317,10 +315,7 @@ public class Fleet extends Orbiter
 
 		// Check if we need to leave the current star.
 		if(destinations.size() > 1 && turnsTraveled == 0)
-		{
-			destinations.getFirst().leave(this);
-			location_ = null;
-		}
+			this.setPlace(Lane.get(destinations.get(0), destinations.get(1)));
 
 		// Move the task fleet one turn forward.
 		turnsTraveled++;
@@ -330,9 +325,7 @@ public class Fleet extends Orbiter
 		{
 			turnsTraveled = 0;
 			destinations.removeFirst();
-			destinations.getFirst().arrive(this);
-			location_ = destinations.getFirst();
-			
+			this.setPlace(destinations.getFirst());
 			if(destinations.size() > 1)
 				turnsTotal = (int) Math.ceil(Lane.getDistance(destinations.getFirst(), destinations.get(1)) / speed); 
 		}
@@ -378,7 +371,7 @@ public class Fleet extends Orbiter
 		{
 			// Paint orbiting the star. In this case, each fleet is separated by a 30 degree angle.
 			Vector2f pos = new Vector2f(25.0f, 0.0f);
-			pos.setTheta(-30 * destinations.getFirst().getDock(this) - 30);
+			pos.setTheta(-30 * destinations.getFirst().indexOf(this) - 30);
 			drawIcon(destinations.getFirst().getPos(), g, pos, color);
 		}
 		else
@@ -482,8 +475,7 @@ public class Fleet extends Orbiter
 		int base = 10;
 		
 		// Check if one or other is owner of the star.
-		Colony col = destinations.getFirst().colony();
-		if(col != null && col.owner() == owner_)
+		if(place().owner() == owner_)
 			base += 9;
 		else
 			base += Empire.all().indexOf(owner_);
@@ -495,7 +487,7 @@ public class Fleet extends Orbiter
 	{
 		if(isEmpty())
 		{
-			orbiting().leave(this);
+			place().leave(this);
 			fleets.remove(this);
 			return true;
 		}
@@ -523,10 +515,10 @@ public class Fleet extends Orbiter
 	 */
 	public Fleet findOrbitingFleet()
 	{
-		if(this.orbiting() == null)
+		if(this.place() == null)
 			return null;
 		
-		for (Fleet f : this.orbiting().getFleetsInOrbit())
+		for (Fleet f : this.place().getFleets())
 			if (f.owner() == owner() && !f.hasOrders() && f.isAutoMerge())
 				return f;
 		return null;

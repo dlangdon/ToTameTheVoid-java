@@ -46,11 +46,11 @@ public class BuildingsCheck<T> implements TurnSubProcess
 		}
 		
 		// If there is a colony already, nothing to do.
-		Colony colony = location.colony();
+		Colony colony = location.getPlaceable(Colony.class);
 		if (colony != null)
 			return;
 
-		List<Fleet> fleets = location.getFleetsInOrbit();
+		List<Fleet> fleets = location.getFleets();
 		Empire e = fleets.get(0).owner();
 		UnitStack canColonize = null;
 		for (Fleet f : fleets)

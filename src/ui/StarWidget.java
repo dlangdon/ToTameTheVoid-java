@@ -56,7 +56,7 @@ public class StarWidget extends IndexedDialog
 		Camera.instance().pushLocalTransformation(g, star.getPos());
 
 		// draw star icon
-		Colony colony = star.colony(); 
+		Colony colony = star.getPlaceable(Colony.class); 
 
 		g.setColor(Color.white);
 		background.draw(-84, -119);
@@ -67,14 +67,14 @@ public class StarWidget extends IndexedDialog
 		Render.normal.drawString(110, -44, "Conditions");
 		Render.normal.drawString(110, -30, "Size");
 		
-		g.setColor(colony == null ? Color.white : colony.owner().color());
+		g.setColor(star.owner() == null ? Color.white : star.owner().color());
 		drawMeter(g, 210, -58, star.resources());
 		drawMeter(g, 210, -44, star.conditions());
 		drawMeter(g, 210, -30, star.size());
 
 		if(colony != null)
 		{
-			Render.titles.drawString(100, 2, colony.owner().name() + " outpost.");
+			Render.titles.drawString(100, 2, star.owner().name() + " outpost.");
 
 			Render.normal.drawString(110, 36, "Total Output");
 			Render.normal.drawString(110, 50, "Inv. return");

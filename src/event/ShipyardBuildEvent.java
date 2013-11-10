@@ -65,7 +65,7 @@ public class ShipyardBuildEvent extends GameEvent
 	public void runAction()
 	{
 		// Check if an IHQ exist in this colony.
-		Shipyard sy = location().getOrbiter(Shipyard.class);
+		Shipyard sy = location().getPlaceable(Shipyard.class);
 		if(sy == null)
 			sy = new Shipyard(location());
 	}
