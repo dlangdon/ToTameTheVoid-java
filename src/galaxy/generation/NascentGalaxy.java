@@ -12,6 +12,9 @@ import org.newdawn.slick.geom.Vector2f;
 import state.Lane;
 import state.Star;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
+
 /**
  * This is a common data structure to support the pipeline that produces a full galaxy map.
  * Ideally, one or more processes are registered to work on top of this data structure, adding or subtracting from it.
@@ -115,9 +118,11 @@ public class NascentGalaxy
 			if(!force.unleash(this))
 				return false;
 
+		Multimap<Star, Star> temp = LinkedListMultimap.create();
 		for(Edge e : prunedEdges)
-			Lane.addLane(bornStars.get(e.v1), bornStars.get(e.v2));
-
+			temp.put(bornStars.get(e.v1), bornStars.get(e.v2));
+		Lane.init(temp);
+		
 		for(ForceOfNature force : posteriorForces)
 			if(!force.unleash(this))
 				return false;
