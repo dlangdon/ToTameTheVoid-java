@@ -62,4 +62,9 @@ public abstract class Place
 	{
 		return null;
 	}
+
+	public List<Placeable> allPlaceables()
+	{
+		return here;
+	}
 }

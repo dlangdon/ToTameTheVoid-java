@@ -115,4 +115,13 @@ public abstract class Placeable implements UIListener
 		location_ = p;
 		location_.arrive(this);
 	}
+
+	/**
+	 * Most things are owned by whoever claims the location they are in.
+	 */
+	public Empire owner()
+	{
+		return place().owner();
+	}
+
 }

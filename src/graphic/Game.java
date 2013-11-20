@@ -14,6 +14,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import state.Economy;
+import state.Empire;
 import state.Fleet;
 import state.HQ;
 import state.Lane;
@@ -127,6 +128,49 @@ public class Game extends BasicGameState
 		// Draw events
 		// eventQueue.render(gc, g);
 	}
+	
+	public void renderAll(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
+	{
+		// Draw backgrounds
+		background.draw(0, 0);
+		g.setAntiAlias(true);
+		Camera.instance().pushWorldTransformation(g);
+
+		// Draw Lanes
+		Lane.renderAll(gc, g);
+
+		// Draw Stars
+		for(Star s : Star.all())
+		{
+			s.render(gc, g);
+		}
+
+		// Draw fleets
+		for(Fleet tf : Fleet.all())
+		{
+			tf.render(gc, g);
+		}
+
+		// Draw HQ
+		for(HQ hq : HQ.all())
+		{
+			hq.render(gc, g);
+		}
+		
+		// Draw in world widgets
+//		if(currentDialog != null)
+//			currentDialog.render(gc, g);
+		starWidget.render(gc, g);
+		fleetWidget.render(gc, g);
+		hqWidget.render(gc, g);
+		
+		// Draw HUD widgets
+		g.popTransform();
+		econDialog.render(gc, g);
+		
+		// Draw events
+		// eventQueue.render(gc, g);
+	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException
 	{
@@ -169,6 +213,12 @@ public class Game extends BasicGameState
 			econDialog.setVisible(!econDialog.isVisible());
 		else if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(true);
+		else if(key == Input.KEY_P)
+		{
+			int index = Empire.all().indexOf(Empire.getPlayerEmpire());
+			Empire.setPlayerEmpire(Empire.all().get(index+1 % Empire.all().size()));
+			IndexedDialog.setDisabled(true);
+		}
 	}
 
 	@Override

@@ -16,6 +16,8 @@ import org.newdawn.slick.SlickException;
 import state.Empire;
 import state.Fleet;
 import state.HQ;
+import state.Place;
+import state.Placeable;
 import state.Star;
 
 /**
@@ -150,7 +152,7 @@ public class GameEventQueue
 		for (Empire e : Empire.all())
 			e.getEconomy().applyGrowth(e.getColonies());
 
-		// Update all stars
+		// Check for new events.
 		System.out.println("Checking events for turn " + turn);
 		for (Star s : checkLocations)
 		{
@@ -163,8 +165,26 @@ public class GameEventQueue
 		// Try to process outstanding events.
 		
 		// TODO Update power snapshots for graphs and AI
+		
+		// Update visibility graphs.
+		for(Star s: Star.all())
+		{
+			
+		}
 
 	}
+	
+	public void checkVisibility(Place p)
+	{
+		for(Placeable i : p.allPlaceables())
+		{
+			
+		}
+		
+	}
+	
+	
+	
 
 	/**
 	 * @param gc

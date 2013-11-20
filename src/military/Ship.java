@@ -27,6 +27,6 @@ public class Ship extends Unit
 	@Override
 	public String type()
 	{
-		return "Ship";
+		return "SHIP";
 	}
 }

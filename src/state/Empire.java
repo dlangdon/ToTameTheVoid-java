@@ -4,12 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.newdawn.slick.Color;
 
 public class Empire
 {
+	class PlaceView extends Place
+	{
+		private int lastUpdate_;
+	}
+	
 // Statics ============================================================================================================	
 	public static final float DISTRUST = 0.0f;
 	public static final float CEASE_FIRE = 0.14f;
@@ -41,10 +47,11 @@ public class Empire
 	private Economy economy_;
 	private HashSet<Colony> colonies_;
 	private HashMap<Empire, Double> trust;
-
+	private Map<Place, PlaceView> galaxyView;
+	
 // Public Methods =====================================================================================================
 
-	public Empire(String name_, Color color_)
+ 	public Empire(String name_, Color color_)
 	{
 		super();
 		this.name_ = name_;
@@ -52,6 +59,8 @@ public class Empire
 		colonies_ = new HashSet<Colony>();
 		economy_ = new Economy();
 		trust = new HashMap<Empire, Double>();
+		galaxyView = new HashMap<Place, PlaceView>();
+
 		all.add(this);
 	}
 
@@ -107,5 +116,32 @@ public class Empire
 		return Math.min(this.trustLevel(other), other.trustLevel(this));
 	}
 
-
+	public void updateVisible(int turn, Place p)
+	{
+		// Get what we knew (or not) from that location.
+		PlaceView stored = galaxyView.get(p);
+		if(stored == null)
+			stored = new PlaceView();
+		
+		// Update what we see given the current empire.
+		if(stored.lastUpdate_ < turn)
+		{
+			stored.allPlaceables().clear();
+			for(Placeable i: p.allPlaceables())
+			{
+				// Hide agents.
+				if((i instanceof Fleet) && ((Fleet)i).type() == "AGENT" && i.owner() != this)
+					continue;
+				
+				// TODO Summarize fleets from other empires as single fleet.
+				stored.allPlaceables().add(i);
+				
+				// If star, put visibility of lanes too.
+				if(p instanceof Star)
+				{
+					
+				}
+			}			
+		}
+	}
 }

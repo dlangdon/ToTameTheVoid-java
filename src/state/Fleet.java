@@ -422,6 +422,7 @@ public class Fleet extends Placeable
 		return stacks.size() == 0;
 	}
 
+	@Override
 	public Empire owner()
 	{
 		return owner_;

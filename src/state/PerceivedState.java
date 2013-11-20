@@ -1,16 +1,16 @@
 /**
  * 
  */
-package ai;
+package state;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import state.Empire;
-import state.Fleet;
-import state.Star;
+import ai.PerceivedState.Classification;
+
 
 /**
  * A view of the current state of the galaxy, as seen by a single empire.
@@ -22,12 +22,26 @@ import state.Star;
  * 
  * @author Daniel Langdon
  */
-public class EmpireView
+public class PerceivedState
 {
-	public enum Classification { UNKNOWN, REMEMBERED, OWNED, UNCLAIMED, FRIENDLY, UNFRIENDLY }
-	private static HashMap<Empire, EmpireView> views;
-	private HashMap<Object, Classification> classifications;
+	
+	
+	
+	Empire perspective;
 
+	
+	/**
+	 * 
+	 */
+	public PerceivedState()
+	{
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * Refresh the current view according to the current state, for all empires.
 	 * Visibility rules are chosen such that agents have an important role, and to be as realistic as possible. 
@@ -40,7 +54,7 @@ public class EmpireView
 	 */
 	public static void refreshAllViews()
 	{
-		views = new HashMap<Empire, EmpireView>();
+		views = new HashMap<Empire, PerceivedState>();
 		for(Star s: Star.all())
 		{
 			// The star owner always gets sees it.
