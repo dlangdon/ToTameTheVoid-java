@@ -13,12 +13,7 @@ import military.SpaceCombatCheck;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 
-import state.Empire;
-import state.Fleet;
-import state.HQ;
-import state.Place;
-import state.Placeable;
-import state.Star;
+import state.*;
 
 /**
  * HIGHLY EXPERIMENTAL Event queue for special turn events. This is needed to
@@ -167,24 +162,8 @@ public class GameEventQueue
 		// TODO Update power snapshots for graphs and AI
 		
 		// Update visibility graphs.
-		for(Star s: Star.all())
-		{
-			
-		}
-
+		PerceivedState.refreshAllPerceptions();
 	}
-	
-	public void checkVisibility(Place p)
-	{
-		for(Placeable i : p.allPlaceables())
-		{
-			
-		}
-		
-	}
-	
-	
-	
 
 	/**
 	 * @param gc

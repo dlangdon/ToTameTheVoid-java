@@ -13,12 +13,7 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import state.Economy;
-import state.Empire;
-import state.Fleet;
-import state.HQ;
-import state.Lane;
-import state.Star;
+import state.*;
 import ui.EconomyDialog;
 import ui.FleetWidget;
 import ui.HQWidget;
@@ -93,27 +88,9 @@ public class Game extends BasicGameState
 		g.setAntiAlias(true);
 		Camera.instance().pushWorldTransformation(g);
 
-		// Draw Lanes
-		Lane.renderAll(gc, g);
+//		renderAll(gc, g);
+		renderView(gc, g);
 
-		// Draw Stars
-		for(Star s : Star.all())
-		{
-			s.render(gc, g);
-		}
-
-		// Draw fleets
-		for(Fleet tf : Fleet.all())
-		{
-			tf.render(gc, g);
-		}
-
-		// Draw HQ
-		for(HQ hq : HQ.all())
-		{
-			hq.render(gc, g);
-		}
-		
 		// Draw in world widgets
 //		if(currentDialog != null)
 //			currentDialog.render(gc, g);
@@ -128,14 +105,9 @@ public class Game extends BasicGameState
 		// Draw events
 		// eventQueue.render(gc, g);
 	}
-	
-	public void renderAll(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
-	{
-		// Draw backgrounds
-		background.draw(0, 0);
-		g.setAntiAlias(true);
-		Camera.instance().pushWorldTransformation(g);
 
+	private void renderAll(GameContainer gc, Graphics g)
+	{
 		// Draw Lanes
 		Lane.renderAll(gc, g);
 
@@ -156,20 +128,25 @@ public class Game extends BasicGameState
 		{
 			hq.render(gc, g);
 		}
-		
-		// Draw in world widgets
-//		if(currentDialog != null)
-//			currentDialog.render(gc, g);
-		starWidget.render(gc, g);
-		fleetWidget.render(gc, g);
-		hqWidget.render(gc, g);
-		
-		// Draw HUD widgets
-		g.popTransform();
-		econDialog.render(gc, g);
-		
-		// Draw events
-		// eventQueue.render(gc, g);
+	}
+
+	private void renderView(GameContainer gc, Graphics g)
+	{
+		PerceivedState view = PerceivedState.getForEmpire(Empire.getPlayerEmpire());
+
+		for(Lane l: view.getRememberedLanes())
+			l.render(gc, g);
+		for(Star s : view.getUnknownStars())
+		{
+			s.render(gc, g);
+
+			for(Fleet f : s.getFleets())
+				f.render(gc, g);
+
+			HQ hq = s.getPlaceable(HQ.class);
+			if(hq != null)
+				hq.render(gc, g);
+		}
 	}
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException

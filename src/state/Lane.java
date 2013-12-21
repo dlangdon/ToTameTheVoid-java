@@ -3,6 +3,7 @@ package state;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -70,8 +71,25 @@ public class Lane extends Place
 				g.drawLine(l.from.x(), l.from.y(), l.to.x(), l.to.y());
 	}
 
+	public void render(GameContainer gc, Graphics g)
+	{
+		g.setColor(new Color(1,1,1,0.6f));
+		if(from.index() < to.index())
+			g.drawLine(from.x(), from.y(), to.x(), to.y());
+	}
+
 	public static Collection<Lane> outgoingLanes(Star from)
 	{
 		return all.row(from).values();
+	}
+
+	public static Collection<Lane> all()
+	{
+		return all.values();
+	}
+
+	public Star exitPoint(Star start)
+	{
+		return from == start ? to : from;
 	}
 }
