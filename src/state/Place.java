@@ -58,6 +58,9 @@ public abstract class Place
 		return null;
 	}
 
+    /**
+     * Returns the empire that claims this location, or null if there is none.
+     */
 	public Empire owner()
 	{
 		return null;

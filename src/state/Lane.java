@@ -52,7 +52,7 @@ public class Lane extends Place
 
 	public static Lane get(Star from, Star to)
 	{
-		return all.get(from.index(), to.index());
+		return all.get(from, to);
 	}
 	
 	public static List<Star> getRoute(Star from, Star to)
