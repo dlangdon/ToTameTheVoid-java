@@ -135,7 +135,11 @@ public class Game extends BasicGameState
 		PerceivedState view = PerceivedState.getForEmpire(Empire.getPlayerEmpire());
 
 		for(Lane l: view.getRememberedLanes())
+		{
 			l.render(gc, g);
+			for(Fleet f : l.getFleets())
+				f.render(gc, g);
+		}
 		for(Star s : view.getUnknownStars())
 		{
 			s.render(gc, g);

@@ -71,6 +71,7 @@ public class PerceivedState
 				{
 					view.visibleStars.add(s);
 					view.rememberedStars.add(s);
+					view.unknownStars.add(s);
 
 					for(Lane l: Lane.outgoingLanes(s))
 					{
