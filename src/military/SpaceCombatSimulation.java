@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import state.Empire;
+import empire.Empire;
 import state.Fleet;
 import state.Unit;
 import state.UnitStack;

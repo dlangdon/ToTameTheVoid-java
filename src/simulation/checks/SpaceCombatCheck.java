@@ -1,25 +1,23 @@
-package military;
+package simulation.checks;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import state.Empire;
+import military.SpaceCombatSimulation;
+import simulation.GameEvent;
+import simulation.StarCheck;
+import empire.Empire;
 import state.Fleet;
 import state.Star;
-import event.GameEventQueue;
-import event.TurnSubProcess;
 
 /**
  * Creates events for space battles.
  * @author Daniel Langdon
  */
-public class SpaceCombatCheck implements TurnSubProcess
+public class SpaceCombatCheck implements StarCheck
 {
-	/* (non-Javadoc)
-	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
-	 */
 	@Override
-	public void check(GameEventQueue queue, Star location)
+	public GameEvent check(Star location)
 	{
 		// Get the list of fleets really in conflict. Remove fleets that have no hostile opponents (hence would not engage at all).
 		List<Fleet> fleets = new ArrayList<Fleet>();
@@ -39,8 +37,9 @@ public class SpaceCombatCheck implements TurnSubProcess
 				}
 			}
 		}
-		
+
 		SpaceCombatSimulation sim = new SpaceCombatSimulation(fleets);
 		sim.run();
+		return null;
 	}
 }

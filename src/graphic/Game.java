@@ -1,5 +1,8 @@
 package graphic;
 
+import empire.Economy;
+import empire.Empire;
+import empire.View;
 import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
@@ -19,7 +22,7 @@ import ui.FleetWidget;
 import ui.HQWidget;
 import ui.IndexedDialog;
 import ui.StarWidget;
-import event.GameEventQueue;
+import simulation.Simulator;
 import galaxy.generation.DelaunayLaneGenerator;
 import galaxy.generation.EmpireInitialiazer;
 import galaxy.generation.MinimumSpanningTreeForce;
@@ -29,6 +32,10 @@ import galaxy.generation.SimpleBlobCreator;
 import galaxy.generation.SimplePointCreator;
 import galaxy.generation.StartingLocationFinder;
 
+import java.util.Map;
+
+import static graphic.Render.Visibility;
+
 public class Game extends BasicGameState
 {
 	private Image background;
@@ -36,7 +43,7 @@ public class Game extends BasicGameState
 	private FleetWidget fleetWidget;
 	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
-	private GameEventQueue eventQueue;
+	private Simulator eventQueue;
 	private int mouseDownTime;
 	
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
@@ -53,7 +60,7 @@ public class Game extends BasicGameState
 		fleetWidget = new FleetWidget();
 		hqWidget = new HQWidget();
 		econDialog = new EconomyDialog();
-		eventQueue = new GameEventQueue();
+		eventQueue = new Simulator();
 		
 		// Initialize galaxy
 		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
@@ -114,7 +121,7 @@ public class Game extends BasicGameState
 		// Draw Stars
 		for(Star s : Star.all())
 		{
-			s.render(gc, g);
+			s.render(gc, g, Visibility.VISIBLE);
 		}
 
 		// Draw fleets
@@ -132,24 +139,30 @@ public class Game extends BasicGameState
 
 	private void renderView(GameContainer gc, Graphics g)
 	{
-		PerceivedState view = PerceivedState.getForEmpire(Empire.getPlayerEmpire());
+		View view = Empire.getPlayerEmpire().view();
 
-		for(Lane l: view.getRememberedLanes())
+		for(Map.Entry<Lane, Visibility> entry : view.getReachableLanes().entrySet())
 		{
-			l.render(gc, g);
-			for(Fleet f : l.getFleets())
-				f.render(gc, g);
+			entry.getKey().render(gc, g);
+			if(entry.getValue() == Visibility.VISIBLE)
+			{
+				for(Fleet f : entry.getKey().getFleets())
+					f.render(gc, g);
+			}
 		}
-		for(Star s : view.getUnknownStars())
+
+		for(Map.Entry<Star, Visibility> entry : view.getRechableStars().entrySet())
 		{
-			s.render(gc, g);
+			entry.getKey().render(gc, g, entry.getValue());
+			if(entry.getValue() == Visibility.VISIBLE)
+			{
+				for(Fleet f : entry.getKey().getFleets())
+					f.render(gc, g);
 
-			for(Fleet f : s.getFleets())
-				f.render(gc, g);
-
-			HQ hq = s.getPlaceable(HQ.class);
-			if(hq != null)
-				hq.render(gc, g);
+				HQ hq = entry.getKey().getPlaceable(HQ.class);
+				if(hq != null)
+					hq.render(gc, g);
+			}
 		}
 	}
 

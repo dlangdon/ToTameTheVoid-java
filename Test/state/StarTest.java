@@ -9,10 +9,7 @@ import military.Shipyard;
 
 import org.junit.Test;
 
-import event.GameEventQueue;
-
-import state.Fleet;
-import state.Star;
+import simulation.Simulator;
 
 /**
  * @author Daniel Langdon
@@ -23,7 +20,7 @@ public class StarTest
 	@Test
 	public void orbiterClassTest()
 	{
-		GameEventQueue queue = new GameEventQueue();
+		Simulator queue = new Simulator();
 		Star s = new Star(0, 0, 0);
 		Shipyard sy = new Shipyard(s);
 		

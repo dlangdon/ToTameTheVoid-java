@@ -1,13 +1,13 @@
 /**
  * 
  */
-package state;
+package empire;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-import event.GameEventQueue;
+import simulation.Simulator;
 
 /**
  * Stores the power balance of all empires across each turn.
@@ -35,7 +35,7 @@ public class PowerSnapshot
 	
 	public static void addValue(Empire e, Category c, double value)
 	{
-		int turn = GameEventQueue.instance().getTurnCount();
+		int turn = Simulator.instance().getTurnCount();
 		while(snapshots.size() <= turn)
 			snapshots.add(new PowerSnapshot());
 		PowerSnapshot s = snapshots.get(turn);
@@ -52,6 +52,6 @@ public class PowerSnapshot
 	
 	public static double getScore(Empire e, Category c)
 	{
-		return getScore(GameEventQueue.instance().getTurnCount(),  e, c);
+		return getScore(Simulator.instance().getTurnCount(),  e, c);
 	}
 }

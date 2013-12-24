@@ -6,8 +6,8 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 
-import state.Economy;
-import state.Empire;
+import empire.Economy;
+import empire.Empire;
 
 public class EconomyDialog
 {

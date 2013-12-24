@@ -1,7 +1,10 @@
-package event;
+package simulation.checks;
 
 import java.util.List;
 
+import simulation.GameEvent;
+import simulation.Simulator;
+import simulation.StarCheck;
 import state.Fleet;
 import state.Star;
 
@@ -9,13 +12,10 @@ import state.Star;
  * Analyzes potential fleet merges and performs them.
  * @author Daniel Langdon
  */
-public class FleetMerger implements TurnSubProcess
+public class FleetMerger implements StarCheck
 {
-	/* (non-Javadoc)
-	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
-	 */
 	@Override
-	public void check(GameEventQueue queue, Star location)
+	public GameEvent check(Star location)
 	{
 		List<Fleet> fleets = location.getFleets();
 
@@ -26,7 +26,7 @@ public class FleetMerger implements TurnSubProcess
 			for(int j= i+1; j<fleets.size(); j++)
 			{
 				Fleet b = fleets.get(j);
-				
+
 				// Fleets are assumed to be sorted by empire, then type, we can stop checking if we find otherwise.
 				if(a.owner() != b.owner() || a.type() != b.type())
 					break;
@@ -38,5 +38,6 @@ public class FleetMerger implements TurnSubProcess
 				}
 			}
 		}
+		return null;
 	}
 }

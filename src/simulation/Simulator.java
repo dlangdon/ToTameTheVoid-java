@@ -1,18 +1,24 @@
-package event;
+package simulation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import military.InvasionCheck;
-import military.SpaceCombatCheck;
+import empire.Empire;
+import empire.View;
+import simulation.checks.FleetMerger;
+import galaxy.structure.MovementObserver;
+import galaxy.structure.Place;
+import galaxy.structure.Placeable;
+import simulation.checks.InvasionCheck;
+import simulation.checks.SpaceCombatCheck;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 
+import simulation.actions.Colonization;
 import state.*;
 
 /**
@@ -27,12 +33,12 @@ import state.*;
  * 
  * @author Daniel Langdon
  */
-public class GameEventQueue
+public class Simulator
 {
 // Statics ==========================================================================================================	
-	private static GameEventQueue instance_;
+	private static Simulator instance_;
 
-	public static GameEventQueue instance()
+	public static Simulator instance()
 	{
 		return instance_;
 	}
@@ -40,54 +46,47 @@ public class GameEventQueue
 // Internals ==========================================================================================================	
 
 	private int turn;
-	private Set<Star> checkLocations;
+	private Set<Star> startsToCheckForEvents;
+	private Set<Lane> lanesToCheckForEvents;
 	private HashMap<Star, List<GameEvent>> events;
-	private LinkedList<TurnSubProcess> checks;
 
 // Public methods ==========================================================================================================	
 
 	/**
 	 * Constructor.
 	 */
-	public GameEventQueue()
+	public Simulator()
 	{
 		instance_ = this;
-		checkLocations = new HashSet<Star>();
-		events = new HashMap<Star, List<GameEvent>>();
-		checks = new LinkedList<TurnSubProcess>();
+		startsToCheckForEvents = new HashSet<>();
+		lanesToCheckForEvents = new HashSet<>();
+
+		events = new HashMap<>();
 		turn = 0;
 
-		// FIXME Instantiate all sub processes. This should be done by configuration or something like that. Fixed for now.
-//		registerSubProcess(new EconomyReset());			// Empire level
-//		registerSubProcess(new FleetUpdater());			// Star
-//		registerSubProcess(new ColonyUpdater());			// Star
-		registerSubProcess(new FleetMerger()); // Star
-		registerSubProcess(new SpaceCombatCheck()); // Star
-		registerSubProcess(new InvasionCheck()); // Star
-		registerSubProcess(new ColonizationCheck()); // Star
-	}
+		Place.addObserver(new MovementObserver()
+		{
+			@Override
+			public void arrivedAt(Placeable object, Place location)
+			{
+				if(location instanceof Star)
+					startsToCheckForEvents.add((Star)location);
+				else if(location instanceof Lane)
+					lanesToCheckForEvents.add((Lane)location);
+			}
 
-	/**
-	 * Registers a sub process to be evaluated at each turn. It is added at the
-	 * end of the process queue. REGISTRATION ORDER IS EXTREMELLY IMPORTANT
-	 * 
-	 * @param subProcess
-	 *           The process to add.
-	 */
-	public void registerSubProcess(TurnSubProcess subProcess)
-	{
-		checks.add(subProcess);
-	}
-
-	public void addLocationToCheck(Star location)
-	{
-		checkLocations.add(location);
+			@Override
+			public void departedAt(Placeable object, Place location)
+			{
+				arrivedAt(object, location);
+			}
+		});
 	}
 
 	/**
 	 * Adds an event to the turn's event queue.
 	 * 
-	 * @param e
+	 * @param event
 	 *           The event to add.
 	 */
 	public void addEvent(GameEvent event)
@@ -135,7 +134,7 @@ public class GameEventQueue
 			e.getEconomy().resetTurn();
 
 		// Produce new units
-		checkLocations.clear();
+		startsToCheckForEvents.clear();
 		for (HQ hq : HQ.all())
 			hq.turn();
 
@@ -147,22 +146,27 @@ public class GameEventQueue
 		for (Empire e : Empire.all())
 			e.getEconomy().applyGrowth(e.getColonies());
 
-		// Check for new events.
-		System.out.println("Checking events for turn " + turn);
-		for (Star s : checkLocations)
+		// Update all lanes (has to be before stars, or we will forget lanes that are being seen by the star.
+		for(Lane l : lanesToCheckForEvents)
 		{
-			System.out.println("\tChecking location " + s.name());
-			// Run all registered checks for this location.
-			for (TurnSubProcess sp : checks)
-				sp.check(this, s);
+			View.checkLaneVisibility.check(l);
 		}
 
-		// Try to process outstanding events.
-		
+		// Check for new events.
+		System.out.println("Checking events for turn " + turn);
+		for (Star s : startsToCheckForEvents)
+		{
+			new FleetMerger().check(s);
+			View.checkStarVisibility.check(s);
+			new SpaceCombatCheck().check(s);
+			new SpaceCombatCheck().check(s);
+			new InvasionCheck().check(s);
+			Colonization.check.check(s);
+		}
+
+
+		// TODO Try to process outstanding events.
 		// TODO Update power snapshots for graphs and AI
-		
-		// Update visibility graphs.
-		PerceivedState.refreshAllPerceptions();
 	}
 
 	/**

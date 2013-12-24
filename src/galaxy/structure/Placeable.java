@@ -1,7 +1,7 @@
 /**
  * 
  */
-package state;
+package galaxy.structure;
 
 import graphic.Camera;
 import graphic.Selection;
@@ -12,6 +12,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
+import empire.Empire;
+import state.Star;
 import ui.UIListener;
 
 /**

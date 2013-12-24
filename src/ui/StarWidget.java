@@ -1,7 +1,7 @@
 package ui;
 
-import event.GameEvent;
-import event.GameEventQueue;
+import simulation.GameEvent;
+import simulation.Simulator;
 import graphic.Camera;
 import graphic.Render;
 import graphic.Selection;
@@ -55,8 +55,7 @@ public class StarWidget extends IndexedDialog
 		// Make it so drawing stars is always done in local coordinates.
 		Camera.instance().pushLocalTransformation(g, star.getPos());
 
-		// draw star icon
-		Colony colony = star.getPlaceable(Colony.class); 
+		Colony colony = star.getPlaceable(Colony.class);
 
 		g.setColor(Color.white);
 		background.draw(-84, -119);
@@ -91,7 +90,7 @@ public class StarWidget extends IndexedDialog
 		}
 		
 		// Render possible actions on this system.
-		List<GameEvent> existing = GameEventQueue.instance().eventsForLocation(star);
+		List<GameEvent> existing = Simulator.instance().eventsForLocation(star);
 		for(GameEvent event : existing)
 		{
 			if(event.slot() >= 0)
@@ -121,7 +120,7 @@ public class StarWidget extends IndexedDialog
 			return;
 		
 		// Process the corresponding action-event.
-		Iterator<GameEvent> existing = GameEventQueue.instance().eventsForLocation(star).iterator();
+		Iterator<GameEvent> existing = Simulator.instance().eventsForLocation(star).iterator();
 		while(existing.hasNext())
 		{
 			GameEvent event = existing.next(); 

@@ -1,4 +1,6 @@
-package state;
+package empire;
+
+import state.Colony;
 
 import java.util.ArrayList;
 import java.util.Set;

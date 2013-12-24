@@ -1,5 +1,8 @@
 package state;
 
+import empire.Economy;
+import empire.Empire;
+import galaxy.structure.Placeable;
 import graphic.Camera;
 import graphic.Selection;
 

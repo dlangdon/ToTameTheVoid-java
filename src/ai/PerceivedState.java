@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import state.Empire;
+import empire.Empire;
 import state.Fleet;
 import state.Star;
 

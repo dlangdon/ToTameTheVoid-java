@@ -9,7 +9,7 @@ import java.util.List;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
-import state.Economy;
+import empire.Economy;
 import state.HQ;
 import state.Star;
 import state.Unit;

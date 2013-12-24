@@ -8,7 +8,7 @@ import military.Shipyard;
 import org.newdawn.slick.Color;
 
 import state.Colony;
-import state.Empire;
+import empire.Empire;
 import state.Fleet;
 import state.Star;
 import state.Unit;

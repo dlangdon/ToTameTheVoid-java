@@ -1,5 +1,7 @@
 package state;
 
+import empire.Empire;
+import galaxy.structure.Placeable;
 import org.newdawn.slick.Image;
 
 public class Colony extends Placeable
@@ -150,7 +152,7 @@ public class Colony extends Placeable
 	}
 
 	/* (non-Javadoc)
-	 * @see state.Placeable#icon()
+	 * @see galaxy.structure.Placeable#icon()
 	 */
 	@Override
 	public Image icon()
@@ -159,7 +161,7 @@ public class Colony extends Placeable
 	}
 
 	/* (non-Javadoc)
-	 * @see state.Placeable#priority()
+	 * @see galaxy.structure.Placeable#priority()
 	 */
 	@Override
 	public int priority()

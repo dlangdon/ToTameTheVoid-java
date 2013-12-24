@@ -1,30 +1,32 @@
-package event;
+package simulation.actions;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import simulation.GameEvent;
+import simulation.Simulator;
+import simulation.StarCheck;
 import state.Colony;
-import state.Empire;
+import empire.Empire;
 import state.Fleet;
 import state.Star;
 import state.Unit;
 import state.UnitStack;
 
 /**
- * Checks if a certain building of type T can be built in the star. Where type T is any kind of building.
+ * checks if a certain building of type T can be built in the star. Where type T is any kind of building.
  * This check and corresponding event are generic so they can handle the construction of all kinds of buildings.
  * @author Daniel Langdon
  */
-public class BuildingsCheck<T> implements TurnSubProcess
+public class BuildProject<T> implements StarCheck
 {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
+	 * @see state.ConflictSolver#checkForEvents(state.Star, state.Simulator)
 	 */
-	@Override
-	public void check(GameEventQueue queue, Star location)
+	public void check(Simulator queue, Star location)
 	{
 		// Check if the building can still be made.
 		
@@ -41,7 +43,7 @@ public class BuildingsCheck<T> implements TurnSubProcess
 		while(i.hasNext())
 		{
 			GameEvent e = i.next();
-			if(e instanceof ColonizationEvent)
+			if(e instanceof Colonization)
 				i.remove();
 		}
 		
@@ -74,7 +76,13 @@ public class BuildingsCheck<T> implements TurnSubProcess
 		// Create the option to colonize.
 		if(canColonize != null)
 		{
-//			queue.addEvent(new ColonizationEvent(location, canColonize, e));
+//			queue.addEvent(new Colonization(location, canColonize, e));
 		}
+	}
+
+	@Override
+	public GameEvent check(Star location)
+	{
+		return null;
 	}
 }

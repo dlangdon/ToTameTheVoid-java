@@ -11,6 +11,8 @@ import org.newdawn.slick.TrueTypeFont;
  */
 public class Render
 {
+	public enum Visibility { VISIBLE, REMEMBERED, REACHABLE, HIDDEN }
+
 	public static final int SELECTED = 0x01; 
 	public static final int SMALL 	= 0x02;
 	public static final int BIG 		= 0x04;

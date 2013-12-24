@@ -19,7 +19,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
-import state.Economy;
+import empire.Economy;
 import state.Star;
 
 public class HQWidgetTest extends BasicGame

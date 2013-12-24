@@ -6,6 +6,7 @@ package state;
 import java.util.HashSet;
 import java.util.Set;
 
+import empire.Economy;
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -13,10 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.Color;
 
-import state.Colony;
-import state.Economy;
-import state.Empire;
-import state.Star;
+import empire.Empire;
 
 /**
  * @author Daniel Langdon

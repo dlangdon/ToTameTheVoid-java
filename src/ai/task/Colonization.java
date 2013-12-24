@@ -5,7 +5,7 @@ package ai.task;
 
 import java.util.List;
 
-import state.Empire;
+import empire.Empire;
 import state.Star;
 
 /**

@@ -1,13 +1,14 @@
 /**
  * 
  */
-package event;
+package simulation.actions;
 
 import military.Shipyard;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
+import simulation.GameEvent;
 import state.Star;
 
 /**
@@ -53,7 +54,7 @@ public class ShipyardBuildEvent extends GameEvent
 	}
 
 	/* (non-Javadoc)
-	 * @see event.GameEvent#description()
+	 * @see simulation.GameEvent#description()
 	 */
 	@Override
 	public String description()

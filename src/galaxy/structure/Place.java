@@ -1,38 +1,44 @@
-package state;
+package galaxy.structure;
+
+import empire.Empire;
+import state.Fleet;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-
-import event.GameEventQueue;
 
 public abstract class Place
 {
+	private static List<MovementObserver> observers = new ArrayList<>();
+	public static void addObserver(MovementObserver observer) { observers.add(observer); }
+
 // Internals ==========================================================================================================
 	private List<Placeable> here;
 
 // Public Methods =====================================================================================================
 	public Place()
 	{
-		here = new ArrayList<Placeable>();
+		here = new LinkedList<>();
 	}
 
-	public void arrive(Placeable orbiter)
+	public void arrive(Placeable placeable)
 	{
 		// Find the correct location for this item and insert it there.
-		int priority = orbiter.priority();
+		int priority = placeable.priority();
 		int index = 0;
 		while(index < here.size() && priority <= here.get(index).priority())
 			index++;
-		here.add(index, orbiter);
+		here.add(index, placeable);
 
-		if(this instanceof Star)
-			GameEventQueue.instance().addLocationToCheck((Star)this);
+		for(MovementObserver o: observers)
+			o.arrivedAt(placeable, this);
 	}
 
-	public void leave(Placeable orbiter)
+	public void leave(Placeable placeable)
 	{
-		here.remove(orbiter);
-//		GameEventQueue.instance().addLocationToCheck(this);
+		here.remove(placeable);
+		for(MovementObserver o: observers)
+			o.departedAt(placeable, this);
 	}
 
 	public int indexOf(Placeable selectable)

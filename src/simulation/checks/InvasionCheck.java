@@ -1,13 +1,13 @@
-package military;
+package simulation.checks;
 
 import java.util.List;
 
+import simulation.GameEvent;
+import simulation.StarCheck;
 import state.Colony;
-import state.Empire;
+import empire.Empire;
 import state.Fleet;
 import state.Star;
-import event.GameEventQueue;
-import event.TurnSubProcess;
 
 /**
  * Analyzes if an invasion should occur. 
@@ -15,23 +15,20 @@ import event.TurnSubProcess;
  * In case of multiple invading fleets, the most powerful one wins.
  * @author Daniel Langdon
  */
-public class InvasionCheck implements TurnSubProcess
+public class InvasionCheck implements StarCheck
 {
-	/* (non-Javadoc)
-	 * @see state.ConflictSolver#checkForEvents(state.Star, state.GameEventQueue)
-	 */
 	@Override
-	public void check(GameEventQueue queue, Star location)
+	public GameEvent check(Star location)
 	{
 		// If there is no colony, nothing to invade.
 		Colony colony = location.getPlaceable(Colony.class);
 		if(colony == null)
-			return;				
-		
+			return null;
+
 		// Check if no fleets at all, or my own fleet in orbit protecting!
 		List<Fleet> fleets = location.getFleets();
 		if(fleets.isEmpty() || fleets.get(0).owner() == location.owner())
-			return;				
+			return null;
 
 		// Now, collect all possible invaders.
 		// TODO for now this is trivial, invasion is FIFO and automatic.
@@ -44,5 +41,6 @@ public class InvasionCheck implements TurnSubProcess
 				break;
 			}
 		}
+		return null;
 	}
 }
