@@ -8,6 +8,7 @@ import galaxy.structure.Placeable;
 import graphic.Render.Visibility;
 import simulation.GameEvent;
 import simulation.LaneCheck;
+import simulation.Simulator;
 import simulation.StarCheck;
 import state.Lane;
 import state.Star;
@@ -55,38 +56,53 @@ public class View
 		return Visibility.HIDDEN;
 	}
 
+	/**
+	 * Checks if a given star is visible by all empires.
+	 * A star is only visible if the empire owns it or has units on it.
+	 */
 	public static StarCheck checkStarVisibility = new StarCheck()
 	{
 		@Override
 		public GameEvent check(Star s)
 		{
-			// Remember if it was visible.
 			for (Empire e : Empire.all())
-				if(e.view().rechableStars.get(s) == Visibility.VISIBLE)
-					e.view().rechableStars.put(s, Visibility.REMEMBERED);
-
-			// Check if it is still visible.
-			for(Placeable p: s.allPlaceables())
 			{
-				if(p.owner() == null)
-					continue;
+				View view = e.view();
+				Visibility previous = view.getRechableStars().get(s);
+				Visibility next = Visibility.REMEMBERED;
 
-				// Visible if the empire has a placeable owned by him in this location.
-				// TODO Extend to a list of allies.
-				View view = p.owner().view();
-				view.rechableStars.put(s, Visibility.VISIBLE);
+				for(Placeable p: s.allPlaceables())
+					if(p.owner() == e)
+					{
+						next = Visibility.VISIBLE;
+						break;
+					}
 
-				// Lanes from this star are also visible.
-				for(Lane l: Lane.outgoingLanes(s))
+				if(previous != next)
 				{
-					view.reachableLanes.put(l, Visibility.VISIBLE);
+					view.rechableStars.put(s, next);
 
-					// This might discover some stuff.
-					Star to = l.exitPoint(s);
-					if(!view.rechableStars.containsKey(to))
-						view.rechableStars.put(to, Visibility.REACHABLE);
+					for(Lane l: Lane.outgoingLanes(s))
+					{
+						// If a star is no longer visible, the lanes around it might also not be...
+						// They need to be checked after every star has updated visibility.
+						if(next == Visibility.REMEMBERED)
+							Simulator.instance().addLaneToCheck(l);
+
+						// If a new star is visible, lanes are visible and new stars can be uncovered.
+						else
+						{
+							view.reachableLanes.put(l, Visibility.VISIBLE);
+
+							// This might discover some stuff.
+							Star to = l.exitPoint(s);
+							if(!view.rechableStars.containsKey(to))
+								view.rechableStars.put(to, Visibility.REACHABLE);
+						}
+					}
 				}
 			}
+			// TODO Extend to a list of allies.
 			return null;
 		}
 	};
@@ -97,16 +113,19 @@ public class View
 		{
 			// Remember if it was visible.
 			for (Empire e : Empire.all())
-				if(e.view().reachableLanes.get(l) == Visibility.VISIBLE)
-					e.view().reachableLanes.put(l, Visibility.REMEMBERED);
-
-			// Check if it is still visible.
-			for(Placeable p: l.allPlaceables())
 			{
-				// Visible if the empire has a placeable owned by him in this location.
-				// TODO Extend to a list of allies.
-				if(p.owner() == null)
-					p.owner().view().reachableLanes.put(l, Visibility.VISIBLE);
+				Visibility v = Visibility.REMEMBERED;
+				if(e.view().rechableStars.get(l.from()) == Visibility.VISIBLE || e.view().rechableStars.get(l.to()) == Visibility.VISIBLE)
+					v = Visibility.VISIBLE;
+				else
+				{
+					for(Placeable p: l.allPlaceables())
+						if(p.owner() == e)
+							v = Visibility.VISIBLE;
+				}
+
+				if(e.view().reachableLanes.containsKey(l) || v == Visibility.VISIBLE)
+					e.view().reachableLanes.put(l, v);
 			}
 			return null;
 		}

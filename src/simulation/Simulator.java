@@ -83,6 +83,11 @@ public class Simulator
 		});
 	}
 
+	public void addLaneToCheck(Lane l)
+	{
+		lanesToCheckForEvents.add(l);
+	}
+
 	/**
 	 * Adds an event to the turn's event queue.
 	 * 

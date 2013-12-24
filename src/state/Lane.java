@@ -96,4 +96,20 @@ public class Lane extends Place
 	{
 		return from == start ? to : from;
 	}
+
+	public Star from()
+	{
+		return from;
+	}
+
+	public Star to()
+	{
+		return to;
+	}
+
+	public float length()
+	{
+		return length;
+	}
+
 }
