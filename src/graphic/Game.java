@@ -116,7 +116,7 @@ public class Game extends BasicGameState
 	private void renderAll(GameContainer gc, Graphics g)
 	{
 		// Draw Lanes
-		Lane.renderAll(gc, g);
+		Lane.renderAll(gc, g, Visibility.VISIBLE);
 
 		// Draw Stars
 		for(Star s : Star.all())
@@ -143,7 +143,7 @@ public class Game extends BasicGameState
 
 		for(Map.Entry<Lane, Visibility> entry : view.getReachableLanes().entrySet())
 		{
-			entry.getKey().render(gc, g);
+			entry.getKey().render(gc, g, entry.getValue());
 			if(entry.getValue() == Visibility.VISIBLE)
 			{
 				for(Fleet f : entry.getKey().getFleets())

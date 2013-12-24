@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import galaxy.structure.Place;
+import graphic.Render;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -62,18 +63,21 @@ public class Lane extends Place
 		return null;
 	}
 	
-	public static void renderAll(GameContainer gc, Graphics g)
+	public static void renderAll(GameContainer gc, Graphics g, Render.Visibility visibility)
 	{
 		//g.setLineWidth(1);
 		g.setColor(new Color(1,1,1,0.6f));
 		for (Lane l : all.values())
+		{
+			g.setColor( (visibility != Render.Visibility.VISIBLE) ? new Color(1,1,1,0.6f) : Color.cyan);
 			if(l.from.index() < l.to.index())
 				g.drawLine(l.from.x(), l.from.y(), l.to.x(), l.to.y());
+		}
 	}
 
-	public void render(GameContainer gc, Graphics g)
+	public void render(GameContainer gc, Graphics g, Render.Visibility visibility)
 	{
-		g.setColor(new Color(1,1,1,0.6f));
+		g.setColor( (visibility != Render.Visibility.VISIBLE) ? new Color(1,1,1,0.6f) : Color.cyan);
 		if(from.index() < to.index())
 			g.drawLine(from.x(), from.y(), to.x(), to.y());
 	}
