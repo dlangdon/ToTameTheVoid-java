@@ -69,8 +69,9 @@ public class View
 			{
 				View view = e.view();
 				Visibility previous = view.getRechableStars().get(s);
-				Visibility next = Visibility.REMEMBERED;
+				Visibility next = null;
 
+				// See if visible
 				for(Placeable p: s.allPlaceables())
 					if(p.owner() == e)
 					{
@@ -78,7 +79,12 @@ public class View
 						break;
 					}
 
-				if(previous != next)
+				// Else if it is remembered
+				if(previous == Visibility.VISIBLE && next == null)
+					next = Visibility.REMEMBERED;
+
+				// If there is a change in visibility ( X --> Visible or Visible --> Remembered).
+				if(previous != next && next != null)
 				{
 					view.rechableStars.put(s, next);
 

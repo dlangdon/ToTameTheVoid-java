@@ -151,12 +151,6 @@ public class Simulator
 		for (Empire e : Empire.all())
 			e.getEconomy().applyGrowth(e.getColonies());
 
-		// Update all lanes (has to be before stars, or we will forget lanes that are being seen by the star.
-		for(Lane l : lanesToCheckForEvents)
-		{
-			View.checkLaneVisibility.check(l);
-		}
-
 		// Check for new events.
 		System.out.println("Checking events for turn " + turn);
 		for (Star s : startsToCheckForEvents)
@@ -167,6 +161,12 @@ public class Simulator
 			new SpaceCombatCheck().check(s);
 			new InvasionCheck().check(s);
 			Colonization.check.check(s);
+		}
+
+		// Update all lanes (has to be after stars, since we might need to check some lanes added manually when a star is no longer visible.
+		for(Lane l : lanesToCheckForEvents)
+		{
+			View.checkLaneVisibility.check(l);
 		}
 
 
