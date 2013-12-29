@@ -1,5 +1,6 @@
 package ui;
 
+import empire.Empire;
 import simulation.GameEvent;
 import simulation.Simulator;
 import graphic.Camera;
@@ -57,56 +58,67 @@ public class StarWidget extends IndexedDialog
 		
 		// Make it so drawing stars is always done in local coordinates.
 		Camera.instance().pushLocalTransformation(g, star.getPos());
-
-		Colony colony = star.getPlaceable(Colony.class);
-
 		g.setColor(Color.white);
 		background.draw(-84, -119);
-		
-		Render.titles.drawString(100, -78, star.name());
 
-		Render.normal.drawString(110, -58, "Resources");
-		Render.normal.drawString(110, -44, "Conditions");
-		Render.normal.drawString(110, -30, "Size");
-		
-		g.setColor(star.owner() == null ? Color.white : star.owner().color());
-		drawMeter(g, 210, -58, star.resources());
-		drawMeter(g, 210, -44, star.conditions());
-		drawMeter(g, 210, -30, star.size());
-
-		if(colony != null)
+		switch (Empire.getPlayerEmpire().view().getVisibility(star))
 		{
-			Render.titles.drawString(100, 2, star.owner().name() + " outpost.");
+			case HIDDEN:
+				return; // Should never happen.
+			case REACHABLE:
+				Render.titles.drawString(100, -78, "Unknown Star");
+				Render.normal.drawString(100, -58, "Send a fleet to explore this location.");
+				break;
+			case REMEMBERED:
+			case VISIBLE:
+				Colony colony = star.getPlaceable(Colony.class);
 
-			Render.normal.drawString(110, 36, "Total Output");
-			Render.normal.drawString(110, 50, "Inv. return");
-			Render.normal.drawString(210, 36, String.format("%2.2f", (colony.production()-colony.maintenance())*10000.0));
-			
-			if(Math.abs(colony.infrastructure() - colony.maxInfrastructure()) > 1E-6)
-				Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
-			else
-				Render.normal.drawString(210, 50, "Maximum Reached");
-		}
-		else
-		{
-			Render.titles.drawString(100, 2, "No outpost");
-		}
-		
-		// Render possible actions on this system.
-		List<GameEvent> existing = Simulator.instance().eventsForLocation(star);
-		for(GameEvent event : existing)
-		{
-			if(event.slot() >= 0)
-			{
-				Vector2f pos = indexToCoord(event.slot());
-				event.icon().draw(pos.x-12, pos.y-12);
 
-				// Check if we also display the local information.
-				if(hoverIndex == event.slot())
-					Render.titles.drawString(120, -100, event.description());
-			}
+				Render.titles.drawString(100, -78, star.name());
+
+				Render.normal.drawString(110, -58, "Resources");
+				Render.normal.drawString(110, -44, "Conditions");
+				Render.normal.drawString(110, -30, "Size");
+
+				g.setColor(star.owner() == null ? Color.white : star.owner().color());
+				drawMeter(g, 210, -58, star.resources());
+				drawMeter(g, 210, -44, star.conditions());
+				drawMeter(g, 210, -30, star.size());
+
+				if(colony != null)
+				{
+					Render.titles.drawString(100, 2, star.owner().name() + " outpost.");
+
+					Render.normal.drawString(110, 36, "Total Output");
+					Render.normal.drawString(110, 50, "Inv. return");
+					Render.normal.drawString(210, 36, String.format("%2.2f", (colony.production()-colony.maintenance())*10000.0));
+
+					if(Math.abs(colony.infrastructure() - colony.maxInfrastructure()) > 1E-6)
+						Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
+					else
+						Render.normal.drawString(210, 50, "Maximum Reached");
+				}
+				else
+				{
+					Render.titles.drawString(100, 2, "No outpost");
+				}
+
+				// Render possible actions on this system.
+				List<GameEvent> existing = Simulator.instance().eventsForLocation(star);
+				for(GameEvent event : existing)
+				{
+					if(event.slot() >= 0)
+					{
+						Vector2f pos = indexToCoord(event.slot());
+						event.icon().draw(pos.x-12, pos.y-12);
+
+						// Check if we also display the local information.
+						if(hoverIndex == event.slot())
+							Render.titles.drawString(120, -100, event.description());
+					}
+				}
+				break;
 		}
-		
 		g.popTransform();
 	}
 	
