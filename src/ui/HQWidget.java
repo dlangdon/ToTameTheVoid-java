@@ -47,7 +47,10 @@ public class HQWidget extends IndexedDialog
 			{
 				hq = Selection.getSelectionAs(HQ.class);
 				if(hq != null)
+				{
 					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+					IndexedDialog.setCurrent(HQWidget.this);
+				}
 			}
 		});
 	}

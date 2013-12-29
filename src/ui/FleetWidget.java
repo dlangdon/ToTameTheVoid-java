@@ -84,6 +84,7 @@ public class FleetWidget extends IndexedDialog
 					buttonLetters[4] = fleet.isAutoMerge() ? 'm' : '-';
 					refreshCache();
 					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+					IndexedDialog.setCurrent(FleetWidget.this);
 				}
 			}
 		});

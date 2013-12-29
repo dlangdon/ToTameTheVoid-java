@@ -3,6 +3,7 @@ package graphic;
 import empire.Economy;
 import empire.Empire;
 import empire.View;
+import galaxy.structure.Placeable;
 import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
@@ -17,11 +18,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import state.*;
-import ui.EconomyDialog;
-import ui.FleetWidget;
-import ui.HQWidget;
-import ui.IndexedDialog;
-import ui.StarWidget;
+import ui.*;
 import simulation.Simulator;
 import galaxy.generation.DelaunayLaneGenerator;
 import galaxy.generation.EmpireInitialiazer;
@@ -33,6 +30,7 @@ import galaxy.generation.SimplePointCreator;
 import galaxy.generation.StartingLocationFinder;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static graphic.Render.Visibility;
 
@@ -183,15 +181,6 @@ public class Game extends BasicGameState
 	}
 	
 	/**
-	 * Advances the game to the next turn.
-	 */
-	public void turn()
-	{
-		// Move the universe forward.
-		eventQueue.nextTurn();
-	}
-	
-	/**
 	 * Used for single clicks.
 	 */
 	@Override
@@ -202,7 +191,7 @@ public class Game extends BasicGameState
 		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_T)
-			this.turn();
+			eventQueue.nextTurn();
 		else if(key == Input.KEY_E)
 			econDialog.setVisible(!econDialog.isVisible());
 		else if(key == Input.KEY_SPACE)
@@ -229,55 +218,28 @@ public class Game extends BasicGameState
 		if(IndexedDialog.current() != null && IndexedDialog.current().isCursorInside())
 			return;
 
-		// Check if the click corresponds to a star.
-		Star selectedStar = null;
-		for(Star s : Star.all())
+		UIListener newSelection = null;
+		for(Map.Entry<Star, Visibility> entry : Empire.getPlayerEmpire().view().getRechableStars().entrySet())
 		{
+			Star s = entry.getKey();
 			if(s.screenCLick((float)x, (float)y, button))
 			{
-				selectedStar = s;
-				break;
-			}
-		}
-
-		// If a star, check if we add routepoints.
-		if(selectedStar != null)
-		{
-			if(Selection.getSelectionAs(Fleet.class) != null)
-			{
-				fleetWidget.starClick(button, selectedStar);
-				return;
+				// Star was clicked.
+				if(Selection.getSelectionAs(Fleet.class) != null)
+					fleetWidget.starClick(button, s);
+				// TODO HQ relocation
+				else
+					newSelection = s;
 			}
 			else
 			{
-				Selection.set(selectedStar);
-				IndexedDialog.setCurrent(starWidget);
-			}
-			
-			// TODO HQ relocation
-		}
-		else
-			Selection.set(null);
-
-		// Check which objects may have received the click signal.
-		for(Fleet tf : Fleet.all())
-		{
-			if(tf.screenCLick((float)x, (float)y, button))
-			{
-				Selection.set(tf);
-				IndexedDialog.setCurrent(fleetWidget);
-				break;
+				for(Placeable p: s.allPlaceables())
+					if(p instanceof UIListener)
+						if(p.screenCLick((float)x, (float)y, button))
+							newSelection = p;
 			}
 		}
-		for(HQ hq : HQ.all())
-		{
-			if(hq.screenCLick((float)x, (float)y, button))
-			{
-				Selection.set(hq);
-				IndexedDialog.setCurrent(hqWidget);
-				break;
-			}
-		}
+		Selection.set(newSelection);
 	}
 	
 	@Override
