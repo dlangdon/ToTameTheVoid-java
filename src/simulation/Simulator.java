@@ -114,7 +114,7 @@ public class Simulator
 	public List<GameEvent> eventsForLocation(Star location)
 	{
 		List<GameEvent> localEvents = events.get(location);
-		return localEvents == null ? new ArrayList<GameEvent>() : new ArrayList<GameEvent>(localEvents);
+		return localEvents == null ? new ArrayList<GameEvent>() : new ArrayList<>(localEvents);
 	}
 	
 	public void removeEvent(GameEvent event)

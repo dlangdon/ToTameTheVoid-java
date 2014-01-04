@@ -255,7 +255,7 @@ public class Fleet extends Placeable
 	/**
 	 * Applies a certain amount of damage to the stack of ships specified by the design.
 	 * @param kind Stack of ships to apply the damage.
-	 * @param damage Amount of damage to apply.
+	 * @param damagePerHit Amount of damage to apply.
 	 */
 	public void takeDamage(Unit kind, float damagePerHit, int numHits, boolean unfocused)
 	{

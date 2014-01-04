@@ -133,7 +133,9 @@ public class Colonization extends GameEvent
 			// Create the option to colonize.
 			if (canColonize != null)
 			{
-				return new Colonization(location, canColonize, toSpend);
+				Colonization c = new Colonization(location, canColonize, toSpend);
+				Simulator.instance().addEvent(c);
+				return c;
 			}
 			return null;
 		}
