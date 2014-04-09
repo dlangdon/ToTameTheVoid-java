@@ -3,18 +3,16 @@
  */
 package state;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import empire.Economy;
+import empire.Empire;
 import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.Color;
 
-import empire.Empire;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Daniel Langdon

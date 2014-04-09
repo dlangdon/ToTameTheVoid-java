@@ -14,22 +14,15 @@ import org.newdawn.slick.geom.Vector2f;
  * The index can be arbitrary.
  * @author Daniel Langdon
  */
-public abstract class IndexedDialog
+public abstract class IndexedDialog extends BaseDialog
 {
 	protected static final int NO_INDEX = -10;
-	protected static IndexedDialog current = null;
 	protected static boolean disabled = false;
 
-	public static IndexedDialog current()
-	{
-		return current;
-	}
-
-	public static void setCurrent(IndexedDialog dialog)
-	{
-		current = dialog;
-	}
-
+	/**
+	 * Used to hide and disable the dialog. Use { @link BaseDialog.setCurrent } instead
+	 */
+	@Deprecated
 	public static void setDisabled(boolean disabled)
 	{
 		IndexedDialog.disabled = disabled;
@@ -65,16 +58,13 @@ public abstract class IndexedDialog
 	 */
 	protected abstract int coordToIndex(Vector2f vector);
 	
-	public void mouseClick(int button, int delta){}
-
-	/**
-	 * @return True if the widget is visible and the cursor is inside it, as previously determined by {@link hove()}
-	 */
+	@Override
 	public boolean isCursorInside()
 	{
 		return !disabled && hoverIndex > NO_INDEX;
 	}
 
+	@Override
 	public boolean moveCursor(int oldx, int oldy, int newx, int newy) 
 	{
 		// Check if we are active.
@@ -93,5 +83,4 @@ public abstract class IndexedDialog
 		}
 		return false;
 	}
-
 }

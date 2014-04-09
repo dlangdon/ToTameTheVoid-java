@@ -3,24 +3,18 @@
  */
 package ui;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import empire.Economy;
 import graphic.Camera;
 import graphic.Render;
 import graphic.Selection;
 import military.Shipyard;
-
 import org.lwjgl.input.Mouse;
-import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.BasicGame;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Vector2f;
-
-import empire.Economy;
 import state.Star;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HQWidgetTest extends BasicGame
 {

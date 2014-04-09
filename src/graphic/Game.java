@@ -41,6 +41,7 @@ public class Game extends BasicGameState
 	private FleetWidget fleetWidget;
 	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
+	private BaseDialog techDialog;
 	private Simulator eventQueue;
 	private int mouseDownTime;
 	
@@ -58,6 +59,7 @@ public class Game extends BasicGameState
 		fleetWidget = new FleetWidget();
 		hqWidget = new HQWidget();
 		econDialog = new EconomyDialog();
+		techDialog = new MainDialog();
 		eventQueue = new Simulator();
 		
 		// Initialize galaxy
@@ -76,7 +78,7 @@ public class Game extends BasicGameState
 		
 		// TODO load resources in a more intelligent way...
 		Render.init();
-		background = new Image("resources/bck1.jpg");
+		background = new Image("resources/bck6.jpg");
 		Star.img = new Image("resources/star.png");
 		
 		gc.setTargetFrameRate(120);
@@ -97,16 +99,14 @@ public class Game extends BasicGameState
 		renderView(gc, g);
 
 		// Draw in world widgets
-//		if(currentDialog != null)
-//			currentDialog.render(gc, g);
-		starWidget.render(gc, g);
-		fleetWidget.render(gc, g);
-		hqWidget.render(gc, g);
-		
+		if(BaseDialog.current() instanceof IndexedDialog)
+			BaseDialog.current().render(gc, g);
+
 		// Draw HUD widgets
 		g.popTransform();
-		econDialog.render(gc, g);
-		
+		if(BaseDialog.current() instanceof MainDialog)
+			BaseDialog.current().render(gc, g);
+
 		// Draw events
 		// eventQueue.render(gc, g);
 	}
@@ -190,10 +190,12 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
-		else if(key == Input.KEY_T)
+		else if(key == Input.KEY_N)
 			eventQueue.nextTurn();
 		else if(key == Input.KEY_E)
-			econDialog.setVisible(!econDialog.isVisible());
+			BaseDialog.setCurrent(econDialog, true);
+		else if(key == Input.KEY_T || key == Input.KEY_R)
+			BaseDialog.setCurrent(techDialog, true);
 		else if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(true);
 		else if(key == Input.KEY_P)

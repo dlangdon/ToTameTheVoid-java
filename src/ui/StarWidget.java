@@ -44,7 +44,7 @@ public class StarWidget extends IndexedDialog
 				if(star != null)
 				{
 					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
-					IndexedDialog.setCurrent(StarWidget.this);
+					IndexedDialog.setCurrent(StarWidget.this, false);
 				}
 			}
 		});

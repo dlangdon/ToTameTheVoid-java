@@ -8,7 +8,6 @@ import static org.junit.Assert.*;
 import military.Shipyard;
 
 import org.junit.Test;
-
 import simulation.Simulator;
 
 /**

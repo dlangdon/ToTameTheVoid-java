@@ -37,17 +37,25 @@ public class FontVisualTest extends BasicGame
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
 		g.setAntiAlias(true);
-		g.setBackground(Color.cyan);
+		g.setBackground(new Color(0xAA, 0x55, 0x55));
 
 		// Paint configuration feedback
 		g.setColor(Color.red);
 
-		AngelCodeFont font = Render.dialogSubTitle;
+//		AngelCodeFont font = Render.dialogSubTitle;
+//		AngelCodeFont font = Render.dialogSubTitle;
+		AngelCodeFont font = Render.dialogText;
 
-		font.drawString(100, 100, "0123456789");
-		font.drawString(100, 150, "ABCDEFGHIJ");
-		font.drawString(100, 200, "KLMNOPQRST");
-		font.drawString(100, 250, "UVWXYZ");
+		int y = 100;
+		font.drawString(100, (y += font.getLineHeight()), "0123456789");
+		font.drawString(100, (y += font.getLineHeight()), "ABCDEFGHIJ");
+		font.drawString(100, (y += font.getLineHeight()), "KLMNOPQRST");
+		font.drawString(100, (y += font.getLineHeight()), "UVWXYZ+=-*");
+		font.drawString(100, (y += font.getLineHeight()), "abcdefghij");
+		font.drawString(100, (y += font.getLineHeight()), "klmnopqrst");
+		font.drawString(100, (y += font.getLineHeight()), "uvwxyz.,-?");
+
+		font.drawString(100, (y += 50 + font.getLineHeight()), "Limit growth to 30% of normal development (plus notice).");
 	}
 	
 	/**
