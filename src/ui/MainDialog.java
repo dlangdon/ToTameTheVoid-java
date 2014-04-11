@@ -135,8 +135,8 @@ public class MainDialog extends BaseDialog
 		float extra = (yHint - y() - 102)%22;
 		float y = yHint - extra + 22;
 
-		Render.dialogSubTitle.drawString(x + 73, y, title);
-		subTitleSeparator.draw(x + 50, y + 22);
+		Render.dialogSubTitle.drawString(x() + x + 51, y, title);
+		subTitleSeparator.draw(x() + x + 28, y + 22);
 		return y + 40;
 	}
 
@@ -148,7 +148,7 @@ public class MainDialog extends BaseDialog
 	public float drawText(float x, float y, String text, boolean toLeft, boolean hintX)
 	{
 		float width = Render.dialogText.getWidth(text);
-		float realx = (toLeft ? x-width : x);
+		float realx = x() + 40 + (toLeft ? x-width : x);
 		Render.dialogText.drawString(realx, y, text, textColor);
 		return hintX ? realx + width : y + Render.dialogText.getLineHeight();
 	}

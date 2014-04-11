@@ -13,7 +13,7 @@ public class EconomyDialog extends MainDialog
 	public EconomyDialog() throws SlickException
 	{
 		super();
-		setSize(750, 700);
+		setSize(600, 750);
 	}
 
 	public void render(GameContainer gc, Graphics g)
@@ -24,65 +24,56 @@ public class EconomyDialog extends MainDialog
 		Empire e = Empire.getPlayerEmpire();
 		Economy ec = e.getEconomy();
 
-		float x = x() + 40;
-		float y = super.drawTitle("Economy");
+		float leftX = 0;
+		float leftY = super.drawTitle("Economy");
+		float numberGap = 280;
 
-		y = super.drawSubtitle(0, y, "Policy");
-		y = super.drawText(x, y, String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)));
-		y = super.drawText(x, y, String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
-		y = super.drawText(x, y, (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
+		leftY = super.drawSubtitle(0, leftY, "Policy");
+		leftY = super.drawText(leftX, leftY, String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)));
+		leftY = super.drawText(leftX, leftY, String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
+		leftY = super.drawText(leftX, leftY, (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
+		float rightY = leftY;
 
-		y = super.drawSubtitle(0, y, "Income");
-		y = super.drawSubtitle(0, y+71, "Expenses");
-
-
-//		Render.dialogText.drawString(x + 70, (y+=20), String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)), textColor);
-//		Render.normal.drawString(x + 70, (y+=15), String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
-//		Render.normal.drawString(x + 70, (y+=15), (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
-
-		y+=100;
-
-		// Income
-		y += 50;
-		Render.titles.drawString(x, y, "Last turn income:");
-		y += 20;
+		leftY = super.drawSubtitle(0, leftY, "Income");
 		float totalIncome = 0.0f;
 		for(int i=0; i<Economy.causes().size(); i++)
 		{
 			if(ec.movements()[i] > 0)
 			{
-				Render.normal.drawString(x + 20, y, Economy.causes().get(i));
-				Render.normal.drawString(x + 220, y, String.format("$ %10d %s", (int)(ec.movements()[i]*10000.0f), ec.rejections()[i] ? "!" : ""));
-				y += 15;
+				super.drawText(leftX, leftY, Economy.causes().get(i) + (ec.rejections()[i] ? " (!)" : ""));
+				leftY = super.drawText(leftX+numberGap, leftY, String.format("%d", (int)(ec.movements()[i]*10000.0f)), true, false);
 				totalIncome += ec.movements()[i];
 			}
 		}
-		
+
 		// Expenses
-		y += 20;
-		Render.titles.drawString(x, y, "Last turn expenses:");
-		y += 20;
+		leftY = super.drawSubtitle(0, leftY, "Expenses");
 		float totalExpenses = 0.0f;
 		for(int i=0; i<Economy.causes().size(); i++)
 		{
 			if(ec.movements()[i] <= 0)
 			{
-				Render.normal.drawString(x + 20, y, Economy.causes().get(i));
-				Render.normal.drawString(x + 220, y, String.format("$ %10d %s", (int)(-ec.movements()[i]*10000.0f), ec.rejections()[i] ? "!" : ""));
-				y += 15;
+				super.drawText(leftX, leftY, Economy.causes().get(i) + (ec.rejections()[i] ? " (!)" : ""));
+				leftY = super.drawText(leftX+numberGap, leftY, String.format("%d", (int)(-ec.movements()[i]*10000.0f)), true, false);
 				totalExpenses += ec.movements()[i];
 			}
 		}
-		
+
+		// Resources
+		float rightX = leftX + 300;
+		rightY = super.drawSubtitle(rightX, rightY, "Resources");
+		rightY = super.drawText(rightX, rightY, "You control no");
+		rightY = super.drawText(rightX, rightY, "strategic resources.");
+
 		// Totals
-		Render.titles.drawString(x, (y+=20), "Totals:");
-		Render.normal.drawString(x + 20, (y+=20), "Income");
-		Render.normal.drawString(x + 220, y, String.format("$ %10d", (int)(totalIncome*10000.0f) ));
-		Render.normal.drawString(x + 20, (y+=15), "Expenses");
-		Render.normal.drawString(x + 220, y, String.format("$ %10d", (int)(totalExpenses*10000.0f)));
-		Render.normal.drawString(x + 20, (y+=15), "To Imperial Reserve");
-		Render.normal.drawString(x + 220, y, String.format("$ %10d", (int)((totalIncome + totalExpenses)*10000.0f)));
-		Render.normal.drawString(x + 20, (y+=15), "Current Reserve");
-		Render.normal.drawString(x + 220, y, String.format("$ %10d", (int)(ec.reserve()*10000.0f)));
+		rightY = super.drawSubtitle(rightX, rightY, "Totals");
+		super.drawText(rightX, rightY, "Income");
+		rightY = super.drawText(rightX + numberGap, rightY, String.format("%d", (int)(totalIncome*10000.0f)), true, false);
+		super.drawText(rightX, rightY, "Expenses");
+		rightY = super.drawText(rightX + numberGap, rightY, String.format("%d", (int)(totalExpenses*10000.0f)), true, false);
+		super.drawText(rightX, rightY, "Net");
+		rightY = super.drawText(rightX + numberGap, rightY, String.format("%d", (int)((totalIncome + totalExpenses)*10000.0f)), true, false);
+		super.drawText(rightX, rightY, "Reserve");
+		rightY = super.drawText(rightX + numberGap, rightY, String.format("%d", (int)(ec.reserve()*10000.0f)), true, false);
 	}
 }
