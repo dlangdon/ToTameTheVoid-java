@@ -32,6 +32,10 @@ public class EconomyDialog extends MainDialog
 		y = super.drawText(x, y, String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
 		y = super.drawText(x, y, (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
 
+		y = super.drawSubtitle(0, y, "Income");
+		y = super.drawSubtitle(0, y+71, "Expenses");
+
+
 //		Render.dialogText.drawString(x + 70, (y+=20), String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)), textColor);
 //		Render.normal.drawString(x + 70, (y+=15), String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
 //		Render.normal.drawString(x + 70, (y+=15), (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");

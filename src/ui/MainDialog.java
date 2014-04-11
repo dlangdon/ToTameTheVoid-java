@@ -41,6 +41,12 @@ public class MainDialog extends BaseDialog
 		setSize(0, 0);
 	}
 
+	@Override
+	public float y()
+	{
+		return super.y();
+	}
+
 	/**
 	 * Sets the position for this dialog.
 	 * Since backgrounds have a minimum size, the dialog's size will be the minimum possible size >= than the values passed here.
@@ -114,19 +120,21 @@ public class MainDialog extends BaseDialog
 
 	public float drawTitle(String title)
 	{
-		Render.dialogTitle.drawString(x() + 105, y() + 38, title);
-		titleSeparator.draw(x() + 77, y() + 59);
-		return y() + 102;
+		Render.dialogTitle.drawString(x() + 105, y() + 39, title);
+		titleSeparator.draw(x() + 77, y() + 57);
+		return y() + 75;
 	}
 
 	/**
 	 * Renders a subtitle. Coordinates already account for titles, so 0,0 corresponds to the first valid location for a subtitle.
 	 * @param x Coordinate to put the subtitle. 0 corresponds to a valid place, as padding is introduced.
-	 * @param y
-	 * @param title
+	 * @param yHint An initial coordinate to place this subtitle. Note that it is not an exact location, as the rendering will be moved down to match the background hexagons.
 	 */
-	public float drawSubtitle(float x, float y, String title)
+	public float drawSubtitle(float x, float yHint, String title)
 	{
+		float extra = (yHint - y() - 102)%22;
+		float y = yHint - extra + 22;
+
 		Render.dialogSubTitle.drawString(x + 73, y, title);
 		subTitleSeparator.draw(x + 50, y + 22);
 		return y + 40;
