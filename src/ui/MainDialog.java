@@ -1,6 +1,7 @@
 package ui;
 
 import graphic.Render;
+import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Vector2f;
 

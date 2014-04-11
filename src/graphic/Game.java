@@ -8,6 +8,8 @@ import military.Shipyard;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL43;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -44,15 +46,18 @@ public class Game extends BasicGameState
 	private BaseDialog techDialog;
 	private Simulator eventQueue;
 	private int mouseDownTime;
-	
+
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
+		// OpenGL initialization
+		System.out.println("OpenGL version: " + GL11.glGetString(GL11.GL_VERSION));
+
 		// Run module initialization. Be careful with dependencies.
 		// This is for now very hard-coded and not very modular.
 		Economy.init();
 		Fleet.init();
 		Shipyard.init();
-		
+
 		// TODO figure out universe sizes, 500x500 for now. Size should be in the universe, not the camera!
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(600, 400), new Vector2f(350, 150));
 		starWidget = new StarWidget();
@@ -61,7 +66,7 @@ public class Game extends BasicGameState
 		econDialog = new EconomyDialog();
 		techDialog = new MainDialog();
 		eventQueue = new Simulator();
-		
+
 		// Initialize galaxy
 		NascentGalaxy ng = new NascentGalaxy(600, 400, 4.0f);
 //		ng.addForce(new StaticGalaxyCreator());
@@ -73,16 +78,16 @@ public class Game extends BasicGameState
 		ng.addForce(new RandomStarGenerator(), true);
 		ng.addForce(new EmpireInitialiazer(5), false);
 		ng.blossom();
-		
+
 		mouseDownTime = -1;
-		
+
 		// TODO load resources in a more intelligent way...
 		Render.init();
 		background = new Image("resources/bck6.jpg");
 		Star.img = new Image("resources/star.png");
-		
+
 		gc.setTargetFrameRate(120);
-		
+
 		// Pass two turns to reach a valid starting point (where last turn expenses are based on existing colonies).
 		eventQueue.nextTurn();
 		eventQueue.nextTurn();
@@ -92,7 +97,7 @@ public class Game extends BasicGameState
 	{
 		// Draw backgrounds
 		background.draw(0, 0);
-		g.setAntiAlias(true);
+		g.setAntiAlias(false);  // This disables GL11.GL_POLYGON_SMOOTH, which prevents weird artifacts (diagonal lines) on PNG images.
 		Camera.instance().pushWorldTransformation(g);
 
 //		renderAll(gc, g);
@@ -170,16 +175,16 @@ public class Game extends BasicGameState
 		if(eventQueue.update(gc, delta))
 			return;
 
-		// Some interfaces 
+		// Some interfaces
 		if(mouseDownTime >= 0 && IndexedDialog.current() != null)
 		{
 			IndexedDialog.current().mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
 			mouseDownTime += delta;
 		}
-		
+
 		Camera.instance().update(delta);
 	}
-	
+
 	/**
 	 * Used for single clicks.
 	 */
@@ -212,7 +217,7 @@ public class Game extends BasicGameState
 		if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(false);
 	}
-	
+
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
@@ -243,13 +248,13 @@ public class Game extends BasicGameState
 		}
 		Selection.set(newSelection);
 	}
-	
+
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
 		mouseDownTime = -1;
 	}
-	
+
 	@Override
 	public void mouseWheelMoved(int change)
 	{
@@ -257,12 +262,12 @@ public class Game extends BasicGameState
 	}
 
 	@Override
-	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
+	public void mouseMoved(int oldx, int oldy, int newx, int newy)
 	{
 		if(IndexedDialog.current() != null && IndexedDialog.current().moveCursor(oldx, oldy, newx, newy))
 			mouseDownTime = -1;
 	}
-	
+
 	@Override
 	public int getID()
 	{
