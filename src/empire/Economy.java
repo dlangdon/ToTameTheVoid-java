@@ -18,6 +18,8 @@ public class Economy
 {
 // Statics ==========================================================================================================	
 	private static ArrayList<String> causes_;
+	private static int PRODUCTION;
+	private static int GROWTH;
 
 	/**
 	 * Global initialization phase to produce module constants, registration with other modules, resource loading, etc.
@@ -25,9 +27,8 @@ public class Economy
 	public static void init()
 	{
 		causes_ = new ArrayList<String>();
-		registerCause("Colony Maintenance");
-		registerCause("Colony Growth");
-		registerCause("Total Production");
+		GROWTH = registerCause("Colony Growth");
+		PRODUCTION = registerCause("Total Production");
 	}
 
 	/**
@@ -179,12 +180,12 @@ public class Economy
 	public void applyGrowth(Set<Colony> colonies)
 	{
 		// Before anything can be done, pay for maintenance for the current level of infrastructure.
-		if(!addMovement(-totalMaintenance_, 0))
+		if(!addMovement(-totalMaintenance_, PRODUCTION))
 		{
 			// If the cost of infrastructure is not paid, infrastructure is reduced by 50% of the proportion between the cost paid and the unpaid.
 			// Note that this will never kill any colony ;-)
 			double percentage = (1.0 - reserve_/totalInfrastructure_) * 0.5;
-			addMovement(-reserve_, 0);
+			addMovement(-reserve_, PRODUCTION);
 			for(Colony colony : colonies)
 				colony.spend(-percentage, 0.0, 9999, false);
 		}
@@ -192,10 +193,10 @@ public class Economy
 		{
 			// Initialize the credit pool to spend based on the policy and how much money we actually have.
 			float reminder = totalProduction_ * growthPolicy_;
-			if(!addMovement(-reminder, 1))
+			if(!addMovement(-reminder, GROWTH))
 			{
 				reminder = reserve_;
-				addMovement(-reminder, 1);
+				addMovement(-reminder, GROWTH);
 			}
 	
 			// First pass: let every system apply the policy locally.
@@ -231,7 +232,7 @@ public class Economy
 				}
 
 			// Adjust the expense if we have money left. Should mainly happen when ROI is very restricted or most colonies are at full infrastructure.
-			addMovement(reminder, 1);
+			addMovement(reminder, GROWTH);
 		}
 		
 		// Pass the turn for each colony and update totals.
@@ -268,7 +269,7 @@ public class Economy
 		}
 		
 		// Raise production to the reserve.
-		addMovement(totalProduction_, 2);
+		addMovement(totalProduction_, PRODUCTION);
 	}
 	
 	/**

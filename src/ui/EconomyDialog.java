@@ -1,19 +1,50 @@
 package ui;
 
-import graphic.Render;
-
-import org.newdawn.slick.*;
-
 import empire.Economy;
 import empire.Empire;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
 
 public class EconomyDialog extends MainDialog
 {
+	private OptionSelector<Float> invest;
+	private OptionSelector<Integer> roi;
+	private OptionSelector<Integer> boost;
+
 // Public Methods =====================================================================================================
 	public EconomyDialog() throws SlickException
 	{
 		super();
 		setSize(600, 750);
+
+		invest = new OptionSelector<>();
+		String[] options = {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"};
+		Float[] values = {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+		invest.setOptions(options, values);
+		invest.setListener((value) -> Empire.getPlayerEmpire().getEconomy().setGrowthPolicy(value));
+
+		roi = new OptionSelector<>();
+		String[] options2 = {"1 turn", "2 turns", "3 turns", "5 turns", "8 turns", "15 turns", "the end"};
+		Integer[] values2 = {1, 2, 3, 5, 8, 15, 10000};
+		roi.setOptions(options2, values2);
+		roi.setListener((value) -> Empire.getPlayerEmpire().getEconomy().setReturnOfInvestmentLimit(value));
+
+		boost = new OptionSelector<>();
+		String[] options3 = {"Boost", "Avoid"};
+		Integer[] values3 = {0, 1};
+		boost.setOptions(options3, values3);
+		boost.setListener((value) -> Empire.getPlayerEmpire().getEconomy().setOnlyLocal(value == 1));
+	}
+
+	@Override
+	public boolean screenCLick(float x, float y, int button)
+	{
+		invest.screenCLick(x, y, button);
+		roi.screenCLick(x, y, button);
+		boost.screenCLick(x, y, button);
+
+		return super.screenCLick(x, y, button);
 	}
 
 	public void render(GameContainer gc, Graphics g)
@@ -24,17 +55,30 @@ public class EconomyDialog extends MainDialog
 		Empire e = Empire.getPlayerEmpire();
 		Economy ec = e.getEconomy();
 
-		float leftX = 0;
+		float leftX = x() + 40;
 		float leftY = super.drawTitle("Economy");
 		float numberGap = 280;
 
-		leftY = super.drawSubtitle(0, leftY, "Policy");
-		leftY = super.drawText(leftX, leftY, String.format("Limit growth to %d%% of production.", (int)(ec.growthPolicy()*100)));
-		leftY = super.drawText(leftX, leftY, String.format("For investments recovered before %d turns.", (ec.returnOfInvestmentLimit())));
-		leftY = super.drawText(leftX, leftY, (ec.isOnlyLocal() ? "Allow" : "Prohibit") + " spending of reserve to boost growth (at 50% extra cost)");
+		// Policy
+		leftY = super.drawSubtitle(leftX, leftY, "Policy");
+
+		float auxX = super.drawText(leftX, leftY, "Limit growth to ", false, true);
+		invest.setPosition(auxX, leftY);
+		invest.render(gc, g);
+		leftY = super.drawText(auxX + invest.width(), leftY, " of production");
+
+		auxX = super.drawText(leftX, leftY, "With expected returns before ", false, true);
+		roi.setPosition(auxX, leftY);
+		roi.render(gc, g);
+		leftY = super.drawText(auxX + roi.width(), leftY, "");
+
+		boost.setPosition(leftX, leftY);
+		boost.render(gc, g);
+		leftY = super.drawText(leftX + boost.width(), leftY, " growth with reserve (at 50% extra cost)");
+
 		float rightY = leftY;
 
-		leftY = super.drawSubtitle(0, leftY, "Income");
+		leftY = super.drawSubtitle(leftX, leftY, "Income");
 		float totalIncome = 0.0f;
 		for(int i=0; i<Economy.causes().size(); i++)
 		{
@@ -47,7 +91,7 @@ public class EconomyDialog extends MainDialog
 		}
 
 		// Expenses
-		leftY = super.drawSubtitle(0, leftY, "Expenses");
+		leftY = super.drawSubtitle(leftX, leftY, "Expenses");
 		float totalExpenses = 0.0f;
 		for(int i=0; i<Economy.causes().size(); i++)
 		{
