@@ -26,7 +26,7 @@ public class Render
 	public static AngelCodeFont dialogSubTitle;
 	public static AngelCodeFont dialogText;
 
-	public static void init() throws SlickException
+	public static void initialize() throws SlickException
 	{
 		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
 		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);
@@ -34,5 +34,4 @@ public class Render
 		dialogSubTitle = new AngelCodeFont("resources/fonts/space_age_20.fnt", "resources/fonts/space_age_20_0.png");
 		dialogText = new AngelCodeFont("resources/fonts/neogrey_12.fnt", "resources/fonts/neogrey_12_0.png");
 	}
-	
 }

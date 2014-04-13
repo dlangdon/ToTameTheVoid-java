@@ -87,7 +87,7 @@ public class HQWidgetTest extends BasicGame
 		widget = new HQWidget();
 		hq = new Shipyard(s);
 		
-		Render.init();
+		Render.initialize();
 		Economy.init();	// Needs to be initialized first.
 		Shipyard.init();
 		

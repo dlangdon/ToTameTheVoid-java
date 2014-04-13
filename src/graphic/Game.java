@@ -9,7 +9,6 @@ import military.Shipyard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL43;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -32,7 +31,6 @@ import galaxy.generation.SimplePointCreator;
 import galaxy.generation.StartingLocationFinder;
 
 import java.util.Map;
-import java.util.Objects;
 
 import static graphic.Render.Visibility;
 
@@ -82,8 +80,9 @@ public class Game extends BasicGameState
 		mouseDownTime = -1;
 
 		// TODO load resources in a more intelligent way...
-		Render.init();
-		background = new Image("resources/bck6.jpg");
+		Render.initialize();
+		Images.initialize();
+		background = new Image("resources/bck1.jpg");
 		Star.img = new Image("resources/star.png");
 
 		gc.setTargetFrameRate(120);
@@ -222,6 +221,10 @@ public class Game extends BasicGameState
 	public void mousePressed(int button, int x, int y)
 	{
 		mouseDownTime = 0;
+
+		if(econDialog.screenCLick(x, y, button))
+			return;
+
 		if(IndexedDialog.current() != null && IndexedDialog.current().isCursorInside())
 			return;
 

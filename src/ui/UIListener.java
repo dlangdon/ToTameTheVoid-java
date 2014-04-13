@@ -1,7 +1,5 @@
 package ui;
 
-
-
 public interface UIListener
 {
 	/**

@@ -19,7 +19,7 @@ public class FontVisualTest extends BasicGame
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
-		Render.init();
+		Render.initialize();
 	}
 
 	/* (non-Javadoc)
