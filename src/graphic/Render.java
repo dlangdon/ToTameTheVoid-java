@@ -2,10 +2,7 @@ package graphic;
 
 import java.awt.Font;
 
-import org.newdawn.slick.AngelCodeFont;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.*;
 
 /**
  * A helper class to hold common resources and definitions needed by several graphical objects.
@@ -25,6 +22,10 @@ public class Render
 	public static AngelCodeFont dialogTitle;
 	public static AngelCodeFont dialogSubTitle;
 	public static AngelCodeFont dialogText;
+
+	public static Color baseColor = new Color(0, 150, 255);
+	public static Color selectColor = new Color(255, 204, 0);
+	public static Color highlightColor = new Color(255, 255, 255);
 
 	public static void initialize() throws SlickException
 	{
