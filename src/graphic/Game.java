@@ -29,6 +29,7 @@ import galaxy.generation.RandomStarGenerator;
 import galaxy.generation.SimpleBlobCreator;
 import galaxy.generation.SimplePointCreator;
 import galaxy.generation.StartingLocationFinder;
+import ui.widget.Widget;
 
 import java.util.Map;
 
@@ -37,13 +38,13 @@ import static graphic.Render.Visibility;
 public class Game extends BasicGameState
 {
 	private Image background;
+	private Widget root;
 	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
 	private HQWidget hqWidget;
 	private EconomyDialog econDialog;
 	private BaseDialog techDialog;
 	private Simulator eventQueue;
-	private int mouseDownTime;
 
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
@@ -58,11 +59,14 @@ public class Game extends BasicGameState
 
 		// TODO figure out universe sizes, 500x500 for now. Size should be in the universe, not the camera!
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(600, 400), new Vector2f(350, 150));
-		starWidget = new StarWidget();
-		fleetWidget = new FleetWidget();
-		hqWidget = new HQWidget();
-		econDialog = new EconomyDialog();
-		techDialog = new MainDialog();
+
+		root = new Widget();
+		starWidget = new StarWidget(root);
+		fleetWidget = new FleetWidget(root);
+		hqWidget = new HQWidget(root);
+		econDialog = new EconomyDialog(root);
+		techDialog = new MainDialog(root);
+
 		eventQueue = new Simulator();
 
 		// Initialize galaxy
@@ -76,8 +80,6 @@ public class Game extends BasicGameState
 		ng.addForce(new RandomStarGenerator(), true);
 		ng.addForce(new EmpireInitialiazer(5), false);
 		ng.blossom();
-
-		mouseDownTime = -1;
 
 		// TODO load resources in a more intelligent way...
 		Render.initialize();
@@ -174,13 +176,10 @@ public class Game extends BasicGameState
 		if(eventQueue.update(gc, delta))
 			return;
 
-		// Some interfaces
-		if(mouseDownTime >= 0 && IndexedDialog.current() != null)
-		{
-			IndexedDialog.current().mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
-			mouseDownTime += delta;
-		}
+		// Update the current widget
+		Widget.underMouse().update(delta);
 
+		// Update camera movement
 		Camera.instance().update(delta);
 	}
 
@@ -220,12 +219,7 @@ public class Game extends BasicGameState
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		mouseDownTime = 0;
-
-		if(econDialog.screenCLick(x, y, button))
-			return;
-
-		if(IndexedDialog.current() != null && IndexedDialog.current().isCursorInside())
+		if(Widget.underMouse().mouseClick(button))
 			return;
 
 		UIListener newSelection = null;
@@ -244,18 +238,11 @@ public class Game extends BasicGameState
 			else
 			{
 				for(Placeable p: s.allPlaceables())
-					if(p instanceof UIListener)
-						if(p.screenCLick((float)x, (float)y, button))
-							newSelection = p;
+					if(p != null && p.screenCLick((float)x, (float)y, button))
+						newSelection = p;
 			}
 		}
 		Selection.set(newSelection);
-	}
-
-	@Override
-	public void mouseReleased(int button, int x, int y)
-	{
-		mouseDownTime = -1;
 	}
 
 	@Override
@@ -267,8 +254,7 @@ public class Game extends BasicGameState
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy)
 	{
-		if(IndexedDialog.current() != null && IndexedDialog.current().moveCursor(oldx, oldy, newx, newy))
-			mouseDownTime = -1;
+		root.moveCursor(oldx, oldy, newx, newy);
 	}
 
 	@Override

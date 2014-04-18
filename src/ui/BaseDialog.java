@@ -1,15 +1,19 @@
 package ui;
 
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
 import ui.widget.Widget;
 
 /**
  * Basis for all dialogs, either indexed or main.
+ * Guarantees that only one can be selected at any given time, and provides access to it.
  */
 public abstract class BaseDialog extends Widget
 {
 	protected static BaseDialog current = null;
+
+	BaseDialog(Widget parent)
+	{
+		super(parent);
+	}
 
 	public static BaseDialog current()
 	{

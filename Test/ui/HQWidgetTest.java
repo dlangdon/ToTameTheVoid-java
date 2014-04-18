@@ -58,7 +58,7 @@ public class HQWidgetTest extends BasicGame
 	{
 		if(mouseDownTime >= 0)
 		{
-			widget.mouseClick(Mouse.isButtonDown(0) ? 0 : 1, mouseDownTime);
+			widget.mouseClick(Mouse.isButtonDown(0) ? 0 : 1);
 			mouseDownTime += delta;
 			System.out.println("mouseDownTime: " + mouseDownTime);
 		}
@@ -84,7 +84,7 @@ public class HQWidgetTest extends BasicGame
 		Star s = mock(Star.class);
 		when(s.getPos()).thenReturn(new Vector2f(250, 250));
 		
-		widget = new HQWidget();
+		widget = new HQWidget(null);
 		hq = new Shipyard(s);
 		
 		Render.initialize();

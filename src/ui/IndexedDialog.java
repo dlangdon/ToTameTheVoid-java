@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ui;
 
 import graphic.Camera;
@@ -8,6 +5,7 @@ import graphic.Camera;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
+import ui.widget.Widget;
 
 /**
  * Base abstract class for a dialog that indexes internal locations for interaction.
@@ -20,9 +18,9 @@ public abstract class IndexedDialog extends BaseDialog
 	protected static boolean disabled = false;
 
 	/**
-	 * Used to hide and disable the dialog. Use { @link BaseDialog.setCurrent } instead
+	 * Used to hide and disable the dialog.
+	 * Useful to change visibility without affecting which dialog is selected.
 	 */
-	@Deprecated
 	public static void setDisabled(boolean disabled)
 	{
 		IndexedDialog.disabled = disabled;
@@ -30,9 +28,15 @@ public abstract class IndexedDialog extends BaseDialog
 	
 	protected int hoverIndex;
 
+	IndexedDialog(Widget parent)
+	{
+		super(parent);
+		this.hoverIndex = NO_INDEX;
+	}
+
 	public IndexedDialog()
 	{
-		this.hoverIndex = NO_INDEX;
+		this(null);
 	}
 	
 	/**
@@ -58,15 +62,19 @@ public abstract class IndexedDialog extends BaseDialog
 	 */
 	protected abstract int coordToIndex(Vector2f vector);
 	
-	@Override
 	public boolean isCursorInside()
 	{
 		return !disabled && hoverIndex > NO_INDEX;
 	}
 
 	@Override
-	public boolean moveCursor(int oldx, int oldy, int newx, int newy) 
+	public boolean moveCursor(int oldx, int oldy, int newx, int newy)
 	{
+		// Check children first
+		for(Widget child : children)
+			if(child.moveCursor(oldx, oldy, newx, newy))
+				return true;
+
 		// Check if we are active.
 		int newHover = NO_INDEX;
 		if(location() != null)
@@ -74,13 +82,22 @@ public abstract class IndexedDialog extends BaseDialog
 			// Get the index to display.
 			Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(location()));
 			newHover = coordToIndex(local);
+			System.out.printf("New index = %d\n", newHover);
 		}
 
 		if(newHover != hoverIndex)
 		{
 			hoverIndex = newHover;
+			_milisMouseHover = 0;
+		}
+
+		if(newHover != NO_INDEX)
+		{
+			_underMouse = this;
 			return true;
 		}
+		else if(_underMouse == this)
+			_underMouse = NONE;
 		return false;
 	}
 }

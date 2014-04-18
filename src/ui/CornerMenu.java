@@ -13,7 +13,7 @@ public class CornerMenu extends Widget
 	CornerMenu() throws SlickException
 	{
 		this.setPosition(5, 5);
-		econ = new EconomyDialog();
+//		econ = new EconomyDialog();
 	}
 
 	@Override
@@ -25,11 +25,5 @@ public class CornerMenu extends Widget
 		Images.CORNER_MENU.get().draw(x(),y());
 
 		super.render(gc, g);
-	}
-
-	@Override
-	public boolean screenCLick(float x, float y, int button)
-	{
-		return super.screenCLick(x, y, button);
 	}
 }

@@ -3,7 +3,6 @@ package ui;
 import graphic.Camera;
 import graphic.Render;
 import graphic.Selection;
-import graphic.Selection.Observer;
 
 import java.util.List;
 
@@ -18,6 +17,7 @@ import org.newdawn.slick.geom.Vector2f;
 import state.HQ;
 import state.HQ.QueuedUnit;
 import state.Unit;
+import ui.widget.Widget;
 
 public class HQWidget extends IndexedDialog
 {
@@ -27,8 +27,9 @@ public class HQWidget extends IndexedDialog
 	private int accumulated = 0;
 
 // Public Methods =====================================================================================================
-	public HQWidget() throws SlickException
+	public HQWidget(Widget parent) throws SlickException
 	{
+		super(parent);
 		this.hq = null;
 		
 		backgrounds = new Image[] 
@@ -40,17 +41,12 @@ public class HQWidget extends IndexedDialog
 				new Image("resources/ui_hover.png"),
 			};
 		
-		Selection.register(new Observer()
-		{
-			@Override
-			public void selectionChanged(Object oldSelection, Object newSelection)
+		Selection.register((oldSelection, newSelection) -> {
+			hq = Selection.getSelectionAs(HQ.class);
+			if(hq != null)
 			{
-				hq = Selection.getSelectionAs(HQ.class);
-				if(hq != null)
-				{
-					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
-					IndexedDialog.setCurrent(HQWidget.this, false);
-				}
+				Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+				IndexedDialog.setCurrent(HQWidget.this, false);
 			}
 		});
 	}
@@ -149,16 +145,17 @@ public class HQWidget extends IndexedDialog
 	/**
 	 * Updates this widget by looking for new input.
 	 */
-	public void mouseClick(int button, int delta)
+	@Override
+	public boolean mouseClick(int button)
 	{
 		// Not a valid action.
 		if(hq == null || hoverIndex <= NO_INDEX || disabled)
-			return;
+			return false;
 		
 		// Buttons
 		if(hoverIndex < 0)
 		{
-			if(delta == 0)
+			if(_milisMouseDown == 0)
 			{
 				if(hoverIndex == -1)
 					hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
@@ -166,7 +163,7 @@ public class HQWidget extends IndexedDialog
 					hq.queue().clear();
 				// TODO Other Buttons
 			}
-			return;
+			return true;
 		}
 
 		List<QueuedUnit> queue = hq.queue();
@@ -201,9 +198,9 @@ public class HQWidget extends IndexedDialog
 			// - We don't want to add a fraction of a unit, since that would result in a unit being produced at fractional cost :-S
 			// - Also, we don't want to add depending on the number of times this method gets called.
 			// Result: calculate how many ships should I have added by now, and update.
-			if(delta == 0)
+			if(_milisMouseDown == 0)
 				accumulated = 0;
-			int target = 1 + (int) Math.floor((double)delta * delta * delta / 1e9);
+			int target = 1 + (int) Math.floor((double)_milisMouseDown * _milisMouseDown * _milisMouseDown / 1e9);
 
 			if(Mouse.isButtonDown(0))
 				unit.queued += target - accumulated;
@@ -215,6 +212,7 @@ public class HQWidget extends IndexedDialog
 			}
 			accumulated = target;
 		}
+		return true;
 	}
 
 	/* (non-Javadoc)

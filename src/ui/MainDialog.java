@@ -1,9 +1,8 @@
 package ui;
 
 import graphic.Render;
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.*;
-import org.newdawn.slick.geom.Vector2f;
+import ui.widget.Widget;
 
 /**
  * A base class to present a main-scree dialog.
@@ -20,8 +19,9 @@ public class MainDialog extends BaseDialog
 	private Color textColor;
 
 // Public Methods =====================================================================================================
-	public MainDialog() throws SlickException
+	public MainDialog(Widget parent) throws SlickException
 	{
+		super(parent);
 		backgrounds = new Image[9];
 		backgrounds[0] = new Image("resources/dialog/top_left.png");
 		backgrounds[1] = new Image("resources/dialog/top.png");
@@ -71,7 +71,7 @@ public class MainDialog extends BaseDialog
 			newWidth += backgrounds[4].getWidth();
 		}
 
-		super.setSize(newHeight, newWidth);
+		super.setSize(newWidth, newHeight);
 	}
 
 	public void render(GameContainer gc, Graphics g)
@@ -156,13 +156,6 @@ public class MainDialog extends BaseDialog
 	public float drawText(float x, float y, String text)
 	{
 		return drawText(x, y, text, false, false);
-	}
-
-
-	@Override
-	public boolean isCursorInside()
-	{
-		return false;
 	}
 
 	@Override

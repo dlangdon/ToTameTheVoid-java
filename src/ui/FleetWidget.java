@@ -3,7 +3,6 @@ package ui;
 import graphic.Camera;
 import graphic.Render;
 import graphic.Selection;
-import graphic.Selection.Observer;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -19,6 +18,7 @@ import state.Fleet;
 import state.Star;
 import state.Unit;
 import state.UnitStack;
+import ui.widget.Widget;
 
 public class FleetWidget extends IndexedDialog
 {
@@ -43,8 +43,9 @@ public class FleetWidget extends IndexedDialog
 	private int numSteps;
 
 // Public Methods =====================================================================================================
-	public FleetWidget() throws SlickException
+	public FleetWidget(Widget parent) throws SlickException
 	{
+		super(parent);
 		this.fleet = null;
 		this.numSteps = 6;
 		backgrounds = new Image[] 
@@ -73,26 +74,16 @@ public class FleetWidget extends IndexedDialog
 					"Toggle auto-merge for selected ships.\nFleets with no auto-merge will not merge with others in orbit."
 				};
 		
-		Selection.register(new Observer()
-		{
-			@Override
-			public void selectionChanged(Object oldSelection, Object newSelection)
+		Selection.register((oldSelection, newSelection) -> {
+			fleet = Selection.getSelectionAs(Fleet.class);
+			if(fleet != null)
 			{
-				fleet = Selection.getSelectionAs(Fleet.class);
-				if(fleet != null)
-				{
-					buttonLetters[4] = fleet.isAutoMerge() ? 'm' : '-';
-					refreshCache();
-					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
-					IndexedDialog.setCurrent(FleetWidget.this, false);
-				}
+				buttonLetters[4] = fleet.isAutoMerge() ? 'm' : '-';
+				refreshCache();
+				Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+				IndexedDialog.setCurrent(FleetWidget.this, false);
 			}
 		});
-	}
-
-	public Fleet selectedfleet()
-	{
-		return fleet;
 	}
 
 	public void render(GameContainer gc, Graphics g)
@@ -250,17 +241,11 @@ public class FleetWidget extends IndexedDialog
 		return (index < numStacks) ? index : NO_INDEX;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ui.IndexedDialog#mouseClick(int, int)
-	 */
-	@Override
-	public void mouseClick(int button, int delta)
+	public boolean mouseClick(int button)
 	{
 		// Check if visible.
-		if (fleet == null || hoverIndex <= NO_INDEX || delta != 0 || hoverIndex >= cache.length || disabled)
-			return;
+		if (fleet == null || hoverIndex <= NO_INDEX || _milisMouseDown != 0 || hoverIndex >= cache.length || disabled)
+			return false;
 
 		// Process if it's a button.
 		if (hoverIndex == -1)
@@ -297,7 +282,7 @@ public class FleetWidget extends IndexedDialog
 					cache[hoverIndex].selected = Math.max(cache[hoverIndex].selected - step, 0.0f);
 			}
 		}
-		return;
+		return true;
 	}
 
 	/**
@@ -311,7 +296,7 @@ public class FleetWidget extends IndexedDialog
 		{
 			// TODO This fails, we need to know if the route exists before knowing if a split needs to happen
 			// Not fixing it yet since when there is an implementetion for path finding the check will not be needed...
-			Fleet newFleet = splitSelection(true);
+			Fleet newFleet = splitSelection();
 			if (newFleet != null)
 				Selection.set(newFleet);
 		}
@@ -370,7 +355,7 @@ public class FleetWidget extends IndexedDialog
 			return;
 		
 		// Split this fleet and merge to that one.
-		Fleet aux = this.splitSelection(true);
+		Fleet aux = this.splitSelection();
 		if (toJoin != null)
 		{
 			toJoin.mergeIn(aux);
@@ -380,7 +365,7 @@ public class FleetWidget extends IndexedDialog
 		{
 			aux.setAutoMerge(true);
 			if(aux == fleet)
-				Selection.set(toJoin);
+				Selection.set(null);
 		}
 	}
 	
@@ -406,10 +391,10 @@ public class FleetWidget extends IndexedDialog
 		}
 	}
 
-	private Fleet splitSelection(boolean autoMerge)
+	private Fleet splitSelection()
 	{
 		// Collect a map of selections.
-		HashMap<Unit, Integer> split = new HashMap<Unit, Integer>();
+		HashMap<Unit, Integer> split = new HashMap<>();
 		boolean everything = true;
 		for (StackSelection s : cache)
 		{

@@ -20,6 +20,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 import state.Colony;
 import state.Star;
+import ui.widget.Widget;
 
 public class StarWidget extends IndexedDialog
 {
@@ -29,8 +30,9 @@ public class StarWidget extends IndexedDialog
 	private Image meter;
 
 // Public Methods =====================================================================================================
-	public StarWidget() throws SlickException
+	public StarWidget(Widget parent) throws SlickException
 	{
+		super(parent);
 		background = new Image("resources/starWidgetBck.png");
 		meter = new Image("resources/meter.png");
 		star = null;
