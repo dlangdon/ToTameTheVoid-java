@@ -146,16 +146,16 @@ public class HQWidget extends IndexedDialog
 	 * Updates this widget by looking for new input.
 	 */
 	@Override
-	public boolean mouseClick(int button)
+	public void mouseDown(int button, int delta)
 	{
 		// Not a valid action.
 		if(hq == null || hoverIndex <= NO_INDEX || disabled)
-			return false;
+			return;
 		
 		// Buttons
 		if(hoverIndex < 0)
 		{
-			if(_milisMouseDown == 0)
+			if(delta == 0)
 			{
 				if(hoverIndex == -1)
 					hq.setOutputConfig(HQ.OutputLevel.values()[(hq.outputConfig().ordinal() + 1) % HQ.OutputLevel.values().length]);
@@ -163,7 +163,7 @@ public class HQWidget extends IndexedDialog
 					hq.queue().clear();
 				// TODO Other Buttons
 			}
-			return true;
+			return;
 		}
 
 		List<QueuedUnit> queue = hq.queue();
@@ -198,9 +198,9 @@ public class HQWidget extends IndexedDialog
 			// - We don't want to add a fraction of a unit, since that would result in a unit being produced at fractional cost :-S
 			// - Also, we don't want to add depending on the number of times this method gets called.
 			// Result: calculate how many ships should I have added by now, and update.
-			if(_milisMouseDown == 0)
+			if(delta == 0)
 				accumulated = 0;
-			int target = 1 + (int) Math.floor((double)_milisMouseDown * _milisMouseDown * _milisMouseDown / 1e9);
+			int target = 1 + (int) Math.floor((double)delta * delta * delta / 1e9);
 
 			if(Mouse.isButtonDown(0))
 				unit.queued += target - accumulated;
@@ -212,7 +212,7 @@ public class HQWidget extends IndexedDialog
 			}
 			accumulated = target;
 		}
-		return true;
+		return;
 	}
 
 	/* (non-Javadoc)

@@ -82,7 +82,6 @@ public abstract class IndexedDialog extends BaseDialog
 			// Get the index to display.
 			Vector2f local = new Vector2f(newx, newy).sub(Camera.instance().worldToScreen(location()));
 			newHover = coordToIndex(local);
-			System.out.printf("New index = %d\n", newHover);
 		}
 
 		if(newHover != hoverIndex)

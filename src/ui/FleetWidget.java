@@ -241,11 +241,11 @@ public class FleetWidget extends IndexedDialog
 		return (index < numStacks) ? index : NO_INDEX;
 	}
 
-	public boolean mouseClick(int button)
+	public void mouseDown(int button, int delta)
 	{
 		// Check if visible.
-		if (fleet == null || hoverIndex <= NO_INDEX || _milisMouseDown != 0 || hoverIndex >= cache.length || disabled)
-			return false;
+		if (fleet == null || hoverIndex <= NO_INDEX || delta != 0 || hoverIndex >= cache.length || disabled)
+			return;
 
 		// Process if it's a button.
 		if (hoverIndex == -1)
@@ -282,7 +282,7 @@ public class FleetWidget extends IndexedDialog
 					cache[hoverIndex].selected = Math.max(cache[hoverIndex].selected - step, 0.0f);
 			}
 		}
-		return true;
+		return;
 	}
 
 	/**

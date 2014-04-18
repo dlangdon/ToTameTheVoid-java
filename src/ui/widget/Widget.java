@@ -18,10 +18,10 @@ import java.util.LinkedList;
 public class Widget
 {
 // Statics ==============================================================================================
-	protected static Widget NONE = new Widget();
+	public static Widget NONE = new Widget();
 	protected static Widget _underMouse = NONE;
-	protected static long _milisMouseHover = 0;
-	protected static long _milisMouseDown = 0;
+	protected static int _milisMouseHover = 0;
+	private static int _milisMouseDown = 0;
 	public static Widget underMouse() { return _underMouse; }
 
 //	public enum Corner { TOP_RIGHT, TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT }
@@ -89,21 +89,24 @@ public class Widget
 	 */
 	public void update(int delta)
 	{
-		if(Mouse.isButtonDown(0))
+		if(Mouse.isButtonDown(0) || Mouse.isButtonDown(1))
+		{
+			mouseDown(Mouse.isButtonDown(0) ? 0 : 1, _milisMouseDown);
 			_milisMouseDown += delta;
+		}
 		else
 			_milisMouseDown = 0;
 		_milisMouseHover += delta;
 	}
 
 	/**
-	 * Registers a click on the widget
+	 * Registers that a mouse button is down on the widget.
+	 * Note that a mouse click is just a mouse down on delta = 0, but is up to subclasses to decide what to do.
 	 * @param button 0 for left button, 1 for right, etc.
-	 * @return true if the click was eaten by this widget. This is true by default, but widget can decide to be 'transparent'.
+	 * @param delta miliseconds that a button has been down.
 	 */
-	public boolean mouseClick(int button)
+	public void mouseDown(int button, int delta)
 	{
-		return (this == NONE) ? false : true;
 	}
 
 	/**

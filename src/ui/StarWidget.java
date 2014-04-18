@@ -130,7 +130,7 @@ public class StarWidget extends IndexedDialog
 		g.fillRect(x+2, y+2, value*50.0f, 6);
 	}
 
-	public void mouseClick(int button, int delta)
+	public void mouseDown(int button, int delta)
 	{
 		// Check if visible.
 		if(star == null || hoverIndex <= NO_INDEX || delta != 0 || disabled)

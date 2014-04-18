@@ -57,12 +57,15 @@ public class OptionSelector<T> extends Widget
 	}
 
 	@Override
-	public boolean mouseClick(int button)
+	public void mouseDown(int button, int delta)
 	{
+		if(delta != 0)
+			return;
+
 		float y = Mouse.getY();
 		float x = Mouse.getX() - x();
 		if(options == null || x < 0 || x > width() || y < y() && y > y() + height())
-			return false;
+			return;
 
 		// We move the option right unless we click left arrow or in the center with the right mouse button.
 		int iconWidth = Images.LEFT_ARROW.get().getWidth();
@@ -72,6 +75,6 @@ public class OptionSelector<T> extends Widget
 			current = (current +1) % options.length;
 
 		listener.onEvent(values[current]);
-		return true;
+		return;
 	}
 }

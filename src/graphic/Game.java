@@ -219,7 +219,8 @@ public class Game extends BasicGameState
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		if(Widget.underMouse().mouseClick(button))
+		// If a widget is under the mouse, don't do anything, its update function will take care of it.
+		if(Widget.underMouse() != Widget.NONE)
 			return;
 
 		UIListener newSelection = null;
