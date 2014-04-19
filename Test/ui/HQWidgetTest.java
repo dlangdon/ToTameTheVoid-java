@@ -58,7 +58,7 @@ public class HQWidgetTest extends BasicGame
 	{
 		if(mouseDownTime >= 0)
 		{
-			widget.mouseClick(Mouse.isButtonDown(0) ? 0 : 1);
+			widget.mouseDown(Mouse.isButtonDown(0) ? 0 : 1, 0);
 			mouseDownTime += delta;
 			System.out.println("mouseDownTime: " + mouseDownTime);
 		}

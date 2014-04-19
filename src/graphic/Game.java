@@ -45,11 +45,13 @@ public class Game extends BasicGameState
 	private EconomyDialog econDialog;
 	private BaseDialog techDialog;
 	private Simulator eventQueue;
+	private CornerMenu cornerMenu;
 
 	public void init(GameContainer gc, StateBasedGame game) throws SlickException
 	{
 		// OpenGL initialization
 		System.out.println("OpenGL version: " + GL11.glGetString(GL11.GL_VERSION));
+		gc.setShowFPS(false);
 
 		// Run module initialization. Be careful with dependencies.
 		// This is for now very hard-coded and not very modular.
@@ -66,6 +68,7 @@ public class Game extends BasicGameState
 		hqWidget = new HQWidget(root);
 		econDialog = new EconomyDialog(root);
 		techDialog = new MainDialog(root);
+		cornerMenu = new CornerMenu(root);
 
 		eventQueue = new Simulator();
 
@@ -110,6 +113,8 @@ public class Game extends BasicGameState
 
 		// Draw HUD widgets
 		g.popTransform();
+
+		cornerMenu.render(gc, g);
 		if(BaseDialog.current() instanceof MainDialog)
 			BaseDialog.current().render(gc, g);
 

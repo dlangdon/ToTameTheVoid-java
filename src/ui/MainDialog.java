@@ -158,9 +158,4 @@ public class MainDialog extends BaseDialog
 		return drawText(x, y, text, false, false);
 	}
 
-	@Override
-	public boolean moveCursor(int oldx, int oldy, int newx, int newy)
-	{
-		return false;
-	}
 }
