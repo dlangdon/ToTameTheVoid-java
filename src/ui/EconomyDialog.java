@@ -17,7 +17,7 @@ public class EconomyDialog extends MainDialog
 	public EconomyDialog(Widget parent) throws SlickException
 	{
 		super(parent);
-		setSize(600, 750);
+		setSize(600, 650);
 
 		invest = new OptionSelector<>(this);
 		String[] options = {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"};
@@ -48,17 +48,17 @@ public class EconomyDialog extends MainDialog
 
 		float leftX = x() + 40;
 		float leftY = super.drawTitle("Economy");
-		float numberGap = 280;
+		float numberGap = 260;
 
 		// Policy
 		leftY = super.drawSubtitle(leftX, leftY, "Policy");
 
-		float auxX = super.drawText(leftX, leftY, "Limit growth to ", false, true);
+		float auxX = super.drawText(leftX, leftY, "Spend up to ", false, true);
 		invest.setPosition(auxX, leftY);
 		invest.render(gc, g);
-		leftY = super.drawText(auxX + invest.width(), leftY, " of production");
+		leftY = super.drawText(auxX + invest.width(), leftY, " of production on growth");
 
-		auxX = super.drawText(leftX, leftY, "With expected returns before ", false, true);
+		auxX = super.drawText(leftX, leftY, "If the investment pays for itself before ", false, true);
 		roi.setPosition(auxX, leftY);
 		roi.render(gc, g);
 		leftY = super.drawText(auxX + roi.width(), leftY, "");
@@ -95,7 +95,8 @@ public class EconomyDialog extends MainDialog
 		}
 
 		// Resources
-		float rightX = leftX + 300;
+		float rightX = leftX + 280;
+		numberGap -= 30;
 		rightY = super.drawSubtitle(rightX, rightY, "Resources");
 		rightY = super.drawText(rightX, rightY, "You control no");
 		rightY = super.drawText(rightX, rightY, "strategic resources.");

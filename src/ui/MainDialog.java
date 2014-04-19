@@ -48,26 +48,26 @@ public class MainDialog extends BaseDialog
 	}
 
 	/**
-	 * Sets the position for this dialog.
+	 * Sets the size for this dialog.
 	 * Since backgrounds have a minimum size, the dialog's size will be the minimum possible size >= than the values passed here.
 	 */
 	@Override
 	public void setSize(float width, float height)
 	{
-		float newHeight = backgrounds[1].getHeight() + backgrounds[7].getHeight();
 		float newWidth = backgrounds[3].getWidth() + backgrounds[5].getWidth();
+		float newHeight = backgrounds[1].getHeight() + backgrounds[7].getHeight();
 
-		repeatX = 0;
+		repeatY = 0;
 		while(newHeight < height)
 		{
-			repeatX++;
+			repeatY++;
 			newHeight += backgrounds[4].getHeight();
 		}
 
-		repeatY = 0;
+		repeatX = 0;
 		while(newWidth < width)
 		{
-			repeatY++;
+			repeatX++;
 			newWidth += backgrounds[4].getWidth();
 		}
 

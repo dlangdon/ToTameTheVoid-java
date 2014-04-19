@@ -48,9 +48,9 @@ public class OptionSelector<T> extends Widget
 		float textWidth = Render.dialogText.getWidth(options[current]);
 
 		int iconWidth = Images.LEFT_ARROW.get().getWidth();
-		Images.LEFT_ARROW.get().draw(x(), y()+3, Render.selectColor);
-		Render.dialogText.drawString(x() + iconWidth + 4, y(), options[current], Render.selectColor);
-		Images.RIGHT_ARROW.get().draw(x() + iconWidth + textWidth + 4, y() + 3, Render.selectColor);
+		Images.LEFT_ARROW.get().draw(x(), y()+3, Render.highlightColor);
+		Render.dialogText.drawString(x() + iconWidth + 4, y(), options[current], Render.highlightColor);
+		Images.RIGHT_ARROW.get().draw(x() + iconWidth + textWidth + 4, y() + 3, Render.highlightColor);
 
 		// Remember the size, in case someone clicks.
 		this.setSize(textWidth + 2*iconWidth + 4, Render.dialogText.getLineHeight());

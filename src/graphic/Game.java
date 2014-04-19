@@ -6,12 +6,12 @@ import empire.View;
 import galaxy.structure.Placeable;
 import military.Shipyard;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
@@ -37,7 +37,6 @@ import static graphic.Render.Visibility;
 
 public class Game extends BasicGameState
 {
-	private Image background;
 	private Widget root;
 	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
@@ -52,6 +51,10 @@ public class Game extends BasicGameState
 		// OpenGL initialization
 		System.out.println("OpenGL version: " + GL11.glGetString(GL11.GL_VERSION));
 		gc.setShowFPS(false);
+		gc.setTargetFrameRate(120);
+
+		Render.initialize();
+		Images.initialize();
 
 		// Run module initialization. Be careful with dependencies.
 		// This is for now very hard-coded and not very modular.
@@ -84,14 +87,6 @@ public class Game extends BasicGameState
 		ng.addForce(new EmpireInitialiazer(5), false);
 		ng.blossom();
 
-		// TODO load resources in a more intelligent way...
-		Render.initialize();
-		Images.initialize();
-		background = new Image("resources/bck1.jpg");
-		Star.img = new Image("resources/star.png");
-
-		gc.setTargetFrameRate(120);
-
 		// Pass two turns to reach a valid starting point (where last turn expenses are based on existing colonies).
 		eventQueue.nextTurn();
 		eventQueue.nextTurn();
@@ -100,7 +95,7 @@ public class Game extends BasicGameState
 	public void render(GameContainer gc, StateBasedGame game, Graphics g) throws SlickException
 	{
 		// Draw backgrounds
-		background.draw(0, 0);
+		Images.BACKGROUND.get().draw(0, 0);
 		g.setAntiAlias(false);  // This disables GL11.GL_POLYGON_SMOOTH, which prevents weird artifacts (diagonal lines) on PNG images.
 		Camera.instance().pushWorldTransformation(g);
 
@@ -198,12 +193,14 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
-		else if(key == Input.KEY_N)
+		else if(key == Input.KEY_T && Keyboard.isKeyDown(Input.KEY_LCONTROL))
 			eventQueue.nextTurn();
+		else if(key == Input.KEY_Q)
+			cornerMenu.toggle(2);
+		else if(key == Input.KEY_W)
+			cornerMenu.toggle(1);
 		else if(key == Input.KEY_E)
-			BaseDialog.setCurrent(econDialog, true);
-		else if(key == Input.KEY_T || key == Input.KEY_R)
-			BaseDialog.setCurrent(techDialog, true);
+			cornerMenu.toggle(0);
 		else if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(true);
 		else if(key == Input.KEY_P)

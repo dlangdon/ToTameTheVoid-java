@@ -24,8 +24,8 @@ public class Render
 	public static AngelCodeFont dialogText;
 
 	public static Color baseColor = new Color(0, 150, 255);
-	public static Color selectColor = new Color(255, 204, 0);
-	public static Color highlightColor = new Color(255, 255, 255);
+	public static Color selectColor = new Color(255, 255, 255);
+	public static Color highlightColor = new Color(255, 204, 0);
 
 	public static void initialize() throws SlickException
 	{

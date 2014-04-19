@@ -3,18 +3,16 @@ package state;
 import empire.Empire;
 import galaxy.structure.Place;
 import graphic.Camera;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import graphic.Images;
 import graphic.Render;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
-
 import ui.UIListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Star extends Place implements UIListener
 {
@@ -30,7 +28,6 @@ public class Star extends Place implements UIListener
 	private float size_;
 	private float conditions_;
 	private float resources_;
-	public static Image img;
 	private Empire owner_;
 
 // Public Methods =====================================================================================================
@@ -69,7 +66,7 @@ public class Star extends Place implements UIListener
 		// draw star icon
 		Color color = owner_ != null ? owner_.color() : Color.white;
 		color = visibility != Render.Visibility.VISIBLE ? color.darker(0.6f) : color;
-		img.draw(-16, -16, color);
+		Images.STAR.get().draw(-16, -16, color);
 
 		g.popTransform();
 	}
@@ -87,13 +84,6 @@ public class Star extends Place implements UIListener
 	{
 		// Get a pixel distance centered on this star.
 		Vector2f local = new Vector2f(x, y).sub(Camera.instance().worldToScreen(pos));
-
-		if (local.x * local.x <= 144 && local.y * local.y <= 144)
-		{
-			// I'm in the scar icon (32x32)
-			return true;
-		}
-
-		return false;
+		return (local.x * local.x <= 144 && local.y * local.y <= 144);
 	}
 }
