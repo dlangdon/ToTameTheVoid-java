@@ -38,11 +38,7 @@ import static graphic.Render.Visibility;
 public class Game extends BasicGameState
 {
 	private Widget root;
-	private StarWidget starWidget;
 	private FleetWidget fleetWidget;
-	private HQWidget hqWidget;
-	private EconomyDialog econDialog;
-	private BaseDialog techDialog;
 	private Simulator eventQueue;
 	private CornerMenu cornerMenu;
 
@@ -66,12 +62,10 @@ public class Game extends BasicGameState
 		new Camera(new Vector2f(gc.getWidth(), gc.getHeight()), new Vector2f(600, 400), new Vector2f(350, 150));
 
 		root = new Widget();
-		starWidget = new StarWidget(root);
-		fleetWidget = new FleetWidget(root);
-		hqWidget = new HQWidget(root);
-		econDialog = new EconomyDialog(root);
-		techDialog = new MainDialog(root);
 		cornerMenu = new CornerMenu(root);
+		new StarWidget(root);
+		fleetWidget = new FleetWidget(root);
+		new HQWidget(root);
 
 		eventQueue = new Simulator();
 
@@ -195,12 +189,6 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_T && Keyboard.isKeyDown(Input.KEY_LCONTROL))
 			eventQueue.nextTurn();
-		else if(key == Input.KEY_Q)
-			cornerMenu.toggle(2);
-		else if(key == Input.KEY_W)
-			cornerMenu.toggle(1);
-		else if(key == Input.KEY_E)
-			cornerMenu.toggle(0);
 		else if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(true);
 		else if(key == Input.KEY_P)

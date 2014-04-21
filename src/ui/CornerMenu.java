@@ -3,6 +3,7 @@ package ui;
 import graphic.Images;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import ui.widget.Widget;
 
@@ -21,19 +22,21 @@ public class CornerMenu extends Widget
 	{
 		super(parent);
 		this.setPosition(0, 0);
-		econDialog = new EconomyDialog(this);
-		techDialog = new MainDialog(this);
-		politicalDialog = new MainDialog(this);
 
 		buttons = new ToggleButton[3];
 		buttons[0] = new ToggleButton(Images.ECONOMY_ICON, this);
 		buttons[0].setPosition(57, 6);
-		buttons[0].setListener((on) -> BaseDialog.setCurrent(econDialog, on));
 		buttons[1] = new ToggleButton(Images.SCIENCE_ICON, this);
 		buttons[1].setPosition(40, 38);
-		buttons[1].setListener((toggle) -> BaseDialog.setCurrent(techDialog, toggle));
 		buttons[2] = new ToggleButton(Images.POLITICAL_ICON, this);
 		buttons[2].setPosition(6, 55);
+
+		econDialog = new EconomyDialog(this);
+		techDialog = new MainDialog(this);
+		politicalDialog = new MainDialog(this);
+
+		buttons[0].setListener((on) -> BaseDialog.setCurrent(econDialog, on));
+		buttons[1].setListener((toggle) -> BaseDialog.setCurrent(techDialog, toggle));
 		buttons[2].setListener((toggle) -> BaseDialog.setCurrent(politicalDialog, toggle));
 
 		BaseDialog.registerForSelectionChanges(dialog ->
@@ -44,6 +47,17 @@ public class CornerMenu extends Widget
 		});
 	}
 
+	public boolean keyPressed(int key)
+	{
+		switch(key)
+		{
+			case Input.KEY_Q: BaseDialog.setCurrent(politicalDialog, true); return true;
+			case Input.KEY_W: BaseDialog.setCurrent(techDialog, true); return true;
+			case Input.KEY_E: BaseDialog.setCurrent(econDialog, true); return true;
+			default: return false;
+		}
+	}
+
 	@Override
 	public void render(GameContainer gc, Graphics g)
 	{
@@ -51,13 +65,5 @@ public class CornerMenu extends Widget
 
 		for(ToggleButton b: buttons)
 			b.render(gc, g);
-	}
-
-	/**
-	 * Toggles a 'click' on the given index button.
-	 */
-	public void toggle(int index)
-	{
-		buttons[index].mouseDown(0,0);
 	}
 }

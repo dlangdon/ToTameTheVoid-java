@@ -41,6 +41,10 @@ public class Widget
 	{
 	}
 
+	/**
+	 * Widget constructor, adding himsemf to the parent's children list.
+	 * Note that order is important, as early childs, everything else being equal, will be given priority over inputs and events.
+	 */
 	public Widget(Widget parent)
 	{
 		parent.children.add(this);

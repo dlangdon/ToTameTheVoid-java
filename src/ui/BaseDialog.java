@@ -1,5 +1,6 @@
 package ui;
 
+import graphic.Selection;
 import ui.widget.EventListener;
 import ui.widget.Widget;
 
@@ -29,6 +30,10 @@ public abstract class BaseDialog extends Widget
 		return current;
 	}
 
+	/**
+	 * Sets the current base dialog.
+	 * @param toggle If true and the same dialog was already selected, it is toggle to null instead.
+	 */
 	public static void setCurrent(BaseDialog dialog, boolean toggle)
 	{
 		BaseDialog old = current;
@@ -38,7 +43,23 @@ public abstract class BaseDialog extends Widget
 			current = dialog;
 
 		if(current != old)
+		{
+			// Selection of main dialogs erases object selection.
+			if(current instanceof MainDialog)
+				Selection.set(null);
+
+			// If a widget appears or dissapears, what is under the mouse changes.
+			Widget._underMouse = Widget.NONE;
+
+			// Now notify all listeners.
 			for(EventListener<BaseDialog> l : listeners)
 				l.onEvent(current);
+		}
+	}
+
+	@Override
+	public boolean moveCursor(int oldx, int oldy, int newx, int newy)
+	{
+		return current == this && super.moveCursor(oldx, oldy, newx, newy);
 	}
 }
