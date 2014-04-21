@@ -1,26 +1,18 @@
 package ui;
 
-import empire.Empire;
-import simulation.GameEvent;
-import simulation.Simulator;
+import empire.View;
 import graphic.Camera;
 import graphic.Render;
 import graphic.Selection;
-import graphic.Selection.Observer;
-
-import java.util.Iterator;
-import java.util.List;
-
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Vector2f;
-
+import simulation.GameEvent;
+import simulation.Simulator;
 import state.Colony;
 import state.Star;
 import ui.widget.Widget;
+
+import java.util.List;
 
 public class StarWidget extends IndexedDialog
 {
@@ -37,17 +29,12 @@ public class StarWidget extends IndexedDialog
 		meter = new Image("resources/meter.png");
 		star = null;
 		
-		Selection.register(new Observer()
-		{
-			@Override
-			public void selectionChanged(Object oldSelection, Object newSelection)
+		Selection.register((oldSelection, newSelection) -> {
+			star = Selection.getSelectionAs(Star.class);
+			if(star != null)
 			{
-				star = Selection.getSelectionAs(Star.class);
-				if(star != null)
-				{
-					Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
-					IndexedDialog.setCurrent(StarWidget.this, false);
-				}
+				Camera.instance().ensureVisible(location(), 180, 370, 180, 180);
+				IndexedDialog.setCurrent(StarWidget.this, false);
 			}
 		});
 	}
@@ -63,46 +50,42 @@ public class StarWidget extends IndexedDialog
 		g.setColor(Color.white);
 		background.draw(-84, -119);
 
-		switch (Empire.getPlayerEmpire().view().getVisibility(star))
+		switch (View.getVisibility(star))
 		{
 			case HIDDEN:
 				return; // Should never happen.
 			case REACHABLE:
-				Render.titles.drawString(100, -78, "Unknown Star");
-				Render.normal.drawString(100, -58, "Send a fleet to explore this location.");
+				Render.dialogSubTitle.drawString(100, -88, "Unknown Star", Render.selectColor);
+				Render.dialogText.drawString(120, -58, "Send a fleet to explore this location.", Render.baseColor);
 				break;
 			case REMEMBERED:
 			case VISIBLE:
 				Colony colony = star.getPlaceable(Colony.class);
 
-
-				Render.titles.drawString(100, -78, star.name());
-
-				Render.normal.drawString(110, -58, "Resources");
-				Render.normal.drawString(110, -44, "Conditions");
-				Render.normal.drawString(110, -30, "Size");
+				Render.dialogSubTitle.drawString(100, -88, star.name(), Render.selectColor);
+				Render.dialogText.drawString(120, -58, "Resources", Render.baseColor);
+				Render.dialogText.drawString(120, -44, "Conditions", Render.baseColor);
+				Render.dialogText.drawString(120, -30, "Size", Render.baseColor);
 
 				g.setColor(star.owner() == null ? Color.white : star.owner().color());
-				drawMeter(g, 210, -58, star.resources());
-				drawMeter(g, 210, -44, star.conditions());
-				drawMeter(g, 210, -30, star.size());
+				drawMeter(g, 230, -58, star.resources());
+				drawMeter(g, 230, -44, star.conditions());
+				drawMeter(g, 230, -30, star.size());
 
 				if(colony != null)
 				{
-					Render.titles.drawString(100, 2, star.owner().name() + " outpost.");
+					Render.dialogSubTitle.drawString(100, 2, star.owner().name(), Render.selectColor);
 
-					Render.normal.drawString(110, 36, "Total Output");
-					Render.normal.drawString(110, 50, "Inv. return");
-					Render.normal.drawString(210, 36, String.format("%2.2f", (colony.production()-colony.maintenance())*10000.0));
+					Render.dialogText.drawString(120, 36, "Total Output", Render.baseColor);
+					Render.dialogText.drawString(120, 50, "Inv. return", Render.baseColor);
+					Render.dialogText.drawString(260, 36, String.format("%2.2f", (colony.production()-colony.maintenance())*10000.0), Render.baseColor);
 
-					if(Math.abs(colony.infrastructure() - colony.maxInfrastructure()) > 1E-6)
-						Render.normal.drawString(210, 50, String.format("%2.2f", colony.returnOfInvestment()));
-					else
-						Render.normal.drawString(210, 50, "Maximum Reached");
+					String invest = (Math.abs(colony.infrastructure() - colony.maxInfrastructure()) > 1E-6) ? String.format("%2.2f", colony.returnOfInvestment()) : "Maximum Reached";
+					Render.dialogText.drawString(260, 50, invest, Render.baseColor);
 				}
 				else
 				{
-					Render.titles.drawString(100, 2, "No outpost");
+					Render.dialogSubTitle.drawString(100, 2, "No outpost", Render.selectColor);
 				}
 
 				// Render possible actions on this system.
@@ -116,7 +99,7 @@ public class StarWidget extends IndexedDialog
 
 						// Check if we also display the local information.
 						if(hoverIndex == event.slot())
-							Render.titles.drawString(120, -100, event.description());
+							Render.dialogText.drawString(120, 80, event.description(), Render.baseColor);
 					}
 				}
 				break;
@@ -137,13 +120,9 @@ public class StarWidget extends IndexedDialog
 			return;
 		
 		// Process the corresponding action-event.
-		Iterator<GameEvent> existing = Simulator.instance().eventsForLocation(star).iterator();
-		while(existing.hasNext())
-		{
-			GameEvent event = existing.next(); 
-			if(event.slot() == hoverIndex)
+		for (GameEvent event : Simulator.instance().eventsForLocation(star))
+			if (event.slot() == hoverIndex)
 				event.runAction();
-		}
 	}
 	
 

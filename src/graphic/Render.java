@@ -17,8 +17,8 @@ public class Render
 	public static final int SMALL 	= 0x02;
 	public static final int BIG 		= 0x04;
 	
-	public static TrueTypeFont titles;
-	public static TrueTypeFont normal;
+//	public static TrueTypeFont titles;
+//	public static TrueTypeFont normal;
 	public static AngelCodeFont dialogTitle;
 	public static AngelCodeFont dialogSubTitle;
 	public static AngelCodeFont dialogText;
@@ -29,8 +29,8 @@ public class Render
 
 	public static void initialize() throws SlickException
 	{
-		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
-		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);
+//		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
+//		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);
 		dialogTitle = new AngelCodeFont("resources/fonts/space_age_30.fnt", "resources/fonts/space_age_30_0.png");
 		dialogSubTitle = new AngelCodeFont("resources/fonts/space_age_20.fnt", "resources/fonts/space_age_20_0.png");
 		dialogText = new AngelCodeFont("resources/fonts/neogrey_12.fnt", "resources/fonts/neogrey_12_0.png");

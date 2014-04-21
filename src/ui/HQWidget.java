@@ -73,13 +73,13 @@ public class HQWidget extends IndexedDialog
 		for(int i=0; i<options.size(); i++)
 		{
 			Vector2f pos = indexToCoord(i);
-			options.get(i).image().draw(pos.x-15, pos.y-15);
+			options.get(i).image().draw(pos.x-15, pos.y-15, Render.baseColor);
 			// Check if we also display the local information.
 
 			if(hoverIndex == i)
 			{
 				backgrounds[4].draw(62, -119);
-				Render.titles.drawString(120, -100, options.get(i).name());
+				Render.dialogSubTitle.drawString(120, -100, options.get(i).name(), Render.selectColor);
 			}
 		}
 		
@@ -90,36 +90,30 @@ public class HQWidget extends IndexedDialog
 			if(i<queue.size())
 			{
 				QueuedUnit qu = queue.get(i);
-				qu.design.image().draw(pos.x-15, pos.y-15);
+				qu.design.image().draw(pos.x-15, pos.y-15, Render.baseColor);
 				
 				// Calculate location and draw the count for the stack.
-				g.setColor(Color.orange);
 				float length = pos.length();
 				String number = Integer.toString((int)Math.ceil(qu.queued));
 				pos.normalise().scale(length + 10.0f);
-				g.fillRect(
-							pos.x - Render.normal.getWidth(number)/2,
-							pos.y - Render.normal.getHeight()/2,
-							Render.normal.getWidth(number),
-							Render.normal.getHeight());
-				Render.normal.drawString(
-							pos.x - Render.normal.getWidth(number)/2,
-							pos.y - Render.normal.getHeight()/2,
-							number, Color.black);
+				Render.dialogText.drawString(
+							pos.x - Render.dialogText.getWidth(number)/2,
+							pos.y - Render.dialogText.getLineHeight()/2,
+							number, Render.highlightColor);
 				
 				if(hoverIndex == i+12)
 				{
 					backgrounds[4].draw(62, -119);
-					Render.titles.drawString(120, -100, qu.design.name());
+					Render.dialogSubTitle.drawString(120, -100, qu.design.name(), Render.selectColor);
 				}
 			}
 			else if(!queue.isEmpty())
 			{
 				String number = Integer.toString(i+1);
-				Render.normal.drawString(
-						pos.x - Render.normal.getWidth(number)/2,
-						pos.y - Render.normal.getHeight()/2,
-						number, Color.white);
+				Render.dialogText.drawString(
+						pos.x - Render.dialogText.getWidth(number)/2,
+						pos.y - Render.dialogText.getLineHeight()/2,
+						number, Render.baseColor);
 			}
 		}
 		
@@ -127,18 +121,17 @@ public class HQWidget extends IndexedDialog
 		Vector2f pos = indexToCoord(-1);
 		String[] configs = {"n", "h", "f"};
 		String conf = configs[hq.outputConfig().ordinal()];
-		Render.normal.drawString(
-				pos.x - Render.normal.getWidth(conf)/2,
-				pos.y - Render.normal.getHeight()/2,
-				conf, Color.white);
+		Render.dialogText.drawString(
+				pos.x - Render.dialogText.getWidth(conf)/2,
+				pos.y - Render.dialogText.getLineHeight()/2,
+				conf, Render.baseColor);
 
 		pos = indexToCoord(-2);
-		Render.normal.drawString(
-				pos.x - Render.normal.getWidth("c")/2,
-				pos.y - Render.normal.getHeight()/2,
-				"c", Color.white);
-		
-		
+		Render.dialogText.drawString(
+				pos.x - Render.dialogText.getWidth("c")/2,
+				pos.y - Render.dialogText.getLineHeight()/2,
+				"c", Render.baseColor);
+
 		g.popTransform();
 	}
 
@@ -212,7 +205,6 @@ public class HQWidget extends IndexedDialog
 			}
 			accumulated = target;
 		}
-		return;
 	}
 
 	/* (non-Javadoc)

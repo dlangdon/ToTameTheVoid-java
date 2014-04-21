@@ -105,28 +105,23 @@ public class FleetWidget extends IndexedDialog
 		{
 			// Draw the icon.
 			Vector2f pos = indexToCoord(i);
-			cache[i].design.image().draw(pos.x-15, pos.y-15);
+			cache[i].design.image().draw(pos.x-15, pos.y-15, Render.baseColor);
 			
 			// Calculate location and draw the count for the stack.
-			g.setColor(Color.orange);
+//			g.setColor(Color.orange);
 			float length = pos.length();
 			String number = Integer.toString((int)cache[i].selected);
 			pos.normalise().scale(length + 10.0f);
-			g.fillRect(
-						pos.x - Render.normal.getWidth(number)/2,
-						pos.y - Render.normal.getHeight()/2,
-						Render.normal.getWidth(number),
-						Render.normal.getHeight());
-			Render.normal.drawString(
-						pos.x - Render.normal.getWidth(number)/2,
-						pos.y - Render.normal.getHeight()/2,
-						number, Color.black);
+			Render.dialogText.drawString(
+						pos.x - Render.dialogText.getWidth(number)/2,
+						pos.y - Render.dialogText.getLineHeight()/2,
+						number, Render.highlightColor);
 			
 			// Check if we also display the local information.
 			if(hoverIndex == i)
 			{
 				backgrounds[5].draw(62, -119);
-				Render.titles.drawString(120, -100, cache[i].design.name());
+				Render.dialogSubTitle.drawString(120, -100, cache[i].design.name(), Render.selectColor);
 			}
 		}
 		
@@ -134,14 +129,14 @@ public class FleetWidget extends IndexedDialog
 		for(int i=0; i<5; i++)
 		{
 			Vector2f pos = indexToCoord(-i-1);
-			Render.normal.drawString(
-					pos.x - Render.normal.getWidth("" + buttonLetters[i])/2,
-					pos.y - Render.normal.getHeight()/2,
-					"" + buttonLetters[i], Color.white);
+			Render.dialogText.drawString(
+					pos.x - Render.dialogText.getWidth("" + buttonLetters[i])/2,
+					pos.y - Render.dialogText.getLineHeight()/2,
+					"" + buttonLetters[i], Render.baseColor);
 			if(hoverIndex == -i-1)
 			{
 				backgrounds[5].draw(62, -119);
-				Render.titles.drawString(120, -100, buttonTexts[i]);
+				Render.dialogText.drawString(120, 80, buttonTexts[i], Render.baseColor);
 			}
 		}
 		g.popTransform();
@@ -149,7 +144,6 @@ public class FleetWidget extends IndexedDialog
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see ui.IndexedDialog#indexToCoord(int)
 	 */
 	@Override
@@ -211,8 +205,8 @@ public class FleetWidget extends IndexedDialog
 				index = -1 - (int) ((angle + 50) / 20.0);
 
 			// Invalid index for decoration
-			if (angle >= 130 && angle <= 230)
-				index = -6;
+//			if (angle >= 130 && angle <= 230)
+//				index = -6;
 		}
 		if (76 < radius && radius < 121)
 		{
@@ -222,6 +216,10 @@ public class FleetWidget extends IndexedDialog
 				index = aux * 2;
 			else
 				index = 23 - aux * 2;
+
+			// FIXME this is a hack to solve an issue where angle = 0 --> index = -1. Not fixed since it is likely this entire UI will change to 12 fixed slots.
+			if(index < 0)
+				index = NO_INDEX;
 		}
 		else if (123 < radius && radius < 168)
 		{
@@ -282,7 +280,6 @@ public class FleetWidget extends IndexedDialog
 					cache[hoverIndex].selected = Math.max(cache[hoverIndex].selected - step, 0.0f);
 			}
 		}
-		return;
 	}
 
 	/**
