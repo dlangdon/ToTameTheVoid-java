@@ -183,6 +183,9 @@ public class Game extends BasicGameState
 	@Override
 	public void keyPressed(int key, char c)
 	{
+		if(cornerMenu.keyPressed(key))
+			return;
+
 		if(key == Input.KEY_PRIOR)
 			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_NEXT)
