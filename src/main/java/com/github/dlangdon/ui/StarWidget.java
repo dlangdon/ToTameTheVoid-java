@@ -31,8 +31,8 @@ public class StarWidget extends IndexedDialog
 // Public Methods =====================================================================================================
 	public StarWidget() throws SlickException
 	{
-		background = new Image("resources/starWidgetBck.png");
-		meter = new Image("resources/meter.png");
+		background = new Image("starWidgetBck.png");
+		meter = new Image("meter.png");
 		star = null;
 
 		Selection.register(new Observer()

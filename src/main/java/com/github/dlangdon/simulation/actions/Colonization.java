@@ -43,7 +43,7 @@ public class Colonization extends GameEvent
 		// FIXME Ugly, I definitely need to tackle the whole resources thingy...
 		try
 		{
-			return new Image("resources/icon_colonize.png");
+			return new Image("icon_colonize.png");
 		}
 		catch (SlickException e)
 		{

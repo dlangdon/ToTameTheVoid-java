@@ -36,7 +36,7 @@ public class ShipyardBuildEvent extends GameEvent
 		// FIXME Ugly, I definitely need to tackle the whole resources thingy...
 		try
 		{
-			return new Image("resources/icon_ihq.png");
+			return new Image("icon_ihq.png");
 		}
 		catch (SlickException e)
 		{

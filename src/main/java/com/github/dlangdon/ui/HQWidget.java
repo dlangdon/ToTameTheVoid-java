@@ -33,11 +33,11 @@ public class HQWidget extends IndexedDialog
 
 		backgrounds = new Image[]
 			{
-				new Image("resources/ui_base.png"),
-				new Image("resources/fleetExt1.png"),
-				new Image("resources/fleetExt2.png"),
-				new Image("resources/fleetExt3.png"),
-				new Image("resources/ui_hover.png"),
+				new Image("ui_base.png"),
+				new Image("fleetExt1.png"),
+				new Image("fleetExt2.png"),
+				new Image("fleetExt3.png"),
+				new Image("ui_hover.png"),
 			};
 
 		Selection.register(new Observer()

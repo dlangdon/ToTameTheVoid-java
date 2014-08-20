@@ -17,7 +17,7 @@ public class EconomyDialog
 	public EconomyDialog() throws SlickException
 	{
 		visible = false;
-		background = new Image("resources/dialog_base_complete.png");
+		background = new Image("dialog_base_complete.png");
 	}
 
 	public void render(GameContainer gc, Graphics g)

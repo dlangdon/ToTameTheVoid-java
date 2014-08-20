@@ -29,9 +29,9 @@ public class Render
 	{
 		titles = new TrueTypeFont(new Font("Arial", Font.BOLD, 16), false);
 		normal = new TrueTypeFont(new Font("Arial", Font.PLAIN, 12), false);
-		dialogTitle = new AngelCodeFont("resources/fonts/space_age_30.fnt", "resources/fonts/space_age_30_0.png");
-		dialogSubTitle = new AngelCodeFont("resources/fonts/space_age_20.fnt", "resources/fonts/space_age_20_0.png");
-		dialogText = new AngelCodeFont("resources/fonts/neogrey_12.fnt", "resources/fonts/neogrey_12_0.png");
+		dialogTitle = new AngelCodeFont("fonts/space_age_30.fnt", "fonts/space_age_30_0.png");
+		dialogSubTitle = new AngelCodeFont("fonts/space_age_20.fnt", "fonts/space_age_20_0.png");
+		dialogText = new AngelCodeFont("fonts/neogrey_12.fnt", "fonts/neogrey_12_0.png");
 	}
 
 }

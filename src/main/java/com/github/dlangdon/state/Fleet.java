@@ -41,7 +41,7 @@ public class Fleet extends Placeable
 		scrapIncome = Economy.registerCause("Ships for parts");
 		maintenanceExpense = Economy.registerCause("Fleet maintenance");
 		repairExpense = Economy.registerCause("Fleet repairs");
-		fleetIcon = new Image("resources/fleet.png");
+		fleetIcon = new Image("fleet.png");
 		fleets = new HashSet<Fleet>();
 		observers = new ArrayList<FleetObserver>();
 	}

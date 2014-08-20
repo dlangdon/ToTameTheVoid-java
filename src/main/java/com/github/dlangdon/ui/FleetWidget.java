@@ -49,12 +49,12 @@ public class FleetWidget extends IndexedDialog
 		this.numSteps = 6;
 		backgrounds = new Image[]
 			{
-				new Image("resources/ui_base.png"),
-				new Image("resources/fleetExt1.png"),
-				new Image("resources/fleetExt2.png"),
-				new Image("resources/fleetExt3.png"),
-				new Image("resources/fleetExt4.png"),
-				new Image("resources/ui_hover.png"),
+				new Image("ui_base.png"),
+				new Image("fleetExt1.png"),
+				new Image("fleetExt2.png"),
+				new Image("fleetExt3.png"),
+				new Image("fleetExt4.png"),
+				new Image("ui_hover.png"),
 			};
 
 		bckDeltas = new int[][]
