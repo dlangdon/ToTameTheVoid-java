@@ -1,12 +1,9 @@
-/**
- * 
- */
 package state;
 
 import empire.Economy;
 import empire.Empire;
-import junit.framework.Assert;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.Color;
@@ -20,6 +17,7 @@ import java.util.Set;
  */
 public class EconomyTest
 {
+    private static double EPSILON = 1e-6;
 	Economy economy;
 	Empire empire;
 	Star richStar;
@@ -86,15 +84,15 @@ public class EconomyTest
 			economy.applyGrowth(colonies);
 			
 			// Check that basic values match, as there is only one colony.
-			Assert.assertEquals(economy.totalProduction(), colony.production(), 1e-6);
-			Assert.assertEquals(economy.totalInfrastructure(), colony.infrastructure(), 1e-6 );
-			Assert.assertEquals(economy.totalMaintenance(), colony.maintenance(), 1e-6);
-			Assert.assertEquals(economy.bestROI(), colony.returnOfInvestment(), 1e-6);
+			Assert.assertEquals(economy.totalProduction(), colony.production(), EPSILON);
+			Assert.assertEquals(economy.totalInfrastructure(), colony.infrastructure(), EPSILON );
+			Assert.assertEquals(economy.totalMaintenance(), colony.maintenance(), EPSILON);
+			Assert.assertEquals(economy.bestROI(), colony.returnOfInvestment(), EPSILON);
 			
 			// Check that the posted expenses hold.
-			Assert.assertEquals(economy.movements()[0], -lastTurnMaintenance);
-			Assert.assertEquals(economy.movements()[1], economy.reserve() -lastTurnReserve +lastTurnMaintenance - lastTurnProduction, 1E-5);
-			Assert.assertEquals(economy.movements()[2], lastTurnProduction, 1e-6);
+			Assert.assertEquals(economy.movements()[0], -lastTurnMaintenance, EPSILON);
+			Assert.assertEquals(economy.movements()[1], economy.reserve() -lastTurnReserve +lastTurnMaintenance - lastTurnProduction, EPSILON);
+			Assert.assertEquals(economy.movements()[2], lastTurnProduction, EPSILON);
 			
 //			System.out.format("\nTurn %d: prod=%3.4f, main=%3.4f", i, economy.totalProduction(), economy.totalMaintenance());
 		}

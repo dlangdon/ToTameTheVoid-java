@@ -46,7 +46,13 @@ public class EconomyDialog extends MainDialog
 		Empire e = Empire.getPlayerEmpire();
 		Economy ec = e.getEconomy();
 
-		float leftX = x() + 40;
+        // Reset options to their right values (necessary to keep initial values coordinated and if empire is switched.
+        invest.selectValue(ec.growthPolicy());
+        roi.selectValue(ec.returnOfInvestmentLimit());
+        boost.select(ec.isOnlyLocal() ? 1 : 0);
+
+        // Start rendering
+        float leftX = x() + 40;
 		float leftY = super.drawTitle("Economy");
 		float numberGap = 260;
 
@@ -55,7 +61,7 @@ public class EconomyDialog extends MainDialog
 
 		float auxX = super.drawText(leftX, leftY, "Spend up to ", false, true);
 		invest.setPosition(auxX, leftY);
-		invest.render(gc, g);
+        invest.render(gc, g);
 		leftY = super.drawText(auxX + invest.width(), leftY, " of production on growth");
 
 		auxX = super.drawText(leftX, leftY, "If the investment pays for itself before ", false, true);

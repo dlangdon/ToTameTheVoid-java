@@ -73,7 +73,7 @@ public class Economy
 		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
 		growthPolicy_ = 0.5f;
-		returnOfInvestmentLimit_ = 9999;
+		returnOfInvestmentLimit_ = 15;
 		onlyLocal_ = true;
 		movements_ = new float[causes_.size()];
 		rejections_ = new boolean[causes_.size()];

@@ -446,19 +446,17 @@ public class Fleet extends Placeable
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("Fleet:");
+		sb.append(super.toString() + " (");
 		for(Entry<Unit, UnitStack> entry : stacks.entrySet())
 		{
 			sb
-				.append("\n\t")
+				.append("\t")
 				.append(entry.getValue().quantity())
 				.append(' ')
-				.append(entry.getKey().name());
+				.append(entry.getKey().name())
+                .append(',');
 		}
-		sb.append('\n');
-		
 		return sb.toString();
-		
 	}
 	
 	/* (non-Javadoc)

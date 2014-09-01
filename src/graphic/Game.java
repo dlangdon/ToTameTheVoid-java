@@ -197,7 +197,7 @@ public class Game extends BasicGameState
 		else if(key == Input.KEY_P)
 		{
 			int index = Empire.all().indexOf(Empire.getPlayerEmpire());
-			Empire.setPlayerEmpire(Empire.all().get(index+1 % Empire.all().size()));
+			Empire.setPlayerEmpire(Empire.all().get((index+1) % Empire.all().size()));
 			IndexedDialog.setDisabled(true);
 		}
 	}
@@ -224,7 +224,10 @@ public class Game extends BasicGameState
 			{
 				// Star was clicked.
 				if(Selection.getSelectionAs(Fleet.class) != null)
-					fleetWidget.starClick(button, s);
+                {
+                    fleetWidget.starClick(button, s);
+                    newSelection = Selection.getSelectionAs(UIListener.class);
+                }
 				// TODO HQ relocation
 				else
 					newSelection = s;

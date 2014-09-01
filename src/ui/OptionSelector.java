@@ -8,6 +8,8 @@ import org.newdawn.slick.Graphics;
 import ui.widget.Widget;
 import ui.widget.EventListener;
 
+import java.util.Arrays;
+
 public class OptionSelector<T> extends Widget
 {
 	String[] options;
@@ -30,13 +32,20 @@ public class OptionSelector<T> extends Widget
 		select(0);
 	}
 
-	public void select(int option)
+	public void select(int optionIndex)
 	{
-		current = option;
+		current = optionIndex;
 		listener.onEvent(values[current]);
 	}
 
-	public void setListener(EventListener<T> listener)
+    public void selectValue(T value)
+    {
+        current = Arrays.asList(values).indexOf(value);
+        listener.onEvent(values[current]);
+    }
+
+
+    public void setListener(EventListener<T> listener)
 	{
 		this.listener = listener;
 	}
