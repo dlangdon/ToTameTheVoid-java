@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import military.SpaceCombatSimulation;
-import simulation.GameEvent;
-import simulation.StarCheck;
 import empire.Empire;
 import state.Fleet;
 import state.Star;
@@ -14,13 +12,12 @@ import state.Star;
  * Creates events for space battles.
  * @author Daniel Langdon
  */
-public class SpaceCombatCheck implements StarCheck
+public class SpaceCombatCheck
 {
-	@Override
-	public GameEvent check(Star location)
+	public void check(Star location)
 	{
 		// Get the list of fleets really in conflict. Remove fleets that have no hostile opponents (hence would not engage at all).
-		List<Fleet> fleets = new ArrayList<Fleet>();
+		List<Fleet> fleets = new ArrayList<>();
 		for(Fleet f: location.getFleets())
 		{
 			// Empty fleet is ignored.
@@ -40,6 +37,5 @@ public class SpaceCombatCheck implements StarCheck
 
 		SpaceCombatSimulation sim = new SpaceCombatSimulation(fleets);
 		sim.run();
-		return null;
 	}
 }

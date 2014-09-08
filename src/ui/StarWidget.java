@@ -6,7 +6,7 @@ import graphic.Render;
 import graphic.Selection;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Vector2f;
-import simulation.GameEvent;
+import simulation.Option;
 import simulation.Simulator;
 import state.Colony;
 import state.Star;
@@ -89,8 +89,8 @@ public class StarWidget extends IndexedDialog
 				}
 
 				// Render possible actions on this system.
-				List<GameEvent> existing = Simulator.instance().eventsForLocation(star);
-				for(GameEvent event : existing)
+				List<Option> existing = Simulator.instance().optionsForLocation(star);
+				for(Option event : existing)
 				{
 					if(event.slot() >= 0)
 					{
@@ -120,9 +120,9 @@ public class StarWidget extends IndexedDialog
 			return;
 		
 		// Process the corresponding action-event.
-		for (GameEvent event : Simulator.instance().eventsForLocation(star))
-			if (event.slot() == hoverIndex)
-				event.runAction();
+		for (Option option : Simulator.instance().optionsForLocation(star))
+			if (option.slot() == hoverIndex)
+				option.runAction();
 	}
 	
 

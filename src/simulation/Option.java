@@ -7,7 +7,6 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-
 import state.Star;
 
 /**
@@ -18,20 +17,13 @@ import state.Star;
  *
  * @author Daniel Langdon
  */
-public abstract class GameEvent implements Comparable<GameEvent>
+public abstract class Option // implements Comparable<Option>
 {
-	/**
-	 * Status of the event. Events start with pending status.
-	 */
-	public enum Status { PENDING, RESOLVING, PARALLEL, DONE	};
-
-	protected Status status_;
 	private Star location_;
 
-	protected GameEvent(Star location)
+	protected Option(Star location)
 	{
 		location_ = location;
-		status_ = Status.PENDING;
 	}
 
 	public Star location()
@@ -39,38 +31,23 @@ public abstract class GameEvent implements Comparable<GameEvent>
 		return location_;
 	}
 
-	public Status status()
-	{
-		return status_;
-	}
-
-	public void render(GameContainer gc, Graphics g) throws SlickException
-	{
-
-	}
-
-	public void update(GameContainer gc, int delta) throws SlickException
-	{
-
-	}
-
-	/**
-	 * A comparator to order game events. Events are ordered by location. null locations are considered less than any valid location.
-	 *
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(GameEvent o)
-	{
-		if (o == this)
-			return 0;
-		if (location_ == null)
-			return 1;
-		else if (o.location_ == null)
-			return -1;
-		else
-			return location().index() - o.location().index();
-	}
+//	/**
+//	 * A comparator to order game events. Events are ordered by location. null locations are considered less than any valid location.
+//	 *
+//	 * @see Comparable#compareTo(Object)
+//	 */
+//	@Override
+//	public int compareTo(Option o)
+//	{
+//		if (o == this)
+//			return 0;
+//		if (location_ == null)
+//			return 1;
+//		else if (o.location_ == null)
+//			return -1;
+//		else
+//			return location().index() - o.location().index();
+//	}
 
 	/**
 	 * @return The icon to use if this action is going to be added to an interface.

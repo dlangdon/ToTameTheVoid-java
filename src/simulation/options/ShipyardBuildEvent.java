@@ -1,25 +1,21 @@
 /**
  * 
  */
-package simulation.actions;
+package simulation.options;
 
+import graphic.Images;
 import military.Shipyard;
-
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-
-import simulation.GameEvent;
+import simulation.Option;
 import state.Star;
 
 /**
  * Stores information when a star system can be colonized by an empire, allowing such an action.
  * @author Daniel Langdon
  */
-public class ShipyardBuildEvent extends GameEvent
+public class ShipyardBuildEvent extends Option
 {
-	int turns;
-	int cost;
-	
 	/**
 	 * Constructs a colonization event. 
 	 */
@@ -33,16 +29,7 @@ public class ShipyardBuildEvent extends GameEvent
 	 */
 	public Image icon()
 	{
-		// FIXME Ugly, I definitely need to tackle the whole resources thingy...
-		try
-		{
-			return new Image("resources/icon_ihq.png");
-		}
-		catch (SlickException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		return Images.SHIPYARD_BUILD.get();
 	}
 	
 	/**

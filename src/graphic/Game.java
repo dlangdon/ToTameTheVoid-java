@@ -111,6 +111,9 @@ public class Game extends BasicGameState
 		// eventQueue.render(gc, g);
 	}
 
+    /**
+     * @deprecated Only the current player visible state is rendered, but it might still be useful for test purposes.
+     */
 	private void renderAll(GameContainer gc, Graphics g)
 	{
 		// Draw Lanes
@@ -166,10 +169,6 @@ public class Game extends BasicGameState
 
 	public void update(GameContainer gc, StateBasedGame game, int delta) throws SlickException
 	{
-		// Process events and stop processing if modal.
-		if(eventQueue.update(gc, delta))
-			return;
-
 		// Update the current widget
 		Widget.underMouse().update(delta);
 

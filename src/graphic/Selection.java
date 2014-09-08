@@ -36,7 +36,10 @@ public class Selection
 	
 	public static void set(Object o)
 	{
-		Object old = selected;
+		if(o == selected)
+            return;
+
+        Object old = selected;
 		selected = o;
 		System.out.println("selection changed: " + (old == null ? "null" : old.toString()) + " --> " + (o == null ? "null" : o.toString()));
 		for(Observer obs: observers)

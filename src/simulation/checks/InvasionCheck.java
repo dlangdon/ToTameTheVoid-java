@@ -2,8 +2,6 @@ package simulation.checks;
 
 import java.util.List;
 
-import simulation.GameEvent;
-import simulation.StarCheck;
 import state.Colony;
 import empire.Empire;
 import state.Fleet;
@@ -15,20 +13,19 @@ import state.Star;
  * In case of multiple invading fleets, the most powerful one wins.
  * @author Daniel Langdon
  */
-public class InvasionCheck implements StarCheck
+public class InvasionCheck
 {
-	@Override
-	public GameEvent check(Star location)
+	public void check(Star location)
 	{
 		// If there is no colony, nothing to invade.
 		Colony colony = location.getPlaceable(Colony.class);
 		if(colony == null)
-			return null;
+			return;
 
 		// Check if no fleets at all, or my own fleet in orbit protecting!
 		List<Fleet> fleets = location.getFleets();
 		if(fleets.isEmpty() || fleets.get(0).owner() == location.owner())
-			return null;
+			return;
 
 		// Now, collect all possible invaders.
 		// TODO for now this is trivial, invasion is FIFO and automatic.
@@ -41,6 +38,5 @@ public class InvasionCheck implements StarCheck
 				break;
 			}
 		}
-		return null;
 	}
 }

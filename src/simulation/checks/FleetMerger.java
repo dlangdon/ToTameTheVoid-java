@@ -2,9 +2,6 @@ package simulation.checks;
 
 import java.util.List;
 
-import simulation.GameEvent;
-import simulation.Simulator;
-import simulation.StarCheck;
 import state.Fleet;
 import state.Star;
 
@@ -12,10 +9,9 @@ import state.Star;
  * Analyzes potential fleet merges and performs them.
  * @author Daniel Langdon
  */
-public class FleetMerger implements StarCheck
+public class FleetMerger
 {
-	@Override
-	public GameEvent check(Star location)
+	public void check(Star location)
 	{
 		List<Fleet> fleets = location.getFleets();
 
@@ -38,6 +34,5 @@ public class FleetMerger implements StarCheck
 				}
 			}
 		}
-		return null;
 	}
 }

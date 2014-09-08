@@ -6,10 +6,7 @@ package empire;
 import galaxy.structure.Place;
 import galaxy.structure.Placeable;
 import graphic.Render.Visibility;
-import simulation.GameEvent;
-import simulation.LaneCheck;
 import simulation.Simulator;
-import simulation.StarCheck;
 import state.Lane;
 import state.Star;
 
@@ -57,83 +54,74 @@ public class View
 	}
 
 	/**
-	 * Checks if a given star is visible by all empires.
+	 * Checks if a given star is visible (for all empires).
 	 * A star is only visible if the empire owns it or has units on it.
 	 */
-	public static StarCheck checkStarVisibility = new StarCheck()
+	public static void checkStarVisibility(Star s)
 	{
-		@Override
-		public GameEvent check(Star s)
-		{
-			for (Empire e : Empire.all())
-			{
-				View view = e.view();
-				Visibility previous = view.getRechableStars().get(s);
-				Visibility next = null;
+        for (Empire e : Empire.all())
+        {
+            View view = e.view();
+            Visibility previous = view.getRechableStars().get(s);
+            Visibility next = null;
 
-				// See if visible
-				for(Placeable p: s.allPlaceables())
-					if(p.owner() == e)
-					{
-						next = Visibility.VISIBLE;
-						break;
-					}
+            // See if visible
+            for(Placeable p: s.allPlaceables())
+                if(p.owner() == e)
+                {
+                    next = Visibility.VISIBLE;
+                    break;
+                }
 
-				// Else if it is remembered
-				if(previous == Visibility.VISIBLE && next == null)
-					next = Visibility.REMEMBERED;
+            // Else if it is remembered
+            if(previous == Visibility.VISIBLE && next == null)
+                next = Visibility.REMEMBERED;
 
-				// If there is a change in visibility ( X --> Visible or Visible --> Remembered).
-				if(previous != next && next != null)
-				{
-					view.rechableStars.put(s, next);
+            // If there is a change in visibility ( X --> Visible or Visible --> Remembered).
+            if(previous != next && next != null)
+            {
+                view.rechableStars.put(s, next);
 
-					for(Lane l: Lane.outgoingLanes(s))
-					{
-						// If a star is no longer visible, the lanes around it might also not be...
-						// They need to be checked after every star has updated visibility.
-						if(next == Visibility.REMEMBERED)
-							Simulator.instance().addLaneToCheck(l);
+                for(Lane l: Lane.outgoingLanes(s))
+                {
+                    // If a star is no longer visible, the lanes around it might also not be...
+                    // They need to be checked after every star has updated visibility.
+                    if(next == Visibility.REMEMBERED)
+                        Simulator.instance().addLaneToCheck(l);
 
-						// If a new star is visible, lanes are visible and new stars can be uncovered.
-						else
-						{
-							view.reachableLanes.put(l, Visibility.VISIBLE);
+                    // If a new star is visible, lanes are visible and new stars can be uncovered.
+                    else
+                    {
+                        view.reachableLanes.put(l, Visibility.VISIBLE);
 
-							// This might discover some stuff.
-							Star to = l.exitPoint(s);
-							if(!view.rechableStars.containsKey(to))
-								view.rechableStars.put(to, Visibility.REACHABLE);
-						}
-					}
-				}
-			}
-			// TODO Extend to a list of allies.
-			return null;
-		}
-	};
+                        // This might discover some stuff.
+                        Star to = l.exitPoint(s);
+                        if(!view.rechableStars.containsKey(to))
+                            view.rechableStars.put(to, Visibility.REACHABLE);
+                    }
+                }
+            }
+        }
+        // TODO Extend to a list of allies.
+	}
 
-	public static LaneCheck checkLaneVisibility = new LaneCheck() {
-		@Override
-		public GameEvent check(Lane l)
-		{
-			// Remember if it was visible.
-			for (Empire e : Empire.all())
-			{
-				Visibility v = Visibility.REMEMBERED;
-				if(e.view().rechableStars.get(l.from()) == Visibility.VISIBLE || e.view().rechableStars.get(l.to()) == Visibility.VISIBLE)
-					v = Visibility.VISIBLE;
-				else
-				{
-					for(Placeable p: l.allPlaceables())
-						if(p.owner() == e)
-							v = Visibility.VISIBLE;
-				}
+	public static void checkLaneVisibility(Lane l)
+    {
+        // Remember if it was visible.
+        for (Empire e : Empire.all())
+        {
+            Visibility v = Visibility.REMEMBERED;
+            if(e.view().rechableStars.get(l.from()) == Visibility.VISIBLE || e.view().rechableStars.get(l.to()) == Visibility.VISIBLE)
+                v = Visibility.VISIBLE;
+            else
+            {
+                for(Placeable p: l.allPlaceables())
+                    if(p.owner() == e)
+                        v = Visibility.VISIBLE;
+            }
 
-				if(e.view().reachableLanes.containsKey(l) || v == Visibility.VISIBLE)
-					e.view().reachableLanes.put(l, v);
-			}
-			return null;
-		}
-	};
+            if(e.view().reachableLanes.containsKey(l) || v == Visibility.VISIBLE)
+                e.view().reachableLanes.put(l, v);
+        }
+	}
 }

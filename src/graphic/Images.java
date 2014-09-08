@@ -12,7 +12,8 @@ public enum Images
 	CORNER_MENU,
 	ECONOMY_ICON,
 	POLITICAL_ICON,
-	SCIENCE_ICON;
+	SCIENCE_ICON,
+    SHIPYARD_BUILD;
 
 	private Image image;
 
@@ -29,5 +30,6 @@ public enum Images
 		ECONOMY_ICON.image = new Image("resources/economy.png");
 		POLITICAL_ICON.image = new Image("resources/empires.png");
 		SCIENCE_ICON.image = new Image("resources/science.png");
+        SHIPYARD_BUILD.image = new Image("resources/icon_ihq.png");
 	}
 }

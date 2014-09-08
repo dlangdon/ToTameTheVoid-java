@@ -456,6 +456,7 @@ public class Fleet extends Placeable
 				.append(entry.getKey().name())
                 .append(',');
 		}
+        sb.append(')');
 		return sb.toString();
 	}
 	
