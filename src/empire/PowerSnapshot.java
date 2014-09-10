@@ -19,10 +19,17 @@ public class PowerSnapshot
 	/**
 	 * Add more when newer modules are created. Eventually these can be registered by other modules instead of hardcoded.
 	 */
-	enum Category { MILITARY, ECONOMY, STARS, TOTAL };
-	private static HashMap<Category, Double> maxSeen = new HashMap<PowerSnapshot.Category, Double>();
-	private static ArrayList<PowerSnapshot> snapshots = new ArrayList<PowerSnapshot>();
+	enum Category
+   {
+      KNOWN_STARS,         // Total number of stars an empire has discovered.
+      MILITARY_MIGHT,
+      ECONOMY_SIZE,
+      STARS,
+      TOTAL
+   }
 
+   private static HashMap<Category, Double> maxSeen = new HashMap<>();
+	private static ArrayList<PowerSnapshot> snapshots = new ArrayList<>();
 	private double scores[][];
 
 	/**

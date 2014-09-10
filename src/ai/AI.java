@@ -3,11 +3,20 @@
  */
 package ai;
 
+import empire.Empire;
+
 /**
  * Basic interface for AI
  * @author Daniel Langdon
  */
-public interface AI
+public abstract class AI
 {
-	void run();
+	private Empire managed;
+
+    protected AI(Empire managed)
+    {
+        this.managed = managed;
+    }
+
+    abstract void run();
 }
