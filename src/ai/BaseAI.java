@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ai;
 
@@ -10,14 +10,16 @@ import empire.Empire;
  */
 public class BaseAI extends AI
 {
-    protected BaseAI(Empire managed)
-    {
-        super(managed);
-    }
+   protected BaseAI(Empire managed)
+   {
+      super(managed);
+   }
 
-    @Override
-    void run()
-    {
 
-    }
+
+   @Override
+   void run()
+   {
+
+   }
 }
