@@ -26,7 +26,7 @@ public class Economy
 	 */
 	public static void init()
 	{
-		causes_ = new ArrayList<String>();
+		causes_ = new ArrayList<>();
 		GROWTH = registerCause("Colony Growth");
 		PRODUCTION = registerCause("Total Production");
 	}
@@ -57,6 +57,7 @@ public class Economy
 	private float totalGrowth_;
 	private float totalMaintenance_;
 	private double bestROI_;
+   private double avgROI;
 	private float reserve_;
 	private float growthPolicy_;
 	private int returnOfInvestmentLimit_;
@@ -72,6 +73,7 @@ public class Economy
 		totalProduction_ = 0.01f;						// Initial production for turn 1
 		reserve_ = 0.1f;									// Need to start with some money, else we can't pay first's turns expenses.
 		bestROI_ = 9999;
+      avgROI = 0.0;
 		growthPolicy_ = 0.5f;
 		returnOfInvestmentLimit_ = 15;
 		onlyLocal_ = true;
@@ -134,7 +136,12 @@ public class Economy
 		return bestROI_;
 	}
 
-	public float reserve()
+   public double avgROI()
+   {
+      return avgROI;
+   }
+
+   public float reserve()
 	{
 		return reserve_;
 	}
@@ -200,7 +207,7 @@ public class Economy
 			}
 	
 			// First pass: let every system apply the policy locally.
-			TreeMap<Double, Colony> firstBets = new TreeMap<Double, Colony>();
+			TreeMap<Double, Colony> firstBets = new TreeMap<>();
 			for(Colony colony : colonies)
 			{
 				if(reminder < 1e-6)
@@ -211,7 +218,7 @@ public class Economy
 			}
 	
 			// Second pass: take the remainder and apply it, cheapest colonies first, till the money runs out.
-			TreeMap<Double, Colony> secondBets = new TreeMap<Double, Colony>();
+			TreeMap<Double, Colony> secondBets = new TreeMap<>();
 			for(Colony colony : firstBets.values())
 			{
 				if(reminder < 1e-6)
@@ -239,6 +246,7 @@ public class Economy
 		float prodCount = 0.0f;
 		totalMaintenance_ = 0.0f;
 		bestROI_ = 9999;
+      avgROI = 0.0;
 		totalInfrastructure_ = 0.0f;
 		for(Colony colony : colonies)
 		{
@@ -248,10 +256,12 @@ public class Economy
 			totalMaintenance_ += colony.maintenance();
 
 			double roi = colony.returnOfInvestment();
+         avgROI += roi;
 			if(roi < bestROI_ )
 				bestROI_ = roi;
 		}
 
+      avgROI /= colonies.size();
 		totalGrowth_ = prodCount - totalProduction_;
 		totalProduction_ = prodCount;
 	}
