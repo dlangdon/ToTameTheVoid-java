@@ -190,7 +190,7 @@ public class Game extends BasicGameState
 			Camera.instance().zoom(true, Camera.instance().getScreenCenter());
 		else if(key == Input.KEY_NEXT)
 			Camera.instance().zoom(false, Camera.instance().getScreenCenter());
-		else if(key == Input.KEY_T && Keyboard.isKeyDown(Input.KEY_LCONTROL))
+		else if(key == Input.KEY_T)
 			eventQueue.nextTurn();
 		else if(key == Input.KEY_SPACE)
 			IndexedDialog.setDisabled(true);
